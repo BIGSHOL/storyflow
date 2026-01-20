@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit)",
+      "Skill(tasks-generator)",
+      "Bash(timeout:*)",
+      "Bash(npm test:*)",
+      "Bash(ping:*)"
+    ]
+  }
+}

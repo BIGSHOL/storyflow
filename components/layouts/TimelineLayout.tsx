@@ -1,0 +1,83 @@
+import React, { memo } from 'react';
+import { Section } from '../../types';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+
+interface TimelineLayoutProps {
+  section: Section;
+}
+
+const TimelineLayout: React.FC<TimelineLayoutProps> = memo(({ section }) => {
+  const { timelineItems = [], timelineAlignment = 'alternate' } = section;
+
+  const containerStyle: React.CSSProperties = {
+    backgroundColor: section.backgroundColor || '#000000',
+    color: section.textColor || '#ffffff',
+    minHeight: section.sectionHeight || '100vh',
+  };
+
+  if (timelineItems.length === 0) {
+    return (
+      <section className="section-preview w-full flex flex-col items-center justify-center" style={containerStyle}>
+        <Clock size={48} className="mb-4 opacity-50" />
+        <p className="text-lg opacity-70">타임라인에 이벤트를 추가하세요</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="section-preview w-full py-16 px-8" style={containerStyle}>
+      {section.title && (
+        <h2 className="text-4xl font-serif font-bold text-center mb-12">{section.title}</h2>
+      )}
+      {section.description && (
+        <p className="text-lg text-center opacity-80 mb-12 max-w-2xl mx-auto">{section.description}</p>
+      )}
+
+      <div className="max-w-4xl mx-auto relative">
+        {/* 중앙 라인 */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gray-700" />
+
+        {timelineItems.map((item, index) => {
+          const isLeft = timelineAlignment === 'left' ||
+            (timelineAlignment === 'alternate' && index % 2 === 0);
+          const isRight = timelineAlignment === 'right' ||
+            (timelineAlignment === 'alternate' && index % 2 === 1);
+
+          return (
+            <div
+              key={item.id}
+              className={`relative flex items-center mb-12 ${
+                isLeft ? 'flex-row' : 'flex-row-reverse'
+              }`}
+            >
+              {/* 콘텐츠 */}
+              <div className={`w-5/12 ${isLeft ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
+                <span className="text-sm opacity-60 block mb-1">{item.date}</span>
+                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                <p className="opacity-80 text-sm">{item.description}</p>
+                {item.imageUrl && (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="mt-4 rounded-lg max-w-full"
+                    loading="lazy"
+                  />
+                )}
+              </div>
+
+              {/* 중앙 점 */}
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rounded-full border-4 border-gray-900 z-10" />
+
+              {/* 빈 공간 */}
+              <div className="w-5/12" />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+});
+
+TimelineLayout.displayName = 'TimelineLayout';
+
+export default TimelineLayout;

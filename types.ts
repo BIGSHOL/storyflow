@@ -1,0 +1,196 @@
+export enum LayoutType {
+  // 기존 레이아웃
+  HERO = 'hero',
+  SPLIT_LEFT = 'split_left',
+  SPLIT_RIGHT = 'split_right',
+  FULL_IMAGE_TEXT_OVERLAY = 'full_image_overlay',
+  SIMPLE_TEXT = 'simple_text',
+  // 신규 레이아웃 (Phase 1 MVP)
+  GALLERY = 'gallery',
+  TIMELINE = 'timeline',
+  CARDS = 'cards',
+  QUOTE = 'quote',
+  STATS = 'stats',
+  VIDEO_HERO = 'video_hero',
+}
+
+export type TextAlignment = 'left' | 'center' | 'right';
+export type TextVerticalPosition = 'top' | 'center' | 'bottom';
+export type TextHorizontalPosition = 'left' | 'center' | 'right';
+export type SectionHeight = '100vh' | '75vh' | '50vh' | 'auto';
+export type ImageFilter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'brightness' | 'contrast' | 'saturate';
+export type AnimationType = 'none' | 'fade-in' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom-in' | 'zoom-out';
+
+export interface GradientOverlay {
+  enabled: boolean;
+  startColor: string;
+  endColor: string;
+  direction: 'to-bottom' | 'to-top' | 'to-right' | 'to-left' | 'to-bottom-right' | 'to-bottom-left';
+  opacity: number;
+}
+
+export interface CTAButton {
+  enabled: boolean;
+  text: string;
+  link: string;
+  style: 'solid' | 'outline' | 'ghost';
+  color: string;
+  size: 'small' | 'medium' | 'large';
+}
+
+export interface TextShadow {
+  enabled: boolean;
+  color: string;
+  blur: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+// ========== 신규 레이아웃 데이터 타입 (Phase 1 MVP) ==========
+
+/** Gallery 레이아웃 - 이미지 그리드 */
+export interface GalleryImage {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
+export interface GallerySettings {
+  columns: 2 | 3 | 4;
+  gap: number;
+  showCaptions: boolean;
+}
+
+/** Timeline 레이아웃 - 시간순 스토리 */
+export interface TimelineItem {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+  icon?: string;
+}
+
+export type TimelineAlignment = 'alternate' | 'left' | 'right';
+
+/** Cards 레이아웃 - 카드형 나열 */
+export interface CardItem {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+  link?: string;
+}
+
+export interface CardsSettings {
+  columns: 2 | 3 | 4;
+  borderRadius: number;
+  showShadow: boolean;
+  hoverEffect: boolean;
+}
+
+/** Quote 레이아웃 - 인용문 강조 */
+export interface QuoteSettings {
+  quoteStyle: 'double' | 'single' | 'none';
+  authorPrefix: string;
+}
+
+/** Stats 레이아웃 - 숫자/통계 강조 */
+export interface StatItem {
+  id: string;
+  value: string;
+  label: string;
+  description?: string;
+  icon?: string;
+}
+
+export interface StatsSettings {
+  columns: 2 | 3 | 4;
+  animateNumbers: boolean;
+}
+
+/** Video Hero 레이아웃 - 비디오 배경 */
+export interface VideoHeroSettings {
+  autoPlay: boolean;
+  muted: boolean;
+  loop: boolean;
+  fallbackImageUrl?: string;
+}
+
+// ========== Section 인터페이스 ==========
+
+export interface Section {
+  id: string;
+  layout: LayoutType;
+  title: string;
+  description: string;
+  mediaUrl?: string;
+  mediaType: 'image' | 'video' | 'none';
+  backgroundColor?: string;
+  textColor?: string;
+  textAlignment?: TextAlignment;
+  splitRatio?: number;
+  overlayOpacity?: number;
+
+  // Typography
+  fontFamily?: string;
+  titleFontSize?: number;
+  descriptionFontSize?: number;
+  textShadow?: TextShadow;
+
+  // Text Position (9-way)
+  textVerticalPosition?: TextVerticalPosition;
+  textHorizontalPosition?: TextHorizontalPosition;
+
+  // Section Size
+  sectionHeight?: SectionHeight;
+  paddingX?: number;
+  paddingY?: number;
+
+  // Image Effects
+  imageFilter?: ImageFilter;
+  imageFilterIntensity?: number;
+
+  // Gradient Overlay
+  gradientOverlay?: GradientOverlay;
+
+  // Animation
+  animation?: AnimationType;
+  animationDuration?: number;
+  animationDelay?: number;
+
+  // CTA Button
+  ctaButton?: CTAButton;
+
+  // ========== 신규 레이아웃 전용 필드 ==========
+
+  // Gallery 레이아웃
+  galleryImages?: GalleryImage[];
+  gallerySettings?: GallerySettings;
+
+  // Timeline 레이아웃
+  timelineItems?: TimelineItem[];
+  timelineAlignment?: TimelineAlignment;
+
+  // Cards 레이아웃
+  cards?: CardItem[];
+  cardsSettings?: CardsSettings;
+
+  // Quote 레이아웃
+  quoteText?: string;
+  quoteAuthor?: string;
+  quoteSettings?: QuoteSettings;
+
+  // Stats 레이아웃
+  stats?: StatItem[];
+  statsSettings?: StatsSettings;
+
+  // Video Hero 레이아웃
+  videoUrl?: string;
+  videoHeroSettings?: VideoHeroSettings;
+}
+
+export interface ProjectState {
+  title: string;
+  sections: Section[];
+}
