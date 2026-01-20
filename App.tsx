@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { Section } from './types';
 import Editor from './components/Editor';
 import PreviewRender from './components/PreviewRender';
@@ -18,10 +18,12 @@ import Users from 'lucide-react/dist/esm/icons/users';
 import { exportToHTML } from './services/exportService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject } from './services/storageService';
 import UserMenu from './components/UserMenu';
-import ShareDialog from './components/ShareDialog';
-import CollaborationDialog from './components/CollaborationDialog';
 import { useAuth } from './hooks/useAuth';
 import { useProject } from './hooks/useProject';
+
+// 모달 컴포넌트 동적 import (bundle-dynamic-imports)
+const ShareDialog = lazy(() => import('./components/ShareDialog'));
+const CollaborationDialog = lazy(() => import('./components/CollaborationDialog'));
 
 const MAX_HISTORY = 50;
 
@@ -53,6 +55,9 @@ function App() {
     isPublic: false,
     shareId: null,
   });
+
+  // 협업자 다이얼로그 상태
+  const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
 
   // 현재 프로젝트 변경 시 공유 상태 동기화
   useEffect(() => {
@@ -331,13 +336,22 @@ function App() {
             <Save size={18} />
           </button>
           {isAuthenticated && currentProject && (
-            <button
-              onClick={() => setShowShareDialog(true)}
-              className="p-2 text-gray-400 hover:text-white transition-colors"
-              title="공유"
-            >
-              <Share2 size={18} />
-            </button>
+            <>
+              <button
+                onClick={() => setShowShareDialog(true)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="공유"
+              >
+                <Share2 size={18} />
+              </button>
+              <button
+                onClick={() => setShowCollaborationDialog(true)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="협업자 관리"
+              >
+                <Users size={18} />
+              </button>
+            </>
           )}
           <button
             onClick={handleExport}
@@ -425,19 +439,34 @@ function App() {
         </div>
       )}
 
-      {/* 공유 다이얼로그 */}
-      {currentProject && (
-        <ShareDialog
-          isOpen={showShareDialog}
-          onClose={() => setShowShareDialog(false)}
-          projectId={currentProject.id}
-          projectTitle={currentProject.title}
-          isPublic={shareStatus.isPublic}
-          shareId={shareStatus.shareId}
-          onShareStatusChange={(isPublic, shareId) => {
-            setShareStatus({ isPublic, shareId });
-          }}
-        />
+      {/* 공유 다이얼로그 (동적 로드) */}
+      {currentProject && showShareDialog && (
+        <Suspense fallback={null}>
+          <ShareDialog
+            isOpen={showShareDialog}
+            onClose={() => setShowShareDialog(false)}
+            projectId={currentProject.id}
+            projectTitle={currentProject.title}
+            isPublic={shareStatus.isPublic}
+            shareId={shareStatus.shareId}
+            onShareStatusChange={(isPublic, shareId) => {
+              setShareStatus({ isPublic, shareId });
+            }}
+          />
+        </Suspense>
+      )}
+
+      {/* 협업자 관리 다이얼로그 (동적 로드) */}
+      {currentProject && showCollaborationDialog && (
+        <Suspense fallback={null}>
+          <CollaborationDialog
+            isOpen={showCollaborationDialog}
+            onClose={() => setShowCollaborationDialog(false)}
+            projectId={currentProject.id}
+            projectTitle={currentProject.title}
+            isOwner={true}
+          />
+        </Suspense>
       )}
     </div>
   );

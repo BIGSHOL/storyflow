@@ -202,13 +202,33 @@ describe('collaborationService', () => {
 
   describe('checkPermission', () => {
     it('should return owner when user owns the project', async () => {
-      mockSelect.mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: { user_id: 'user-123' },
-            error: null,
+      // Promise.all()로 병렬 실행되므로 테이블별로 다른 응답 설정
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'projects') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { user_id: 'user-123' },
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        }
+        // collaborators
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: null,
+                  error: null,
+                }),
+              }),
+            }),
           }),
-        }),
+        };
       });
 
       const { permission, error } = await checkPermission('project-123');
@@ -227,30 +247,38 @@ describe('collaborationService', () => {
     });
 
     it('should return collaborator permission', async () => {
-      // First call for project owner check - not owner
-      // Second call for collaborator check
-      let callCount = 0;
-      mockSelect.mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockImplementation(() => {
-            callCount++;
-            if (callCount === 1) {
-              return Promise.resolve({ data: { user_id: 'other-user' }, error: null });
-            }
-            return Promise.resolve({ data: { permission: 'edit' }, error: null });
-          }),
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { permission: 'edit' },
-              error: null,
+      // 소유자가 아니고 협업자인 경우
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'projects') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { user_id: 'other-user' },
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        }
+        // collaborators
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { permission: 'edit' },
+                  error: null,
+                }),
+              }),
             }),
           }),
-        }),
+        };
       });
 
       const { permission, error } = await checkPermission('project-123');
 
-      // The mock setup is complex, but we're testing the function handles permission correctly
+      expect(permission).toBe('edit');
       expect(error).toBeNull();
     });
   });

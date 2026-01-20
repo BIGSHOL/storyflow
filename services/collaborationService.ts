@@ -7,40 +7,37 @@ export interface CollaboratorWithEmail extends Collaborator {
   email?: string;
 }
 
-// 협업자 초대
+// 협업자 초대 (async-parallel 최적화)
 export const inviteCollaborator = async (
   projectId: string,
   email: string,
   permission: Permission = 'view'
 ): Promise<{ data: Collaborator | null; error: Error | null }> => {
   try {
-    // 현재 사용자 확인
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
+    // 사용자 확인과 기존 협업자 확인을 병렬로 실행
+    const [userResult, existingResult] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase
+        .from('collaborators')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('user_id', email)
+        .single(),
+    ]);
+
+    if (!userResult.data.user) {
       throw new Error('로그인이 필요합니다.');
     }
 
-    // 이메일로 사용자 ID 조회 (auth.users는 직접 조회 불가, profiles 테이블 필요)
-    // 일단 이메일을 user_id로 저장하고 나중에 매핑
-    // 실제 구현에서는 별도의 profiles 테이블이 필요함
-
-    // 이미 초대된 사용자인지 확인
-    const { data: existing } = await supabase
-      .from('collaborators')
-      .select('*')
-      .eq('project_id', projectId)
-      .eq('user_id', email)
-      .single();
-
-    if (existing) {
+    if (existingResult.data) {
       throw new Error('이미 초대된 사용자입니다.');
     }
 
     const collaboratorData = {
       project_id: projectId,
-      user_id: email, // 실제로는 사용자 ID
+      user_id: email,
       permission,
-      invited_by: userData.user.id,
+      invited_by: userResult.data.user.id,
     };
 
     const { data, error } = await supabase
@@ -137,7 +134,7 @@ export const getCollaboratedProjects = async (): Promise<{
   }
 };
 
-// 프로젝트에 대한 사용자 권한 확인
+// 프로젝트에 대한 사용자 권한 확인 (async-parallel 최적화)
 export const checkPermission = async (
   projectId: string
 ): Promise<{ permission: Permission | 'owner' | null; error: Error | null }> => {
@@ -147,27 +144,29 @@ export const checkPermission = async (
       return { permission: null, error: null };
     }
 
-    // 프로젝트 소유자인지 확인
-    const { data: project } = await supabase
-      .from('projects')
-      .select('user_id')
-      .eq('id', projectId)
-      .single();
+    // 프로젝트 소유자 확인과 협업자 확인을 병렬로 실행
+    const [projectResult, collaboratorResult] = await Promise.all([
+      supabase
+        .from('projects')
+        .select('user_id')
+        .eq('id', projectId)
+        .single(),
+      supabase
+        .from('collaborators')
+        .select('permission')
+        .eq('project_id', projectId)
+        .eq('user_id', userData.user.id)
+        .single(),
+    ]);
 
-    if (project && (project as { user_id: string }).user_id === userData.user.id) {
+    // 소유자 확인
+    if (projectResult.data && (projectResult.data as { user_id: string }).user_id === userData.user.id) {
       return { permission: 'owner', error: null };
     }
 
     // 협업자 권한 확인
-    const { data: collaborator } = await supabase
-      .from('collaborators')
-      .select('permission')
-      .eq('project_id', projectId)
-      .eq('user_id', userData.user.id)
-      .single();
-
-    if (collaborator) {
-      return { permission: (collaborator as { permission: Permission }).permission, error: null };
+    if (collaboratorResult.data) {
+      return { permission: (collaboratorResult.data as { permission: Permission }).permission, error: null };
     }
 
     return { permission: null, error: null };

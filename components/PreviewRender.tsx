@@ -33,9 +33,10 @@ const suspenseFallback = (
   </div>
 );
 
-const PreviewRender: React.FC<PreviewRenderProps> = ({ sections, isPreviewMode = false }) => {
-  const currentYear = new Date().getFullYear();
+// 현재 연도 호이스팅 (매 렌더마다 계산 방지)
+const currentYear = new Date().getFullYear();
 
+const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewMode = false }) => {
   return (
     <div className={`w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white ${isPreviewMode ? 'scroll-smooth' : ''}`}>
       {sections.length === 0 && emptyStateElement}
@@ -52,7 +53,7 @@ const PreviewRender: React.FC<PreviewRenderProps> = ({ sections, isPreviewMode =
       )}
     </div>
   );
-};
+});
 
 const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ section, isFirst }) => {
   const [mediaError, setMediaError] = useState(false);
