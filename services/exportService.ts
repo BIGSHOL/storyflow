@@ -1,10 +1,25 @@
 import { Section, LayoutType } from '../types';
 import { GOOGLE_FONTS_URL } from '../data/constants';
 
-// 이미지 Blob URL을 Base64로 변환
-const imageToBase64 = async (blobUrl: string): Promise<string> => {
+// 이미지 URL을 Base64로 변환 (blob, http, https 모두 지원)
+const imageToBase64 = async (imageUrl: string): Promise<string> => {
   try {
-    const response = await fetch(blobUrl);
+    // 이미 Base64인 경우 그대로 반환
+    if (imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+
+    // blob URL 또는 외부 URL 처리
+    const response = await fetch(imageUrl, {
+      mode: 'cors',
+      credentials: 'omit',
+    });
+
+    if (!response.ok) {
+      console.error('이미지 fetch 실패:', response.status, imageUrl);
+      return '';
+    }
+
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -12,11 +27,16 @@ const imageToBase64 = async (blobUrl: string): Promise<string> => {
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
-  } catch {
-    console.error('이미지 변환 실패:', blobUrl);
+  } catch (error) {
+    console.error('이미지 변환 실패:', imageUrl, error);
+    // 변환 실패 시 원본 URL 반환 (외부 이미지는 그대로 사용)
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
     return '';
   }
 };
+
 
 // CSS 스타일 (내보낼 HTML에 포함)
 const CSS_STYLES = `
