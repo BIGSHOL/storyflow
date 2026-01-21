@@ -7,6 +7,7 @@ import Eye from 'lucide-react/dist/esm/icons/eye';
 import Edit3 from 'lucide-react/dist/esm/icons/edit-3';
 import Download from 'lucide-react/dist/esm/icons/download';
 import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
+import Tablet from 'lucide-react/dist/esm/icons/tablet';
 import Monitor from 'lucide-react/dist/esm/icons/monitor';
 import Save from 'lucide-react/dist/esm/icons/save';
 import FolderOpen from 'lucide-react/dist/esm/icons/folder-open';
@@ -118,7 +119,7 @@ function App() {
 
   const [sections, setSections] = useState<Section[]>([]);
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('editor');
-  const [devicePreview, setDevicePreview] = useState<'desktop' | 'mobile'>('desktop');
+  const [devicePreview, setDevicePreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -903,10 +904,25 @@ function App() {
               {viewMode === 'editor' && (
                 <>
                   <div className="flex bg-gray-800 rounded p-0.5">
-                    <button onClick={() => setDevicePreview('desktop')} className={`p-1 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                    <button
+                      onClick={() => setDevicePreview('desktop')}
+                      className={`p-1 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="데스크탑"
+                    >
                       <Monitor size={14} />
                     </button>
-                    <button onClick={() => setDevicePreview('mobile')} className={`p-1 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                    <button
+                      onClick={() => setDevicePreview('tablet')}
+                      className={`p-1 rounded ${devicePreview === 'tablet' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="태블릿"
+                    >
+                      <Tablet size={14} />
+                    </button>
+                    <button
+                      onClick={() => setDevicePreview('mobile')}
+                      className={`p-1 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="모바일"
+                    >
                       <Smartphone size={14} />
                     </button>
                   </div>
@@ -968,6 +984,8 @@ function App() {
                 <div className={`transition-all duration-500 overflow-hidden bg-black ${
                   devicePreview === 'mobile'
                     ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
+                    : devicePreview === 'tablet'
+                    ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
                     : 'w-full h-full'
                 }`}>
                   <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">
@@ -1184,10 +1202,25 @@ function App() {
               {viewMode === 'editor' && (
                 <>
                   <div className="flex bg-gray-800 rounded p-1">
-                    <button onClick={() => setDevicePreview('desktop')} className={`p-1.5 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                    <button
+                      onClick={() => setDevicePreview('desktop')}
+                      className={`p-1.5 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="데스크탑 프리뷰"
+                    >
                       <Monitor size={16} />
                     </button>
-                    <button onClick={() => setDevicePreview('mobile')} className={`p-1.5 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                    <button
+                      onClick={() => setDevicePreview('tablet')}
+                      className={`p-1.5 rounded ${devicePreview === 'tablet' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="태블릿 프리뷰"
+                    >
+                      <Tablet size={16} />
+                    </button>
+                    <button
+                      onClick={() => setDevicePreview('mobile')}
+                      className={`p-1.5 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                      title="모바일 프리뷰"
+                    >
                       <Smartphone size={16} />
                     </button>
                   </div>
@@ -1271,10 +1304,11 @@ function App() {
 
             {/* Live Canvas */}
             <div className="flex-1 bg-gray-950 flex items-center justify-center overflow-hidden relative">
-
                <div className={`transition-all duration-500 overflow-hidden bg-black ${
                  devicePreview === 'mobile'
                    ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
+                   : devicePreview === 'tablet'
+                   ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
                    : 'w-full h-full'
                }`}>
                   <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">

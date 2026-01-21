@@ -6,7 +6,9 @@
       "Bash(timeout:*)",
       "Bash(npm test:*)",
       "Bash(ping:*)",
-      "WebFetch(domain:storyflow-gilt.vercel.app)"
+      "WebFetch(domain:storyflow-gilt.vercel.app)",
+      "Bash(node:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
