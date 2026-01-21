@@ -1,28 +1,39 @@
 import { useState, useEffect } from 'react';
 
-// 헤더 아이콘들이 붙기 전에 모바일 뷰로 전환
-const MOBILE_BREAKPOINT = 1400;
-
+// 실제 모바일 디바이스에서만 모바일 뷰 사용
+// User-Agent 기반 + 터치스크린 + 작은 화면
 export const useIsMobile = (): boolean => {
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return window.innerWidth < MOBILE_BREAKPOINT;
+
+    // User-Agent로 모바일 디바이스 감지
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
+    // 터치 디바이스 + 작은 화면 (768px 이하)
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 768;
+
+    return isMobileDevice || (isTouchDevice && isSmallScreen);
   });
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth <= 768;
+
+      setIsMobile(isMobileDevice || (isTouchDevice && isSmallScreen));
     };
 
     // 초기 체크
     checkMobile();
 
-    // resize 이벤트 리스너 (즉시 반응 + debounce 최적화)
+    // resize 이벤트 리스너 (터치 디바이스에서 화면 회전 대응)
     let timeoutId: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      // 즉시 체크하여 반응성 개선
       checkMobile();
-      // debounce로 추가 체크 (성능 최적화)
       clearTimeout(timeoutId);
       timeoutId = setTimeout(checkMobile, 50);
     };
