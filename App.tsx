@@ -796,181 +796,274 @@ function App() {
   // 데스크탑 레이아웃
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
-      {/* Top Navigation Bar */}
-      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-2 sm:px-4 z-50">
-        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm sm:text-lg">S</div>
-            <span className="font-serif font-bold text-white tracking-wide hidden md:inline">StoryFlow</span>
+      {/* Top Navigation Bar - 2행 레이아웃 (작은 화면) / 1행 (큰 화면) */}
+      <nav className="border-b border-gray-800 bg-gray-900 z-50">
+        {/* 1행: 로고 + 프로젝트 + 유저메뉴 */}
+        <div className="h-12 md:h-14 flex items-center justify-between px-2 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm sm:text-lg">S</div>
+              <span className="font-serif font-bold text-white tracking-wide hidden sm:inline">StoryFlow</span>
+            </div>
+
+            {/* 프로젝트 선택 드롭다운 (로그인 시에만 표시) */}
+            {isAuthenticated && (
+              <div className="relative min-w-0" ref={projectDropdownRef}>
+                <button
+                  onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs sm:text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors max-w-[140px] sm:max-w-[200px]"
+                >
+                  <FileText size={14} className="flex-shrink-0" />
+                  <span className="truncate">
+                    {currentProject?.title || '프로젝트'}
+                  </span>
+                  <ChevronDown size={12} className={`flex-shrink-0 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showProjectDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                    {/* 프로젝트 목록 */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {projects.length === 0 ? (
+                        <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                          프로젝트가 없어요
+                        </div>
+                      ) : (
+                        projects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => handleSwitchProject(project)}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${
+                              currentProject?.id === project.id
+                                ? 'bg-indigo-600/20 text-indigo-300'
+                                : 'text-gray-300 hover:bg-gray-700'
+                            }`}
+                          >
+                            <span className="truncate flex-1">{project.title}</span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => handleRenameProject(project.id, e)}
+                                className="p-1 text-gray-500 hover:text-blue-400 transition-colors"
+                                title="이름 변경"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteProject(project.id, e)}
+                                className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                                title="삭제"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+
+                    {/* 새 프로젝트 버튼 */}
+                    <div className="border-t border-gray-700">
+                      <button
+                        onClick={handleCreateNewProject}
+                        disabled={projects.length >= MAX_PROJECTS}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${
+                          projects.length >= MAX_PROJECTS
+                            ? 'text-gray-600 cursor-not-allowed'
+                            : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
+                        }`}
+                      >
+                        <Plus size={14} />
+                        <span>새 프로젝트</span>
+                        <span className="text-gray-500 text-xs ml-auto">
+                          {projects.length}/{MAX_PROJECTS}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* 프로젝트 선택 드롭다운 (로그인 시에만 표시) */}
-          {isAuthenticated && (
-            <div className="relative min-w-0" ref={projectDropdownRef}>
+          {/* 큰 화면에서만 1행에 표시되는 중앙/우측 요소들 */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* 편집/미리보기 토글 */}
+            <div className="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-700">
               <button
-                onClick={() => setShowProjectDropdown(!showProjectDropdown)}
-                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs sm:text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors max-w-[120px] sm:max-w-[180px]"
+                onClick={() => setViewMode('editor')}
+                className={`px-3 py-1.5 rounded-md text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${viewMode === 'editor' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
               >
-                <FileText size={12} className="hidden sm:inline flex-shrink-0" />
-                <span className="truncate">
-                  {currentProject?.title || '프로젝트'}
-                </span>
-                <ChevronDown size={12} className={`flex-shrink-0 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
+                <Edit3 size={14} /> 편집
               </button>
+              <button
+                onClick={() => setViewMode('preview')}
+                className={`px-3 py-1.5 rounded-md text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${viewMode === 'preview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+              >
+                <Eye size={14} /> 미리보기
+              </button>
+            </div>
 
-              {showProjectDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-                  {/* 프로젝트 목록 */}
-                  <div className="max-h-48 overflow-y-auto">
-                    {projects.length === 0 ? (
-                      <div className="px-3 py-4 text-center text-gray-500 text-sm">
-                        프로젝트가 없어요
-                      </div>
-                    ) : (
-                      projects.map((project) => (
-                        <button
-                          key={project.id}
-                          onClick={() => handleSwitchProject(project)}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${
-                            currentProject?.id === project.id
-                              ? 'bg-indigo-600/20 text-indigo-300'
-                              : 'text-gray-300 hover:bg-gray-700'
-                          }`}
-                        >
-                          <span className="truncate flex-1">{project.title}</span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={(e) => handleRenameProject(project.id, e)}
-                              className="p-1 text-gray-500 hover:text-blue-400 transition-colors"
-                              title="이름 변경"
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button
-                              onClick={(e) => handleDeleteProject(project.id, e)}
-                              className="p-1 text-gray-500 hover:text-red-400 transition-colors"
-                              title="삭제"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-
-                  {/* 새 프로젝트 버튼 */}
-                  <div className="border-t border-gray-700">
-                    <button
-                      onClick={handleCreateNewProject}
-                      disabled={projects.length >= MAX_PROJECTS}
-                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${
-                        projects.length >= MAX_PROJECTS
-                          ? 'text-gray-600 cursor-not-allowed'
-                          : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
-                      }`}
-                    >
-                      <Plus size={14} />
-                      <span>새 프로젝트</span>
-                      <span className="text-gray-500 text-xs ml-auto">
-                        {projects.length}/{MAX_PROJECTS}
-                      </span>
+            {/* 도구 버튼들 */}
+            <div className="flex items-center gap-2">
+              {viewMode === 'editor' && (
+                <>
+                  <div className="flex bg-gray-800 rounded p-1">
+                    <button onClick={() => setDevicePreview('desktop')} className={`p-1.5 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                      <Monitor size={16} />
+                    </button>
+                    <button onClick={() => setDevicePreview('mobile')} className={`p-1.5 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
+                      <Smartphone size={16} />
                     </button>
                   </div>
-                </div>
+                  <div className="flex bg-gray-800 rounded p-1">
+                    <button
+                      onClick={handleUndo}
+                      disabled={!canUndo}
+                      className={`p-1.5 rounded ${canUndo ? 'text-gray-400 hover:text-white' : 'text-gray-600 cursor-not-allowed'}`}
+                      title="실행 취소 (Ctrl+Z)"
+                    >
+                      <Undo2 size={16} />
+                    </button>
+                    <button
+                      onClick={handleRedo}
+                      disabled={!canRedo}
+                      className={`p-1.5 rounded ${canRedo ? 'text-gray-400 hover:text-white' : 'text-gray-600 cursor-not-allowed'}`}
+                      title="다시 실행 (Ctrl+Y)"
+                    >
+                      <Redo2 size={16} />
+                    </button>
+                  </div>
+                </>
               )}
+              <button
+                onClick={handleLoad}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="불러오기"
+              >
+                <FolderOpen size={18} />
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                title={lastSaved ? `마지막 저장: ${lastSaved}` : '저장'}
+              >
+                <Save size={18} />
+              </button>
+              {isAuthenticated && currentProject && (
+                <>
+                  <button
+                    onClick={() => setShowShareDialog(true)}
+                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    title="공유"
+                  >
+                    <Share2 size={18} />
+                  </button>
+                  <button
+                    onClick={() => setShowCollaborationDialog(true)}
+                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    title="협업자 관리"
+                  >
+                    <Users size={18} />
+                  </button>
+                </>
+              )}
+              <button
+                onClick={handleExport}
+                disabled={isExporting}
+                className="bg-white text-black px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 whitespace-nowrap disabled:opacity-50"
+              >
+                <Download size={14} /> {isExporting ? '준비 중...' : '내보내기'}
+              </button>
             </div>
-          )}
+          </div>
+
+          {/* 유저 메뉴 (항상 1행 우측에 표시) */}
+          <div className="flex items-center">
+            <UserMenu />
+          </div>
         </div>
 
-        <div className="flex items-center bg-gray-800 rounded-lg p-0.5 sm:p-1 border border-gray-700 flex-shrink-0">
-           <button
-             onClick={() => setViewMode('editor')}
-             className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center gap-1 sm:gap-2 transition-colors ${viewMode === 'editor' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
-           >
-             <Edit3 size={14} /> <span className="hidden sm:inline">편집</span>
-           </button>
-           <button
-             onClick={() => setViewMode('preview')}
-             className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center gap-1 sm:gap-2 transition-colors ${viewMode === 'preview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
-           >
-             <Eye size={14} /> <span className="hidden sm:inline">미리보기</span>
-           </button>
-        </div>
+        {/* 2행: 편집 도구들 (작은 화면에서만 표시) */}
+        <div className="md:hidden h-11 flex items-center justify-between px-2 border-t border-gray-800">
+          {/* 편집/미리보기 토글 */}
+          <div className="flex items-center bg-gray-800 rounded-lg p-0.5 border border-gray-700">
+            <button
+              onClick={() => setViewMode('editor')}
+              className={`px-2.5 py-1 rounded-md text-xs flex items-center gap-1.5 whitespace-nowrap transition-colors ${viewMode === 'editor' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Edit3 size={12} /> 편집
+            </button>
+            <button
+              onClick={() => setViewMode('preview')}
+              className={`px-2.5 py-1 rounded-md text-xs flex items-center gap-1.5 whitespace-nowrap transition-colors ${viewMode === 'preview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Eye size={12} /> 미리보기
+            </button>
+          </div>
 
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          {viewMode === 'editor' && (
-            <>
-              <div className="hidden md:flex bg-gray-800 rounded p-1 mr-2">
-                <button onClick={() => setDevicePreview('desktop')} className={`p-1.5 rounded ${devicePreview === 'desktop' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
-                  <Monitor size={16} />
-                </button>
-                <button onClick={() => setDevicePreview('mobile')} className={`p-1.5 rounded ${devicePreview === 'mobile' ? 'bg-gray-600 text-white' : 'text-gray-400'}`}>
-                  <Smartphone size={16} />
-                </button>
-              </div>
-              <div className="hidden md:flex bg-gray-800 rounded p-1 mr-2">
+          {/* 도구 버튼들 */}
+          <div className="flex items-center gap-1">
+            {viewMode === 'editor' && (
+              <div className="flex bg-gray-800 rounded p-0.5">
                 <button
                   onClick={handleUndo}
                   disabled={!canUndo}
                   className={`p-1.5 rounded ${canUndo ? 'text-gray-400 hover:text-white' : 'text-gray-600 cursor-not-allowed'}`}
-                  title="실행 취소 (Ctrl+Z)"
+                  title="실행 취소"
                 >
-                  <Undo2 size={16} />
+                  <Undo2 size={14} />
                 </button>
                 <button
                   onClick={handleRedo}
                   disabled={!canRedo}
                   className={`p-1.5 rounded ${canRedo ? 'text-gray-400 hover:text-white' : 'text-gray-600 cursor-not-allowed'}`}
-                  title="다시 실행 (Ctrl+Y)"
+                  title="다시 실행"
                 >
-                  <Redo2 size={16} />
+                  <Redo2 size={14} />
                 </button>
               </div>
-            </>
-          )}
-          <button
-            onClick={handleLoad}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
-            title="불러오기"
-          >
-            <FolderOpen size={18} />
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-            title={lastSaved ? `마지막 저장: ${lastSaved}` : '저장'}
-          >
-            <Save size={18} />
-          </button>
-          {isAuthenticated && currentProject && (
-            <>
-              <button
-                onClick={() => setShowShareDialog(true)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="공유"
-              >
-                <Share2 size={18} />
-              </button>
-              <button
-                onClick={() => setShowCollaborationDialog(true)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="협업자 관리"
-              >
-                <Users size={18} />
-              </button>
-            </>
-          )}
-          <button
-            onClick={handleExport}
-            disabled={isExporting}
-            className="bg-white text-black px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            <Download size={14} /> {isExporting ? '준비 중...' : '내보내기'}
-          </button>
-          <div className="ml-2 border-l border-gray-700 pl-3">
-            <UserMenu />
+            )}
+            <button
+              onClick={handleLoad}
+              className="p-1.5 text-gray-400 hover:text-white transition-colors"
+              title="불러오기"
+            >
+              <FolderOpen size={16} />
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="p-1.5 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+              title="저장"
+            >
+              <Save size={16} />
+            </button>
+            {isAuthenticated && currentProject && (
+              <>
+                <button
+                  onClick={() => setShowShareDialog(true)}
+                  className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                  title="공유"
+                >
+                  <Share2 size={16} />
+                </button>
+                <button
+                  onClick={() => setShowCollaborationDialog(true)}
+                  className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                  title="협업자 관리"
+                >
+                  <Users size={16} />
+                </button>
+              </>
+            )}
+            <button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="bg-white text-black px-2.5 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors flex items-center gap-1 whitespace-nowrap disabled:opacity-50"
+            >
+              <Download size={12} /> 내보내기
+            </button>
           </div>
         </div>
       </nav>
