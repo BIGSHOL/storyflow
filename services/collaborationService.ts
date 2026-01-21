@@ -86,7 +86,7 @@ export const getCollaborators = async (
       .from('collaborators')
       .select(`
         *,
-        profiles:user_id (
+        profiles!user_id (
           email,
           display_name
         )
