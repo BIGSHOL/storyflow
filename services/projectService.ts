@@ -57,6 +57,9 @@ export const getProjectByShareId = async (
   }
 };
 
+// 프로젝트 개수 제한
+const MAX_PROJECTS_PER_USER = 3;
+
 // 새 프로젝트 생성
 export const createProject = async (
   title: string,
@@ -67,6 +70,18 @@ export const createProject = async (
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) {
       throw new Error('로그인이 필요합니다.');
+    }
+
+    // 현재 프로젝트 개수 확인
+    const { count, error: countError } = await supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userData.user.id);
+
+    if (countError) throw countError;
+
+    if (count !== null && count >= MAX_PROJECTS_PER_USER) {
+      throw new Error(`프로젝트는 최대 ${MAX_PROJECTS_PER_USER}개까지 만들 수 있어요.`);
     }
 
     const projectData: ProjectInsert = {

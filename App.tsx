@@ -286,7 +286,12 @@ function App() {
           setLastSaved(new Date().toLocaleTimeString());
           alert('클라우드에 저장되었어요!');
         } else {
-          // 새 프로젝트 생성
+          // 새 프로젝트 생성 - 제한 체크
+          if (projects.length >= MAX_PROJECTS) {
+            alert(`프로젝트는 최대 ${MAX_PROJECTS}개까지 만들 수 있어요. 기존 프로젝트를 삭제해주세요.`);
+            setIsSaving(false);
+            return;
+          }
           const title = prompt('프로젝트 제목을 입력하세요:', '새 프로젝트');
           if (!title) {
             setIsSaving(false);

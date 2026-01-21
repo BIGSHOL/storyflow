@@ -67,18 +67,46 @@ describe('collaborationService', () => {
 
   describe('inviteCollaborator', () => {
     it('should invite a collaborator successfully', async () => {
+      const targetUserId = 'target-user-456';
       const mockCollaborator = {
         id: 'collab-123',
         project_id: 'project-123',
-        user_id: 'test@example.com',
+        user_id: targetUserId,
         permission: 'view',
         invited_by: 'user-123',
       };
 
-      mockInsert.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: mockCollaborator, error: null }),
-        }),
+      // profiles 테이블에서 이메일로 user_id 조회, collaborators 테이블에서 기존 협업자 확인
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') {
+          return {
+            insert: mockInsert,
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { id: targetUserId }, error: null }),
+              }),
+            }),
+            update: mockUpdate,
+            delete: mockDelete,
+          };
+        }
+        // collaborators
+        return {
+          insert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: mockCollaborator, error: null }),
+            }),
+          }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: null, error: null }),
+              }),
+            }),
+          }),
+          update: mockUpdate,
+          delete: mockDelete,
+        };
       });
 
       const { data, error } = await inviteCollaborator(
@@ -87,6 +115,7 @@ describe('collaborationService', () => {
         'view'
       );
 
+      expect(mockFrom).toHaveBeenCalledWith('profiles');
       expect(mockFrom).toHaveBeenCalledWith('collaborators');
       expect(data).toEqual(mockCollaborator);
       expect(error).toBeNull();
@@ -106,16 +135,71 @@ describe('collaborationService', () => {
       expect(error?.message).toBe('로그인이 필요합니다.');
     });
 
+    it('should return error when user not found', async () => {
+      // profiles에서 사용자를 찾을 수 없는 경우
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') {
+          return {
+            insert: mockInsert,
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: null, error: null }),
+              }),
+            }),
+            update: mockUpdate,
+            delete: mockDelete,
+          };
+        }
+        return {
+          insert: mockInsert,
+          select: mockSelect,
+          update: mockUpdate,
+          delete: mockDelete,
+        };
+      });
+
+      const { data, error } = await inviteCollaborator(
+        'project-123',
+        'test@example.com',
+        'view'
+      );
+
+      expect(data).toBeNull();
+      expect(error?.message).toBe('해당 이메일의 사용자를 찾을 수 없어요. 먼저 StoryFlow에 가입해야 해요.');
+    });
+
     it('should return error when user already invited', async () => {
-      mockSelect.mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { id: 'existing' },
-              error: null,
+      const targetUserId = 'target-user-456';
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') {
+          return {
+            insert: mockInsert,
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { id: targetUserId }, error: null }),
+              }),
+            }),
+            update: mockUpdate,
+            delete: mockDelete,
+          };
+        }
+        // collaborators - 이미 존재하는 경우
+        return {
+          insert: mockInsert,
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { id: 'existing' },
+                  error: null,
+                }),
+              }),
             }),
           }),
-        }),
+          update: mockUpdate,
+          delete: mockDelete,
+        };
       });
 
       const { data, error } = await inviteCollaborator(
@@ -126,6 +210,39 @@ describe('collaborationService', () => {
 
       expect(data).toBeNull();
       expect(error?.message).toBe('이미 초대된 사용자입니다.');
+    });
+
+    it('should return error when trying to invite self', async () => {
+      // 본인을 초대하려는 경우
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') {
+          return {
+            insert: mockInsert,
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { id: 'user-123' }, error: null }),
+              }),
+            }),
+            update: mockUpdate,
+            delete: mockDelete,
+          };
+        }
+        return {
+          insert: mockInsert,
+          select: mockSelect,
+          update: mockUpdate,
+          delete: mockDelete,
+        };
+      });
+
+      const { data, error } = await inviteCollaborator(
+        'project-123',
+        'self@example.com',
+        'view'
+      );
+
+      expect(data).toBeNull();
+      expect(error?.message).toBe('본인을 협업자로 초대할 수 없어요.');
     });
   });
 
