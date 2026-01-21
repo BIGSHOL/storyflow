@@ -544,10 +544,8 @@ function App() {
     setShowProjectDropdown(false);
   }, [setCurrentProject]);
 
-  // 프로젝트 이름 변경
-  const handleRenameProject = useCallback(async (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-
+  // 프로젝트 이름 변경 (공통 로직)
+  const renameProjectById = useCallback(async (projectId: string) => {
     const projectToRename = projects.find(p => p.id === projectId);
     if (!projectToRename) return;
 
@@ -559,7 +557,6 @@ function App() {
       const { error } = await updateProjectService(projectId, { title: newTitle });
       if (error) throw error;
 
-      // 현재 프로젝트가 변경된 프로젝트인 경우 업데이트
       if (currentProject?.id === projectId) {
         await updateCurrentProject({ title: newTitle });
       }
@@ -568,7 +565,13 @@ function App() {
       console.error('프로젝트 이름 변경 실패:', err);
       alert('이름 변경에 실패했어요. 다시 시도해주세요.');
     }
-  }, [projects, currentProject, updateCurrentProject, setCurrentProject]);
+  }, [projects, currentProject, updateCurrentProject]);
+
+  // 프로젝트 이름 변경 (데스크탑 - 이벤트 핸들러)
+  const handleRenameProject = useCallback((projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    renameProjectById(projectId);
+  }, [renameProjectById]);
 
   // 프로젝트 삭제
   const handleDeleteProject = useCallback(async (projectId: string, e: React.MouseEvent) => {
@@ -630,29 +633,8 @@ function App() {
     }
   }, [sections]);
 
-  // 프로젝트 이름 변경 핸들러 (모바일용)
-  const handleRenameProjectMobile = useCallback(async (projectId: string) => {
-    const projectToRename = projects.find(p => p.id === projectId);
-    if (!projectToRename) return;
-
-    const newTitle = prompt('새 프로젝트 이름을 입력하세요:', projectToRename.title);
-    if (!newTitle || newTitle === projectToRename.title) return;
-
-    try {
-      const { updateProject: updateProjectService } = await import('./services/projectService');
-      const { error } = await updateProjectService(projectId, { title: newTitle });
-      if (error) throw error;
-
-      // 현재 프로젝트가 변경된 프로젝트인 경우 업데이트
-      if (currentProject?.id === projectId) {
-        await updateCurrentProject({ title: newTitle });
-      }
-      alert('프로젝트 이름이 변경되었어요!');
-    } catch (err) {
-      console.error('프로젝트 이름 변경 실패:', err);
-      alert('이름 변경에 실패했어요. 다시 시도해주세요.');
-    }
-  }, [projects, currentProject, updateCurrentProject, setCurrentProject]);
+  // 프로젝트 이름 변경 핸들러 (모바일용 - 공통 함수 재사용)
+  const handleRenameProjectMobile = renameProjectById;
 
   // 프로젝트 삭제 핸들러 (모바일용)
   const handleDeleteProjectMobile = useCallback((projectId: string) => {
