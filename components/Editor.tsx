@@ -33,6 +33,8 @@ import Video from 'lucide-react/dist/esm/icons/video';
 import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
+import { uploadMedia } from '../services/mediaService';
+import { supabase } from '../services/supabaseClient';
 
 interface EditorProps {
   sections: Section[];
@@ -84,6 +86,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const sectionsRef = useRef(sections);
   useEffect(() => { sectionsRef.current = sections; }, [sections]);
 
+  // O(1) 섹션 조회를 위한 Map (js-set-map-lookups 최적화)
+  const sectionsMapRef = useRef(new Map<string, Section>());
+  useEffect(() => {
+    sectionsMapRef.current = new Map(sections.map(s => [s.id, s]));
+  }, [sections]);
+  const getSection = useCallback((id: string) => sectionsMapRef.current.get(id), []);
+
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
   const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
@@ -91,6 +100,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const [showTemplates, setShowTemplates] = useState(false);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategoryId | 'all'>('all');
+  const [guestWarning, setGuestWarning] = useState<string | null>(null);
+
+  // 비로그인 경고 표시 (5초 후 자동 닫힘)
+  const showGuestWarning = useCallback((message: string) => {
+    setGuestWarning(message);
+    setTimeout(() => setGuestWarning(null), 5000);
+  }, []);
 
   // 아코디언 상태
   const [openAccordions, setOpenAccordions] = useState<Record<string, string[]>>({});
@@ -164,13 +180,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
 
   const deleteSection = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const section = sectionsRef.current.find(s => s.id === id);
+    const section = getSection(id);
     if (section?.mediaUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(section.mediaUrl);
     }
     setSections(prev => prev.filter(s => s.id !== id));
     setActiveSectionId(prev => prev === id ? null : prev);
-  }, [setSections]);
+  }, [setSections, getSection]);
 
   const moveSection = useCallback((index: number, direction: 'up' | 'down', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -199,56 +215,79 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       return;
     }
 
-    const currentSection = sectionsRef.current.find(s => s.id === id);
+    const currentSection = getSection(id);
     if (currentSection?.mediaUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(currentSection.mediaUrl);
     }
 
     const isVideo = file.type.startsWith('video');
+    setUploadingId(id);
 
-    if (!isVideo && needsOptimization(file)) {
-      setUploadingId(id);
-      try {
-        const originalSize = formatFileSize(file.size);
-        const options = getRecommendedOptions(file);
-        const optimizedBlob = await optimizeImage(file, options);
-        const optimizedSize = formatFileSize(optimizedBlob.size);
-        const url = URL.createObjectURL(optimizedBlob);
+    try {
+      // 로그인 여부 확인
+      const { data: userData } = await supabase.auth.getUser();
 
-        updateSection(id, {
-          mediaUrl: url,
-          mediaType: 'image'
-        });
+      let fileToUpload = file;
 
-        if (optimizedBlob.size < file.size * 0.9) {
-          console.log(`이미지 최적화: ${originalSize} → ${optimizedSize}`);
+      // 이미지 최적화 (비디오가 아닌 경우)
+      if (!isVideo && needsOptimization(file)) {
+        try {
+          const options = getRecommendedOptions(file);
+          const optimizedBlob = await optimizeImage(file, options);
+          fileToUpload = new File([optimizedBlob], file.name, { type: optimizedBlob.type });
+
+          if (optimizedBlob.size < file.size * 0.9) {
+            console.log(`이미지 최적화: ${formatFileSize(file.size)} → ${formatFileSize(optimizedBlob.size)}`);
+          }
+        } catch (error) {
+          console.error('이미지 최적화 실패, 원본 사용:', error);
         }
-      } catch (error) {
-        console.error('이미지 최적화 실패:', error);
-        const url = URL.createObjectURL(file);
-        updateSection(id, {
-          mediaUrl: url,
-          mediaType: 'image'
-        });
-      } finally {
-        setUploadingId(null);
       }
-    } else {
+
+      // 로그인한 경우 Supabase Storage에 업로드
+      if (userData.user) {
+        const { data, error } = await uploadMedia(fileToUpload);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.public_url) {
+          updateSection(id, {
+            mediaUrl: data.public_url,
+            mediaType: isVideo ? 'video' : 'image'
+          });
+          return;
+        }
+      }
+
+      // 비로그인 시 로컬 blob URL 사용 + 경고 표시
+      const url = URL.createObjectURL(fileToUpload);
+      updateSection(id, {
+        mediaUrl: url,
+        mediaType: isVideo ? 'video' : 'image'
+      });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요. 로그인 후 다시 업로드해주세요.');
+    } catch (error) {
+      console.error('파일 업로드 오류:', error);
+      // 오류 시 로컬 blob URL로 폴백
       const url = URL.createObjectURL(file);
       updateSection(id, {
         mediaUrl: url,
         mediaType: isVideo ? 'video' : 'image'
       });
+    } finally {
+      setUploadingId(null);
     }
-  }, [updateSection]);
+  }, [updateSection, showGuestWarning]);
 
   const handleMediaDelete = useCallback((id: string) => {
-    const section = sectionsRef.current.find(s => s.id === id);
+    const section = getSection(id);
     if (section?.mediaUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(section.mediaUrl);
     }
     updateSection(id, { mediaUrl: '', mediaType: 'none' });
-  }, [updateSection]);
+  }, [updateSection, getSection]);
 
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLElement>, id: string) => {
     e.preventDefault();
@@ -268,40 +307,63 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       return;
     }
 
-    const currentSection = sectionsRef.current.find(s => s.id === id);
+    const currentSection = getSection(id);
     if (currentSection?.mediaUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(currentSection.mediaUrl);
     }
 
     const isVideo = file.type.startsWith('video');
+    setUploadingId(id);
 
-    if (!isVideo && needsOptimization(file)) {
-      setUploadingId(id);
-      try {
-        const options = getRecommendedOptions(file);
-        const optimizedBlob = await optimizeImage(file, options);
-        const url = URL.createObjectURL(optimizedBlob);
+    try {
+      // 로그인 여부 확인
+      const { data: userData } = await supabase.auth.getUser();
 
-        updateSection(id, {
-          mediaUrl: url,
-          mediaType: 'image'
-        });
-      } catch (error) {
-        console.error('이미지 최적화 실패:', error);
-        const url = URL.createObjectURL(file);
-        updateSection(id, {
-          mediaUrl: url,
-          mediaType: 'image'
-        });
-      } finally {
-        setUploadingId(null);
+      let fileToUpload = file;
+
+      // 이미지 최적화 (비디오가 아닌 경우)
+      if (!isVideo && needsOptimization(file)) {
+        try {
+          const options = getRecommendedOptions(file);
+          const optimizedBlob = await optimizeImage(file, options);
+          fileToUpload = new File([optimizedBlob], file.name, { type: optimizedBlob.type });
+        } catch (error) {
+          console.error('이미지 최적화 실패, 원본 사용:', error);
+        }
       }
-    } else {
+
+      // 로그인한 경우 Supabase Storage에 업로드
+      if (userData.user) {
+        const { data, error } = await uploadMedia(fileToUpload);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.public_url) {
+          updateSection(id, {
+            mediaUrl: data.public_url,
+            mediaType: isVideo ? 'video' : 'image'
+          });
+          return;
+        }
+      }
+
+      // 비로그인 또는 업로드 실패 시 로컬 blob URL 사용
+      const url = URL.createObjectURL(fileToUpload);
+      updateSection(id, {
+        mediaUrl: url,
+        mediaType: isVideo ? 'video' : 'image'
+      });
+    } catch (error) {
+      console.error('파일 업로드 오류:', error);
       const url = URL.createObjectURL(file);
       updateSection(id, {
         mediaUrl: url,
         mediaType: isVideo ? 'video' : 'image'
       });
+    } finally {
+      setUploadingId(null);
     }
   }, [updateSection]);
 
@@ -554,8 +616,25 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       URL.revokeObjectURL(image.url);
     }
 
-    const url = URL.createObjectURL(file);
-    updateGalleryImage(sectionId, imageId, { url });
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data, error } = await uploadMedia(file);
+        if (!error && data?.public_url) {
+          updateGalleryImage(sectionId, imageId, { url: data.public_url });
+          return;
+        }
+      }
+
+      // 비로그인 시 blob URL 사용
+      const url = URL.createObjectURL(file);
+      updateGalleryImage(sectionId, imageId, { url });
+    } catch (error) {
+      console.error('Gallery 이미지 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateGalleryImage(sectionId, imageId, { url });
+    }
   }, [sections, updateGalleryImage]);
 
   // Card 이미지 파일 업로드
@@ -569,8 +648,25 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       URL.revokeObjectURL(card.imageUrl);
     }
 
-    const url = URL.createObjectURL(file);
-    updateCard(sectionId, cardId, { imageUrl: url });
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data, error } = await uploadMedia(file);
+        if (!error && data?.public_url) {
+          updateCard(sectionId, cardId, { imageUrl: data.public_url });
+          return;
+        }
+      }
+
+      // 비로그인 시 blob URL 사용
+      const url = URL.createObjectURL(file);
+      updateCard(sectionId, cardId, { imageUrl: url });
+    } catch (error) {
+      console.error('Card 이미지 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateCard(sectionId, cardId, { imageUrl: url });
+    }
   }, [sections, updateCard]);
 
   // Video 파일 업로드
@@ -590,8 +686,29 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       URL.revokeObjectURL(section.videoUrl);
     }
 
-    const url = URL.createObjectURL(file);
-    updateSection(sectionId, { videoUrl: url });
+    setUploadingId(sectionId);
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data, error } = await uploadMedia(file);
+        if (!error && data?.public_url) {
+          updateSection(sectionId, { videoUrl: data.public_url });
+          return;
+        }
+      }
+
+      // 비로그인 시 blob URL 사용
+      const url = URL.createObjectURL(file);
+      updateSection(sectionId, { videoUrl: url });
+    } catch (error) {
+      console.error('비디오 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateSection(sectionId, { videoUrl: url });
+    } finally {
+      setUploadingId(null);
+    }
   }, [updateSection]);
 
   return (

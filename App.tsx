@@ -17,9 +17,43 @@ import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Users from 'lucide-react/dist/esm/icons/users';
 import { exportToHTML } from './services/exportService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject } from './services/storageService';
+import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
 import { useAuth } from './hooks/useAuth';
 import { useProject } from './hooks/useProject';
+
+// blob URL을 Supabase Storage URL로 마이그레이션
+const migrateBlobUrlsToStorage = async (sections: Section[]): Promise<Section[]> => {
+  const migratedSections = await Promise.all(
+    sections.map(async (section) => {
+      // blob URL인 경우만 마이그레이션
+      if (section.mediaUrl?.startsWith('blob:')) {
+        try {
+          const response = await fetch(section.mediaUrl);
+          const blob = await response.blob();
+          const fileName = `media-${Date.now()}.${blob.type.split('/')[1] || 'jpg'}`;
+          const file = new File([blob], fileName, { type: blob.type });
+
+          const { data, error } = await uploadMedia(file);
+          if (error || !data?.public_url) {
+            console.error('미디어 마이그레이션 실패:', error);
+            return section; // 실패 시 원본 유지
+          }
+
+          // blob URL 해제
+          URL.revokeObjectURL(section.mediaUrl);
+
+          return { ...section, mediaUrl: data.public_url };
+        } catch (err) {
+          console.error('blob URL 변환 실패:', err);
+          return section;
+        }
+      }
+      return section;
+    })
+  );
+  return migratedSections;
+};
 
 // 모달 컴포넌트 동적 import (bundle-dynamic-imports)
 const ShareDialog = lazy(() => import('./components/ShareDialog'));
@@ -188,10 +222,20 @@ function App() {
     try {
       // 로그인 상태면 클라우드에 저장
       if (isAuthenticated) {
+        // blob URL을 Supabase Storage로 마이그레이션
+        const hasBlobUrls = sections.some(s => s.mediaUrl?.startsWith('blob:'));
+        let sectionsToSave = sections;
+
+        if (hasBlobUrls) {
+          sectionsToSave = await migrateBlobUrlsToStorage(sections);
+          // 마이그레이션된 섹션으로 상태 업데이트
+          setSections(sectionsToSave);
+        }
+
         if (currentProject) {
           // 기존 프로젝트 업데이트
           const { updateProject } = await import('./services/projectService');
-          const { error } = await updateProject(currentProject.id, { sections });
+          const { error } = await updateProject(currentProject.id, { sections: sectionsToSave });
           if (error) throw error;
           setLastSaved(new Date().toLocaleTimeString());
           alert('클라우드에 저장되었어요!');
@@ -202,7 +246,7 @@ function App() {
             setIsSaving(false);
             return;
           }
-          const result = await saveAsNewProject(title, sections);
+          const result = await saveAsNewProject(title, sectionsToSave);
           if (result) {
             setLastSaved(new Date().toLocaleTimeString());
             alert('클라우드에 저장되었어요!');
@@ -226,7 +270,7 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  }, [sections, isAuthenticated, currentProject, saveAsNewProject, userId]);
+  }, [sections, isAuthenticated, currentProject, saveAsNewProject, userId, setSections]);
 
   // 프로젝트 불러오기
   const handleLoad = useCallback(() => {
