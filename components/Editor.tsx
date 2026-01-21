@@ -134,49 +134,6 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     setTimeout(() => setGuestWarning(null), 5000);
   }, []);
 
-  // 키보드 단축키
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // input, textarea에서는 단축키 무시
-      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
-        return;
-      }
-
-      // 활성화된 섹션이 있을 때만 작동
-      if (activeSectionId) {
-        const currentIndex = sections.findIndex(s => s.id === activeSectionId);
-
-        // Ctrl+D: 섹션 복제
-        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-          e.preventDefault();
-          duplicateSection(activeSectionId, e as any);
-        }
-        // Ctrl+K: 섹션 삭제
-        else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-          e.preventDefault();
-          deleteSection(activeSectionId, e as any);
-        }
-        // Alt+↑: 섹션 위로 이동
-        else if (e.altKey && e.key === 'ArrowUp') {
-          e.preventDefault();
-          if (currentIndex > 0) {
-            moveSection(currentIndex, 'up', e as any);
-          }
-        }
-        // Alt+↓: 섹션 아래로 이동
-        else if (e.altKey && e.key === 'ArrowDown') {
-          e.preventDefault();
-          if (currentIndex < sections.length - 1) {
-            moveSection(currentIndex, 'down', e as any);
-          }
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSectionId, sections, duplicateSection, deleteSection, moveSection]);
-
   // 아코디언 상태
   const [openAccordions, setOpenAccordions] = useState<Record<string, string[]>>({});
 
@@ -288,6 +245,49 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       return newSections;
     });
   }, [setSections]);
+
+  // 키보드 단축키
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // input, textarea에서는 단축키 무시
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // 활성화된 섹션이 있을 때만 작동
+      if (activeSectionId) {
+        const currentIndex = sections.findIndex(s => s.id === activeSectionId);
+
+        // Ctrl+D: 섹션 복제
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+          e.preventDefault();
+          duplicateSection(activeSectionId, e as any);
+        }
+        // Ctrl+K: 섹션 삭제
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          deleteSection(activeSectionId, e as any);
+        }
+        // Alt+↑: 섹션 위로 이동
+        else if (e.altKey && e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentIndex > 0) {
+            moveSection(currentIndex, 'up', e as any);
+          }
+        }
+        // Alt+↓: 섹션 아래로 이동
+        else if (e.altKey && e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentIndex < sections.length - 1) {
+            moveSection(currentIndex, 'down', e as any);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSectionId, sections, duplicateSection, deleteSection, moveSection]);
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const file = e.target.files?.[0];
