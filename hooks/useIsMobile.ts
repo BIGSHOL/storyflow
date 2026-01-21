@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 768;
+// 헤더가 2줄로 넘어가기 전에 모바일 뷰로 전환 (1024px -> 더 큰 브레이크포인트)
+const MOBILE_BREAKPOINT = 1024;
 
 export const useIsMobile = (): boolean => {
   const [isMobile, setIsMobile] = useState(() => {
