@@ -25,6 +25,9 @@ import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
 import { useAuth } from './hooks/useAuth';
 import { useProject } from './hooks/useProject';
+import { useIsMobile } from './hooks/useIsMobile';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import MobileLayout from './components/MobileLayout';
 
 // blob URL을 Supabase Storage URL로 마이그레이션
 const migrateBlobUrlsToStorage = async (sections: Section[]): Promise<Section[]> => {
@@ -69,10 +72,12 @@ function App() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject, removeProject } = useProject();
   const userId = user?.id ?? null;
+  const isMobile = useIsMobile();
 
   const [sections, setSections] = useState<Section[]>([]);
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('editor');
   const [devicePreview, setDevicePreview] = useState<'desktop' | 'mobile'>('desktop');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
@@ -438,6 +443,93 @@ function App() {
     }
   }, [sections]);
 
+  // 프로젝트 삭제 핸들러 (모바일용)
+  const handleDeleteProjectMobile = useCallback((projectId: string) => {
+    const projectToDelete = projects.find(p => p.id === projectId);
+    if (!projectToDelete) return;
+
+    const confirmDelete = window.confirm(
+      `"${projectToDelete.title}" 프로젝트를 삭제하시겠어요?\n\n이 작업은 되돌릴 수 없어요.`
+    );
+    if (!confirmDelete) return;
+
+    removeProject(projectId);
+
+    if (currentProject?.id === projectId) {
+      const remainingProjects = projects.filter(p => p.id !== projectId);
+      if (remainingProjects.length > 0) {
+        setCurrentProject(remainingProjects[0]);
+      } else {
+        setCurrentProject(null);
+        setSections([]);
+        historyRef.current = [[]];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
+      }
+    }
+  }, [projects, currentProject, removeProject, setCurrentProject]);
+
+  // 모바일 레이아웃 렌더링
+  if (isMobile) {
+    return (
+      <>
+        <MobileLayout
+          sections={sections}
+          setSections={handleSetSections}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          isAuthenticated={isAuthenticated}
+          currentProject={currentProject}
+          projects={projects}
+          onSave={handleSave}
+          onExport={handleExport}
+          onCreateProject={handleCreateNewProject}
+          onSwitchProject={handleSwitchProject}
+          onDeleteProject={handleDeleteProjectMobile}
+          isSaving={isSaving}
+          isExporting={isExporting}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          maxProjects={MAX_PROJECTS}
+          userId={userId}
+          shareStatus={shareStatus}
+          onShareStatusChange={(isPublic, shareId) => setShareStatus({ isPublic, shareId })}
+        />
+
+        {/* 프로젝트 복구 모달 */}
+        {showRecoveryModal && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[200]">
+            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+              <h3 className="text-lg font-bold text-white mb-2">프로젝트 복구</h3>
+              <p className="text-gray-300 mb-6">
+                이전에 작업하던 프로젝트가 있어요.<br />
+                <span className="text-gray-500 text-sm">({pendingRecoveryData?.length || 0}개 섹션)</span>
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleRecoveryCancel}
+                  className="flex-1 px-4 py-2.5 bg-gray-800 text-gray-300 rounded-lg"
+                >
+                  새로 시작
+                </button>
+                <button
+                  onClick={handleRecoveryConfirm}
+                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium"
+                >
+                  불러오기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // 데스크탑 레이아웃
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* Top Navigation Bar */}

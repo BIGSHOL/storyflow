@@ -30,6 +30,8 @@ import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import Quote from 'lucide-react/dist/esm/icons/quote';
 import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
 import Video from 'lucide-react/dist/esm/icons/video';
+import Link from 'lucide-react/dist/esm/icons/link';
+import Upload from 'lucide-react/dist/esm/icons/upload';
 import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
@@ -102,6 +104,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategoryId | 'all'>('all');
   const [guestWarning, setGuestWarning] = useState<string | null>(null);
+
+  // URL 입력 모드 상태
+  const [urlInputMode, setUrlInputMode] = useState<Record<string, boolean>>({});
+  const [urlInputValue, setUrlInputValue] = useState<Record<string, string>>({});
 
   // 비로그인 경고 표시 (5초 후 자동 닫힘)
   const showGuestWarning = useCallback((message: string) => {
@@ -289,6 +295,46 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     }
     updateSection(id, { mediaUrl: '', mediaType: 'none' });
   }, [updateSection, getSection]);
+
+  // URL 입력 모드 토글
+  const toggleUrlInputMode = useCallback((id: string) => {
+    setUrlInputMode(prev => ({ ...prev, [id]: !prev[id] }));
+  }, []);
+
+  // URL로 미디어 추가
+  const handleUrlSubmit = useCallback((id: string) => {
+    const url = urlInputValue[id]?.trim();
+    if (!url) {
+      alert('URL을 입력해주세요.');
+      return;
+    }
+
+    // 기본적인 URL 유효성 검사
+    try {
+      new URL(url);
+    } catch {
+      alert('올바른 URL 형식이 아니에요.');
+      return;
+    }
+
+    // 기존 blob URL 해제
+    const section = getSection(id);
+    if (section?.mediaUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(section.mediaUrl);
+    }
+
+    // 비디오 확장자 체크
+    const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+
+    updateSection(id, {
+      mediaUrl: url,
+      mediaType: isVideo ? 'video' : 'image',
+    });
+
+    // 입력 필드 초기화 및 모드 종료
+    setUrlInputValue(prev => ({ ...prev, [id]: '' }));
+    setUrlInputMode(prev => ({ ...prev, [id]: false }));
+  }, [urlInputValue, getSection, updateSection]);
 
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLElement>, id: string) => {
     e.preventDefault();
@@ -1936,31 +1982,86 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                             </div>
                           </div>
                         ) : (
-                          <label className={`w-full h-32 flex flex-col items-center justify-center bg-gray-900 border border-dashed rounded cursor-pointer transition-all ${dragOverSectionId === section.id
-                            ? 'border-blue-500 border-2 bg-blue-500/10 scale-[1.02]'
-                            : uploadingId === section.id
-                              ? 'border-purple-500 bg-purple-500/10'
-                              : 'border-gray-600 hover:border-gray-400 hover:bg-gray-800'
-                            }`}>
-                            {uploadingId === section.id ? (
-                              <>
-                                <Loader2 className="text-purple-400 mb-2 animate-spin" size={24} />
-                                <span className="text-sm text-purple-400 font-medium">이미지 최적화 중...</span>
-                              </>
-                            ) : dragOverSectionId === section.id ? (
-                              <>
-                                <ImageIcon className="text-blue-400 mb-2" size={24} />
-                                <span className="text-sm text-blue-400 font-medium">여기에 놓으세요</span>
-                              </>
+                          <div className="space-y-2">
+                            {/* 업로드/URL 탭 */}
+                            <div className="flex bg-gray-800 rounded-lg p-0.5">
+                              <button
+                                onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: false }))}
+                                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${
+                                  !urlInputMode[section.id]
+                                    ? 'bg-gray-700 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                                }`}
+                              >
+                                <Upload size={12} /> 파일 업로드
+                              </button>
+                              <button
+                                onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: true }))}
+                                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${
+                                  urlInputMode[section.id]
+                                    ? 'bg-gray-700 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                                }`}
+                              >
+                                <Link size={12} /> URL 입력
+                              </button>
+                            </div>
+
+                            {urlInputMode[section.id] ? (
+                              /* URL 입력 모드 */
+                              <div className="space-y-2">
+                                <input
+                                  type="url"
+                                  value={urlInputValue[section.id] || ''}
+                                  onChange={(e) => setUrlInputValue(prev => ({ ...prev, [section.id]: e.target.value }))}
+                                  placeholder="https://example.com/image.jpg"
+                                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      handleUrlSubmit(section.id);
+                                    }
+                                  }}
+                                />
+                                <button
+                                  onClick={() => handleUrlSubmit(section.id)}
+                                  className="w-full py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-500 transition-colors"
+                                >
+                                  이미지 적용
+                                </button>
+                                <p className="text-xs text-gray-500 text-center">
+                                  웹 이미지 URL을 입력하세요
+                                </p>
+                              </div>
                             ) : (
-                              <>
-                                <ImageIcon className="text-gray-500 mb-2" size={24} />
-                                <span className="text-xs text-gray-400">이미지를 드래그하거나 클릭해서 업로드</span>
-                                <span className="text-xs text-gray-500 mt-1">PNG, JPG, GIF, MP4 (최대 50MB)</span>
-                              </>
+                              /* 파일 업로드 모드 */
+                              <label className={`w-full h-28 flex flex-col items-center justify-center bg-gray-900 border border-dashed rounded cursor-pointer transition-all ${dragOverSectionId === section.id
+                                ? 'border-blue-500 border-2 bg-blue-500/10 scale-[1.02]'
+                                : uploadingId === section.id
+                                  ? 'border-purple-500 bg-purple-500/10'
+                                  : 'border-gray-600 hover:border-gray-400 hover:bg-gray-800'
+                                }`}>
+                                {uploadingId === section.id ? (
+                                  <>
+                                    <Loader2 className="text-purple-400 mb-2 animate-spin" size={24} />
+                                    <span className="text-sm text-purple-400 font-medium">이미지 최적화 중...</span>
+                                  </>
+                                ) : dragOverSectionId === section.id ? (
+                                  <>
+                                    <ImageIcon className="text-blue-400 mb-2" size={24} />
+                                    <span className="text-sm text-blue-400 font-medium">여기에 놓으세요</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ImageIcon className="text-gray-500 mb-2" size={20} />
+                                    <span className="text-xs text-gray-400">드래그하거나 클릭해서 업로드</span>
+                                    <span className="text-xs text-gray-500 mt-1">PNG, JPG, GIF, MP4 (최대 50MB)</span>
+                                  </>
+                                )}
+                                <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} disabled={uploadingId === section.id} />
+                              </label>
                             )}
-                            <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} disabled={uploadingId === section.id} />
-                          </label>
+                          </div>
                         )}
                       </div>
                     </AccordionSection>
