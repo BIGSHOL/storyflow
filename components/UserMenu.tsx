@@ -273,7 +273,7 @@ const UserMenu: React.FC = () => {
                   </span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-3xl font-bold text-white">$0</div>
+                  <div className="text-3xl font-bold text-white">0원</div>
                   <div className="text-sm text-gray-400">영구 무료</div>
                 </div>
                 <ul className="space-y-2 text-sm">
@@ -307,8 +307,9 @@ const UserMenu: React.FC = () => {
                   <span className="text-xs text-indigo-400">곧 출시 예정</span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-3xl font-bold text-white">$9</div>
+                  <div className="text-3xl font-bold text-white">10,000원</div>
                   <div className="text-sm text-gray-400">/월</div>
+                  <div className="text-xs text-gray-500 mt-1">연간 8,000원/월 (20% 할인)</div>
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2 text-gray-300">
@@ -341,8 +342,9 @@ const UserMenu: React.FC = () => {
                   <span className="text-xs text-purple-400">곧 출시 예정</span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-3xl font-bold text-white">$29</div>
+                  <div className="text-3xl font-bold text-white">30,000원</div>
                   <div className="text-sm text-gray-400">/월</div>
+                  <div className="text-xs text-gray-500 mt-1">연간 24,000원/월 (20% 할인)</div>
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2 text-gray-300">
@@ -369,8 +371,18 @@ const UserMenu: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 text-center text-sm text-gray-400">
+            <div className="mt-6 text-center text-sm text-gray-400 space-y-1">
               <p>💡 Pro 및 Business 플랜은 2026년 상반기 출시 예정입니다.</p>
+              <p className="text-xs text-gray-500">* 부가세 별도</p>
+              <p className="text-xs">
+                문의:{' '}
+                <a
+                  href="mailto:st2000423@gmail.com"
+                  className="text-indigo-400 hover:text-indigo-300 underline transition-colors"
+                >
+                  st2000423@gmail.com
+                </a>
+              </p>
             </div>
           </div>
         </div>
