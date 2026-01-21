@@ -63,7 +63,7 @@ const MAX_HISTORY = 50;
 
 function App() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { currentProject, projects, fetchProjects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject } = useProject();
+  const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject } = useProject();
   const userId = user?.id ?? null;
 
   const [sections, setSections] = useState<Section[]>([]);
@@ -116,19 +116,17 @@ function App() {
 
   // 로그인 후 가장 최근 프로젝트 자동 로드
   useEffect(() => {
-    const loadLatestProject = async () => {
-      if (isAuthenticated && !authLoading && projects.length > 0 && !currentProject) {
-        // 가장 최근에 업데이트된 프로젝트 로드
-        const latestProject = projects.sort((a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        )[0];
-        if (latestProject) {
-          await loadProjectFromDB(latestProject.id);
-        }
+    if (isAuthenticated && !authLoading && projects.length > 0 && !currentProject) {
+      // 가장 최근에 업데이트된 프로젝트 로드 (이미 fetch된 데이터 사용)
+      const sortedProjects = [...projects].sort((a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      const latestProject = sortedProjects[0];
+      if (latestProject) {
+        setCurrentProject(latestProject);
       }
-    };
-    loadLatestProject();
-  }, [isAuthenticated, authLoading, projects, currentProject, loadProjectFromDB]);
+    }
+  }, [isAuthenticated, authLoading, projects, currentProject, setCurrentProject]);
 
   // 히스토리에 상태 추가
   const pushHistory = useCallback((newSections: Section[]) => {

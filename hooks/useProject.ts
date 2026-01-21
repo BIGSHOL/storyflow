@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { Project } from '../types/database';
 import type { Section } from '../types';
 import {
@@ -16,6 +16,7 @@ interface UseProjectReturn {
   // 상태
   projects: Project[];
   currentProject: Project | null;
+  setCurrentProject: React.Dispatch<React.SetStateAction<Project | null>>;
   loading: boolean;
   saving: boolean;
   error: string | null;
@@ -247,6 +248,7 @@ export const useProject = (): UseProjectReturn => {
   return {
     projects,
     currentProject,
+    setCurrentProject,
     loading,
     saving,
     error,
