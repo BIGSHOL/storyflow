@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// 헤더가 2줄로 넘어가기 전에 모바일 뷰로 전환
-const MOBILE_BREAKPOINT = 1200;
+// 헤더 아이콘들이 붙기 전에 모바일 뷰로 전환
+const MOBILE_BREAKPOINT = 1400;
 
 export const useIsMobile = (): boolean => {
   const [isMobile, setIsMobile] = useState(() => {

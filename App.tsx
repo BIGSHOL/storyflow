@@ -796,10 +796,8 @@ function App() {
   // 데스크탑 레이아웃
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
-      {/* Top Navigation Bar - 2행 레이아웃 (작은 화면) / 1행 (큰 화면) */}
-      <nav className="border-b border-gray-800 bg-gray-900 z-50">
-        {/* 1행: 로고 + 프로젝트 + 유저메뉴 */}
-        <div className="h-12 md:h-14 flex items-center justify-between px-2 sm:px-4">
+      {/* Top Navigation Bar */}
+      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-2 sm:px-4 z-50">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm sm:text-lg">S</div>
