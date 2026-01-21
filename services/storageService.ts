@@ -197,3 +197,19 @@ export const getLastSaveTime = (userId: string | null = null): string | null => 
     return null;
   }
 };
+
+// 익명 사용자의 저장된 프로젝트가 있는지 확인 (로그인 후 마이그레이션용)
+export const hasAnonymousSavedProject = (): boolean => {
+  return localStorage.getItem(getStorageKey(null)) !== null ||
+         localStorage.getItem(getAutoSaveKey(null)) !== null;
+};
+
+// 익명 사용자의 프로젝트 데이터 불러오기
+export const loadAnonymousProject = (): Section[] | null => {
+  return loadProject(null) || loadAutoSave(null);
+};
+
+// 익명 사용자의 저장 데이터 삭제
+export const clearAnonymousSavedProject = (): void => {
+  clearSavedProject(null);
+};

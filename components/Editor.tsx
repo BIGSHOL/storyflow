@@ -38,6 +38,24 @@ import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_H
 import { uploadMedia } from '../services/mediaService';
 import { supabase } from '../services/supabaseClient';
 
+// 레이아웃 타입을 한글로 변환
+const getLayoutName = (layout: LayoutType): string => {
+  const layoutNames: Record<LayoutType, string> = {
+    [LayoutType.HERO]: '전체화면',
+    [LayoutType.SPLIT_LEFT]: '이미지 왼쪽',
+    [LayoutType.SPLIT_RIGHT]: '이미지 오른쪽',
+    [LayoutType.FULL_IMAGE_TEXT_OVERLAY]: '배경 이미지',
+    [LayoutType.SIMPLE_TEXT]: '중앙 텍스트',
+    [LayoutType.GALLERY]: '갤러리',
+    [LayoutType.TIMELINE]: '타임라인',
+    [LayoutType.CARDS]: '카드',
+    [LayoutType.QUOTE]: '인용문',
+    [LayoutType.STATS]: '통계',
+    [LayoutType.VIDEO_HERO]: '비디오 배경',
+  };
+  return layoutNames[layout] || layout;
+};
+
 interface EditorProps {
   sections: Section[];
   setSections: React.Dispatch<React.SetStateAction<Section[]>>;
@@ -798,72 +816,80 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         </div>
       </div>
 
-      {/* 템플릿 선택 모달 */}
+      {/* 템플릿 선택 패널 */}
       {showTemplates && (
-        <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-xl max-w-lg w-full max-h-[85%] overflow-hidden border border-gray-700">
-            <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold">템플릿 선택</h3>
-                <p className="text-xs text-gray-400 mt-1">원하는 스타일로 빠르게 시작하세요</p>
-              </div>
-              <button onClick={() => setShowTemplates(false)} className="p-1 hover:text-gray-300">
-                <X size={20} />
-              </button>
+        <div className="absolute inset-0 bg-gray-900 z-50 flex flex-col">
+          {/* 헤더 */}
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
+            <div>
+              <h3 className="font-bold text-white">템플릿 선택</h3>
+              <p className="text-xs text-gray-400 mt-1">원하는 스타일로 빠르게 시작하세요</p>
             </div>
+            <button
+              onClick={() => setShowTemplates(false)}
+              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-            {/* 카테고리 탭 */}
-            <div className="flex gap-1 p-2 border-b border-gray-700 overflow-x-auto">
+          {/* 카테고리 탭 */}
+          <div className="flex gap-2 p-3 border-b border-gray-700 overflow-x-auto flex-shrink-0">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === 'all'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              전체 ({TEMPLATES.length})
+            </button>
+            {TEMPLATE_CATEGORIES.map(category => (
               <button
-                onClick={() => setSelectedCategory('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === category.id
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
               >
-                전체 ({TEMPLATES.length})
+                {category.name} ({TEMPLATES.filter(t => t.category === category.id).length})
               </button>
-              {TEMPLATE_CATEGORIES.map(category => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === category.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                >
-                  {category.name} ({TEMPLATES.filter(t => t.category === category.id).length})
-                </button>
-              ))}
-            </div>
+            ))}
+          </div>
 
-            {/* 템플릿 목록 */}
-            <div className="p-4 space-y-3 overflow-y-auto max-h-80">
+          {/* 템플릿 목록 */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-3">
               {TEMPLATES
                 .filter(t => selectedCategory === 'all' || t.category === selectedCategory)
                 .map(template => (
                   <button
                     key={template.id}
                     onClick={() => handleApplyTemplate(template)}
-                    className="w-full p-4 bg-gray-700/50 hover:bg-gray-700 rounded-lg text-left transition-colors border border-gray-600 hover:border-gray-500"
+                    className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
                   >
                     <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium">{template.name}</p>
+                      <div className="flex-1">
+                        <p className="font-medium text-white">{template.name}</p>
                         <p className="text-xs text-gray-400 mt-1">{template.description}</p>
                       </div>
-                      <span className="text-xs text-gray-500 bg-gray-600/50 px-2 py-0.5 rounded">
+                      <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
                         {template.sections.length}개 섹션
                       </span>
                     </div>
                   </button>
                 ))}
             </div>
-            <div className="p-4 border-t border-gray-700 bg-gray-800/50">
-              <p className="text-xs text-gray-500 text-center">
-                템플릿을 선택하면 현재 내용이 대체됩니다
-              </p>
-            </div>
+          </div>
+
+          {/* 푸터 */}
+          <div className="p-4 border-t border-gray-700 bg-gray-800/50 flex-shrink-0">
+            <p className="text-xs text-gray-400 text-center">
+              템플릿을 선택하면 현재 내용이 대체됩니다
+            </p>
           </div>
         </div>
       )}
@@ -896,7 +922,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
               <div className="text-gray-500 cursor-grab active:cursor-grabbing"><GripVertical size={16} /></div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{section.title || '제목 없음'}</p>
-                <p className="text-xs text-gray-500 truncate">{section.layout}</p>
+                <p className="text-xs text-gray-500 truncate">{getLayoutName(section.layout)}</p>
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={(e) => moveSection(index, 'up', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === 0}><ArrowUp size={14} /></button>

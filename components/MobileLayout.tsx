@@ -18,6 +18,7 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import Users from 'lucide-react/dist/esm/icons/users';
 import Undo2 from 'lucide-react/dist/esm/icons/undo-2';
 import Redo2 from 'lucide-react/dist/esm/icons/redo-2';
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import type { Project } from '../types/database';
 
 // bundle-dynamic-imports: 모달은 필요할 때만 로드
@@ -57,6 +58,7 @@ interface MobileLayoutProps {
   onExport: () => void;
   onCreateProject: () => void;
   onSwitchProject: (project: Project) => void;
+  onRenameProject: (id: string) => void;
   onDeleteProject: (id: string) => void;
   isSaving: boolean;
   isExporting: boolean;
@@ -82,6 +84,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   onExport,
   onCreateProject,
   onSwitchProject,
+  onRenameProject,
   onDeleteProject,
   isSaving,
   isExporting,
@@ -307,15 +310,28 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
                     }`}
                   >
                     <span className="truncate flex-1 text-left">{project.title}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteProject(project.id);
-                      }}
-                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRenameProject(project.id);
+                        }}
+                        className="p-2 text-gray-500 hover:text-blue-400 transition-colors"
+                        title="이름 변경"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteProject(project.id);
+                        }}
+                        className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                        title="삭제"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </button>
                 ))
               )}
