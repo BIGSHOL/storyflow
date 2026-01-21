@@ -37,12 +37,32 @@ const suspenseFallback = (
 const currentYear = new Date().getFullYear();
 
 const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewMode = false }) => {
+  // 스크롤 핸들러 - 첫 번째 섹션의 화살표 버튼 클릭 시
+  const handleScrollDown = () => {
+    const secondSection = document.querySelector('.section-preview:nth-child(2)');
+    if (secondSection) {
+      secondSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  };
+
+  // isPreviewMode일 때는 페이지 스크롤 사용, 에디터에서는 컨테이너 스크롤 사용
+  const containerClasses = isPreviewMode
+    ? 'w-full min-h-screen bg-black text-white'
+    : 'w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white';
+
   return (
-    <div className={`w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white ${isPreviewMode ? 'scroll-smooth' : ''}`}>
+    <div className={containerClasses}>
       {sections.length === 0 && emptyStateElement}
 
       {sections.map((section, index) => (
-        <SectionView key={section.id} section={section} isFirst={index === 0} />
+        <SectionView
+          key={section.id}
+          section={section}
+          isFirst={index === 0}
+          onScrollDown={index === 0 ? handleScrollDown : undefined}
+        />
       ))}
 
       {/* Footer / End of Story */}
@@ -55,7 +75,7 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
   );
 });
 
-const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ section, isFirst }) => {
+const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?: () => void }> = memo(({ section, isFirst, onScrollDown }) => {
   const [mediaError, setMediaError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -315,12 +335,12 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ se
           </div>
           {/* Color Overlay */}
           <div
-            className="absolute inset-0 z-[1]"
+            className="absolute inset-0 z-[1] pointer-events-none"
             style={{ backgroundColor: section.backgroundColor || '#000000', opacity: section.overlayOpacity ?? 0.4 }}
           />
           {/* Gradient Overlay */}
           {section.gradientOverlay?.enabled && (
-            <div className="absolute inset-0 z-[2]" style={getGradientOverlayStyle()} />
+            <div className="absolute inset-0 z-[2] pointer-events-none" style={getGradientOverlayStyle()} />
           )}
           <div
             className={`relative z-10 w-full max-w-5xl mx-auto flex flex-col ${getPositionClasses()}`}
@@ -330,10 +350,14 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ se
             <p className="font-light opacity-90 leading-relaxed max-w-2xl" style={descStyle}>{section.description}</p>
             <CTAButtonComponent />
           </div>
-          {isFirst && (
-            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce opacity-50 z-10">
+          {isFirst && onScrollDown && (
+            <button
+              onClick={onScrollDown}
+              className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce opacity-50 z-10 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none"
+              aria-label="아래로 스크롤"
+            >
               <ChevronDown size={32} />
-            </div>
+            </button>
           )}
         </section>
       );
@@ -403,12 +427,12 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ se
           </div>
           {/* Color Overlay */}
           <div
-            className="absolute inset-0 z-[1]"
+            className="absolute inset-0 z-[1] pointer-events-none"
             style={{ backgroundColor: section.backgroundColor || '#000000', opacity: section.overlayOpacity ?? 0.4 }}
           />
           {/* Gradient Overlay */}
           {section.gradientOverlay?.enabled && (
-            <div className="absolute inset-0 z-[2]" style={getGradientOverlayStyle()} />
+            <div className="absolute inset-0 z-[2] pointer-events-none" style={getGradientOverlayStyle()} />
           )}
           <div
             className={`relative z-10 max-w-3xl flex flex-col ${getPositionClasses()}`}

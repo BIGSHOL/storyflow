@@ -78,6 +78,7 @@ const AccordionSection: React.FC<{
 const preventDragProps = {
   onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
   onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
+  onDragStart: (e: React.DragEvent) => e.preventDefault(),
   draggable: false,
 };
 
@@ -1074,8 +1075,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                         {(['left', 'center', 'right'] as const).map((align) => (
                           <button
                             key={align}
-                            onClick={() => updateSection(section.id, { textAlignment: align as TextAlignment })}
-                            className={`flex-1 flex items-center justify-center py-1.5 rounded hover:bg-gray-700 ${section.textAlignment === align ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
+                            onClick={() => updateSection(section.id, { textHorizontalPosition: align as TextHorizontalPosition })}
+                            className={`flex-1 flex items-center justify-center py-1.5 rounded hover:bg-gray-700 ${(section.textHorizontalPosition || 'center') === align ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
                           >
                             {align === 'left' && <AlignLeft size={14} />}
                             {align === 'center' && <AlignCenter size={14} />}

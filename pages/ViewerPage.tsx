@@ -14,6 +14,18 @@ const ViewerPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // ViewerPage에서는 body 스크롤 활성화
+  useEffect(() => {
+    document.body.classList.remove('overflow-hidden');
+    document.body.style.overflow = 'auto';
+
+    return () => {
+      // 페이지 떠날 때 원래대로 복구
+      document.body.classList.add('overflow-hidden');
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   useEffect(() => {
     const fetchProject = async () => {
       if (!shareId) {
@@ -29,6 +41,8 @@ const ViewerPage: React.FC = () => {
           setError('프로젝트를 찾을 수 없어요. 링크가 만료되었거나 비공개 상태일 수 있어요.');
         } else {
           setProject(data);
+          // 탭 제목을 프로젝트 이름으로 설정
+          document.title = `${data.title} | StoryFlow`;
         }
       } catch (err) {
         setError('프로젝트를 불러오는데 실패했어요.');
@@ -40,6 +54,13 @@ const ViewerPage: React.FC = () => {
 
     fetchProject();
   }, [shareId]);
+
+  // 컴포넌트 언마운트 시 기본 제목 복원
+  useEffect(() => {
+    return () => {
+      document.title = 'StoryFlow Creator';
+    };
+  }, []);
 
   // Loading state
   if (loading) {
