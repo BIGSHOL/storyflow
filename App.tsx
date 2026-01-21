@@ -63,7 +63,7 @@ const MAX_HISTORY = 50;
 
 function App() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { currentProject, saveAsNewProject, updateCurrentProject } = useProject();
+  const { currentProject, projects, fetchProjects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject } = useProject();
   const userId = user?.id ?? null;
 
   const [sections, setSections] = useState<Section[]>([]);
@@ -94,15 +94,41 @@ function App() {
   // 협업자 다이얼로그 상태
   const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
 
-  // 현재 프로젝트 변경 시 공유 상태 동기화
+  // 현재 프로젝트 변경 시 공유 상태 동기화 및 섹션 로드
   useEffect(() => {
     if (currentProject) {
       setShareStatus({
         isPublic: currentProject.is_public,
         shareId: currentProject.share_id,
       });
+      // 프로젝트의 섹션 데이터를 에디터에 로드
+      const projectSections = (currentProject.sections as unknown as Section[]) || [];
+      if (projectSections.length > 0) {
+        setSections(projectSections);
+        // 히스토리 초기화
+        historyRef.current = [projectSections];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
+      }
     }
   }, [currentProject]);
+
+  // 로그인 후 가장 최근 프로젝트 자동 로드
+  useEffect(() => {
+    const loadLatestProject = async () => {
+      if (isAuthenticated && !authLoading && projects.length > 0 && !currentProject) {
+        // 가장 최근에 업데이트된 프로젝트 로드
+        const latestProject = projects.sort((a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        )[0];
+        if (latestProject) {
+          await loadProjectFromDB(latestProject.id);
+        }
+      }
+    };
+    loadLatestProject();
+  }, [isAuthenticated, authLoading, projects, currentProject, loadProjectFromDB]);
 
   // 히스토리에 상태 추가
   const pushHistory = useCallback((newSections: Section[]) => {
