@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Copy from 'lucide-react/dist/esm/icons/copy';
 import GripVertical from 'lucide-react/dist/esm/icons/grip-vertical';
 import ImageIcon from 'lucide-react/dist/esm/icons/image';
 import ArrowUp from 'lucide-react/dist/esm/icons/arrow-up';
@@ -133,6 +134,49 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     setTimeout(() => setGuestWarning(null), 5000);
   }, []);
 
+  // 키보드 단축키
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // input, textarea에서는 단축키 무시
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // 활성화된 섹션이 있을 때만 작동
+      if (activeSectionId) {
+        const currentIndex = sections.findIndex(s => s.id === activeSectionId);
+
+        // Ctrl+D: 섹션 복제
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+          e.preventDefault();
+          duplicateSection(activeSectionId, e as any);
+        }
+        // Ctrl+K: 섹션 삭제
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          deleteSection(activeSectionId, e as any);
+        }
+        // Alt+↑: 섹션 위로 이동
+        else if (e.altKey && e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentIndex > 0) {
+            moveSection(currentIndex, 'up', e as any);
+          }
+        }
+        // Alt+↓: 섹션 아래로 이동
+        else if (e.altKey && e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentIndex < sections.length - 1) {
+            moveSection(currentIndex, 'down', e as any);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSectionId, sections, duplicateSection, deleteSection, moveSection]);
+
   // 아코디언 상태
   const [openAccordions, setOpenAccordions] = useState<Record<string, string[]>>({});
 
@@ -222,6 +266,25 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       } else if (direction === 'down' && index < newSections.length - 1) {
         [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
       }
+      return newSections;
+    });
+  }, [setSections]);
+
+  const duplicateSection = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSections(prev => {
+      const sectionIndex = prev.findIndex(s => s.id === id);
+      if (sectionIndex === -1) return prev;
+
+      const sectionToDuplicate = prev[sectionIndex];
+      const newSection: Section = {
+        ...sectionToDuplicate,
+        id: `section-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        title: sectionToDuplicate.title + ' (복사본)',
+      };
+
+      const newSections = [...prev];
+      newSections.splice(sectionIndex + 1, 0, newSection);
       return newSections;
     });
   }, [setSections]);
@@ -939,9 +1002,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                 <p className="text-xs text-gray-500 truncate">{getLayoutName(section.layout)}</p>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={(e) => moveSection(index, 'up', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === 0}><ArrowUp size={14} /></button>
-                <button onClick={(e) => moveSection(index, 'down', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === sections.length - 1}><ArrowDown size={14} /></button>
-                <button onClick={(e) => deleteSection(section.id, e)} className="p-1 hover:text-red-400 text-gray-500"><Trash2 size={14} /></button>
+                <button onClick={(e) => moveSection(index, 'up', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === 0} title="위로 이동"><ArrowUp size={14} /></button>
+                <button onClick={(e) => moveSection(index, 'down', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === sections.length - 1} title="아래로 이동"><ArrowDown size={14} /></button>
+                <button onClick={(e) => duplicateSection(section.id, e)} className="p-1 hover:text-blue-400 text-gray-500" title="복제"><Copy size={14} /></button>
+                <button onClick={(e) => deleteSection(section.id, e)} className="p-1 hover:text-red-400 text-gray-500" title="삭제"><Trash2 size={14} /></button>
               </div>
             </div>
 
