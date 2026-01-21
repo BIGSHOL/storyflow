@@ -3,6 +3,9 @@ import type { Collaborator } from '../types/database';
 
 export type Permission = 'view' | 'edit';
 
+// 무료 티어 프로젝트당 협업자 제한
+export const MAX_COLLABORATORS_FREE = 1;
+
 export interface CollaboratorWithEmail extends Collaborator {
   email?: string;
   display_name?: string;
@@ -54,6 +57,21 @@ export const inviteCollaborator = async (
 
     if (existingData) {
       throw new Error('이미 초대된 사용자입니다.');
+    }
+
+    // 프로젝트의 현재 협업자 수 확인 (무료 티어 제한)
+    const { count, error: countError } = await supabase
+      .from('collaborators')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', projectId);
+
+    if (countError) throw countError;
+
+    if (count !== null && count >= MAX_COLLABORATORS_FREE) {
+      throw new Error(
+        `무료 플랜은 프로젝트당 최대 ${MAX_COLLABORATORS_FREE}명의 협업자만 초대할 수 있어요. ` +
+        `더 많은 협업자를 초대하려면 Pro 플랜으로 업그레이드하세요.`
+      );
     }
 
     const collaboratorData = {
@@ -246,4 +264,5 @@ export default {
   removeCollaborator,
   getCollaboratedProjects,
   checkPermission,
+  MAX_COLLABORATORS_FREE,
 };

@@ -8,13 +8,21 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import { useAuth } from '../hooks/useAuth';
 import { useStorageQuota } from '../hooks/useStorageQuota';
 import { deleteAllUserMedia } from '../services/mediaService';
+import { useProject } from '../hooks/useProject';
 
 const UserMenu: React.FC = () => {
   const { user, loading, error, signIn, logOut, isAuthenticated } = useAuth();
   const { storageInfo, formatBytes, isNearQuota, isOverQuota, refresh: refreshStorage } = useStorageQuota();
+  const { projects } = useProject();
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // MB 단위로 변환 (소수점 1자리)
+  const formatMB = (bytes: number): string => {
+    return (bytes / (1024 * 1024)).toFixed(1);
+  };
 
   // 메뉴 열릴 때 저장 용량 새로고침
   useEffect(() => {
@@ -134,86 +142,92 @@ const UserMenu: React.FC = () => {
           <div className="px-3 py-2 border-b border-gray-700">
             <div className="flex items-center justify-between mb-1">
               <p className="text-sm font-medium text-white truncate flex-1">{displayName}</p>
-              <span className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPricingModal(true);
+                }}
+                className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30 hover:bg-green-600/30 transition-colors cursor-pointer"
+                title="요금제 보기"
+              >
                 무료
-              </span>
+              </button>
             </div>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
 
-          {/* 저장 용량 표시 */}
-          {storageInfo && (
-            <div className="px-3 py-2 border-b border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <HardDrive size={14} className="text-gray-400" />
-                <span className="text-xs text-gray-400">저장 공간</span>
-              </div>
-              {/* 프로그레스 바 */}
-              <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mb-1.5">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    isOverQuota
-                      ? 'bg-red-500'
-                      : isNearQuota
-                      ? 'bg-yellow-500'
-                      : 'bg-indigo-500'
-                  }`}
-                  style={{ width: `${Math.min(100, storageInfo.percentage)}%` }}
-                />
-              </div>
-              {/* 용량 텍스트 */}
-              <div className="flex items-center justify-between">
-                <span className={`text-xs ${
-                  isOverQuota
-                    ? 'text-red-400'
-                    : isNearQuota
-                    ? 'text-yellow-400'
-                    : 'text-gray-400'
-                }`}>
-                  {formatBytes(storageInfo.used)} / {formatBytes(storageInfo.quota)}
-                </span>
-                <span className={`text-xs font-medium ${
-                  isOverQuota
-                    ? 'text-red-400'
-                    : isNearQuota
-                    ? 'text-yellow-400'
-                    : 'text-gray-400'
-                }`}>
-                  {storageInfo.percentage}%
-                </span>
-              </div>
-              {isOverQuota && (
-                <p className="text-xs text-red-400 mt-1">
-                  용량이 꽉 찼어요! 미디어를 삭제해주세요.
-                </p>
-              )}
-              {isNearQuota && !isOverQuota && (
-                <p className="text-xs text-yellow-400 mt-1">
-                  용량이 거의 다 찼어요.
-                </p>
-              )}
-              {/* 저장 공간 초기화 버튼 */}
-              {storageInfo.used > 0 && (
-                <button
-                  onClick={handleResetStorage}
-                  disabled={isDeleting}
-                  className="w-full mt-2 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
-                >
-                  {isDeleting ? (
-                    <>
-                      <Loader2 size={12} className="animate-spin" />
-                      삭제 중...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 size={12} />
-                      저장 공간 초기화
-                    </>
-                  )}
-                </button>
-              )}
+          {/* 사용량 정보 */}
+          <div className="px-3 py-2 border-b border-gray-700 space-y-2">
+            {/* 프로젝트 수 */}
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-400">프로젝트</span>
+              <span className="text-gray-300 font-medium">{projects.length} / 3</span>
             </div>
-          )}
+
+            {/* 저장 공간 */}
+            {storageInfo && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <HardDrive size={12} className="text-gray-400" />
+                    <span className="text-xs text-gray-400">저장 공간</span>
+                  </div>
+                  <span className={`text-xs font-medium ${
+                    isOverQuota
+                      ? 'text-red-400'
+                      : isNearQuota
+                      ? 'text-yellow-400'
+                      : 'text-gray-300'
+                  }`}>
+                    {formatMB(storageInfo.used)} / {formatMB(storageInfo.quota)} MB
+                  </span>
+                </div>
+                {/* 프로그레스 바 */}
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mb-1.5">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      isOverQuota
+                        ? 'bg-red-500'
+                        : isNearQuota
+                        ? 'bg-yellow-500'
+                        : 'bg-indigo-500'
+                    }`}
+                    style={{ width: `${Math.min(100, storageInfo.percentage)}%` }}
+                  />
+                </div>
+                {isOverQuota && (
+                  <p className="text-xs text-red-400 mt-1">
+                    용량이 꽉 찼어요! 미디어를 삭제해주세요.
+                  </p>
+                )}
+                {isNearQuota && !isOverQuota && (
+                  <p className="text-xs text-yellow-400 mt-1">
+                    용량이 거의 다 찼어요.
+                  </p>
+                )}
+                {/* 저장 공간 초기화 버튼 */}
+                {storageInfo.used > 0 && (
+                  <button
+                    onClick={handleResetStorage}
+                    disabled={isDeleting}
+                    className="w-full mt-2 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin" />
+                        삭제 중...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={12} />
+                        저장 공간 초기화
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => {
@@ -232,6 +246,133 @@ const UserMenu: React.FC = () => {
       {error && (
         <div className="absolute right-0 mt-2 w-64 bg-red-900/80 border border-red-700 rounded-lg p-3 text-sm text-red-200">
           {error}
+        </div>
+      )}
+
+      {/* 요금제 비교 모달 */}
+      {showPricingModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[200]" onClick={() => setShowPricingModal(false)}>
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-2xl w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">요금제</h3>
+              <button
+                onClick={() => setShowPricingModal(false)}
+                className="p-1 text-gray-400 hover:text-white transition-colors"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Free 플랜 */}
+              <div className="bg-gray-800 border-2 border-green-600/50 rounded-xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-bold text-white">Free</h4>
+                  <span className="px-2 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
+                    현재 플랜
+                  </span>
+                </div>
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-white">$0</div>
+                  <div className="text-sm text-gray-400">영구 무료</div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>프로젝트 3개</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>미디어 100MB</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>협업자 1명</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-400">
+                    <span className="text-gray-600 mt-0.5">✗</span>
+                    <span>커스텀 도메인</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-400">
+                    <span className="text-gray-600 mt-0.5">✗</span>
+                    <span>워터마크 제거</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Pro 플랜 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 opacity-60">
+                <div className="mb-4">
+                  <h4 className="text-lg font-bold text-white">Pro</h4>
+                  <span className="text-xs text-indigo-400">곧 출시 예정</span>
+                </div>
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-white">$9</div>
+                  <div className="text-sm text-gray-400">/월</div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>무제한 프로젝트</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>미디어 5GB</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>협업자 5명</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>커스텀 도메인</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>워터마크 제거</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Business 플랜 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 opacity-60">
+                <div className="mb-4">
+                  <h4 className="text-lg font-bold text-white">Business</h4>
+                  <span className="text-xs text-purple-400">곧 출시 예정</span>
+                </div>
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-white">$29</div>
+                  <div className="text-sm text-gray-400">/월</div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>무제한 프로젝트</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>미디어 50GB</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>무제한 협업자</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>우선 고객지원</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>API 접근</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center text-sm text-gray-400">
+              <p>💡 Pro 및 Business 플랜은 2026년 상반기 출시 예정입니다.</p>
+            </div>
+          </div>
         </div>
       )}
     </div>
