@@ -219,6 +219,55 @@ export const deleteMedia = async (
   }
 };
 
+// 사용자의 모든 미디어 삭제 (저장 공간 초기화)
+export const deleteAllUserMedia = async (): Promise<{
+  success: boolean;
+  deletedCount: number;
+  error: Error | null;
+}> => {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    // 1. 사용자의 모든 미디어 조회
+    const { data: mediaList, error: fetchError } = await supabase
+      .from('media')
+      .select('id, file_path')
+      .eq('user_id', userData.user.id);
+
+    if (fetchError) throw fetchError;
+
+    if (!mediaList || mediaList.length === 0) {
+      return { success: true, deletedCount: 0, error: null };
+    }
+
+    // 2. Storage에서 모든 파일 삭제
+    const filePaths = mediaList.map((m: { file_path: string }) => m.file_path);
+    const { error: storageError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .remove(filePaths);
+
+    if (storageError) {
+      console.warn('Storage 파일 삭제 일부 실패:', storageError);
+    }
+
+    // 3. DB에서 모든 미디어 레코드 삭제
+    const { error: deleteError } = await supabase
+      .from('media')
+      .delete()
+      .eq('user_id', userData.user.id);
+
+    if (deleteError) throw deleteError;
+
+    return { success: true, deletedCount: mediaList.length, error: null };
+  } catch (error) {
+    console.error('저장 공간 초기화 오류:', error);
+    return { success: false, deletedCount: 0, error: error as Error };
+  }
+};
+
 // 사용자의 미디어 목록 조회
 export const getMediaList = async (
   projectId?: string
@@ -286,6 +335,7 @@ export default {
   validateFile,
   uploadMedia,
   deleteMedia,
+  deleteAllUserMedia,
   getMediaList,
   linkMediaToProject,
   migrateBlobToStorage,

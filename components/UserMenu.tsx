@@ -1,16 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import LogOut from 'lucide-react/dist/esm/icons/log-out';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import HardDrive from 'lucide-react/dist/esm/icons/hard-drive';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import { useAuth } from '../hooks/useAuth';
 import { useStorageQuota } from '../hooks/useStorageQuota';
+import { deleteAllUserMedia } from '../services/mediaService';
 
 const UserMenu: React.FC = () => {
   const { user, loading, error, signIn, logOut, isAuthenticated } = useAuth();
   const { storageInfo, formatBytes, isNearQuota, isOverQuota, refresh: refreshStorage } = useStorageQuota();
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // 메뉴 열릴 때 저장 용량 새로고침
@@ -19,6 +22,51 @@ const UserMenu: React.FC = () => {
       refreshStorage();
     }
   }, [isOpen, isAuthenticated, refreshStorage]);
+
+  // 저장 공간 초기화
+  const handleResetStorage = useCallback(async () => {
+    if (!storageInfo || storageInfo.used === 0) {
+      alert('삭제할 미디어가 없어요.');
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `⚠️ 저장 공간 초기화\n\n` +
+      `현재 ${formatBytes(storageInfo.used)}의 미디어가 저장되어 있어요.\n` +
+      `모든 미디어 파일이 영구 삭제됩니다.\n\n` +
+      `정말 삭제하시겠어요?`
+    );
+
+    if (!confirmDelete) return;
+
+    // 이중 확인
+    const doubleConfirm = window.confirm(
+      `마지막 확인입니다.\n\n` +
+      `이 작업은 되돌릴 수 없어요.\n` +
+      `정말로 모든 미디어를 삭제하시겠어요?`
+    );
+
+    if (!doubleConfirm) return;
+
+    setIsDeleting(true);
+    try {
+      const { success, deletedCount, error: deleteError } = await deleteAllUserMedia();
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      if (success) {
+        alert(`${deletedCount}개의 미디어가 삭제되었어요.\n저장 공간이 초기화되었습니다.`);
+        refreshStorage();
+      }
+    } catch (err) {
+      console.error('저장 공간 초기화 실패:', err);
+      alert('초기화에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [storageInfo, formatBytes, refreshStorage]);
 
   // 외부 클릭 시 메뉴 닫기
   useEffect(() => {
@@ -143,6 +191,26 @@ const UserMenu: React.FC = () => {
                 <p className="text-xs text-yellow-400 mt-1">
                   용량이 거의 다 찼어요.
                 </p>
+              )}
+              {/* 저장 공간 초기화 버튼 */}
+              {storageInfo.used > 0 && (
+                <button
+                  onClick={handleResetStorage}
+                  disabled={isDeleting}
+                  className="w-full mt-2 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" />
+                      삭제 중...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={12} />
+                      저장 공간 초기화
+                    </>
+                  )}
+                </button>
               )}
             </div>
           )}
