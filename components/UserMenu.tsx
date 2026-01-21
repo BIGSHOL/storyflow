@@ -17,6 +17,7 @@ const UserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const menuRef = useRef<HTMLDivElement>(null);
 
   // MB 단위로 변환 (소수점 1자리)
@@ -261,6 +262,33 @@ const UserMenu: React.FC = () => {
               </button>
             </div>
 
+            {/* 월간/연간 토글 */}
+            <div className="flex items-center justify-center mb-6">
+              <div className="inline-flex bg-gray-800 border border-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setBillingPeriod('monthly')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    billingPeriod === 'monthly'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  월간
+                </button>
+                <button
+                  onClick={() => setBillingPeriod('yearly')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    billingPeriod === 'yearly'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  연간
+                  <span className="ml-1 text-xs text-green-400">20% 할인</span>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
               {/* Free 플랜 */}
               <div className="bg-gray-800 border-2 border-green-600/50 rounded-xl p-4 md:p-5">
@@ -305,9 +333,17 @@ const UserMenu: React.FC = () => {
                   <span className="text-xs text-indigo-400">곧 출시 예정</span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-3xl font-bold text-white">10,000원</div>
-                  <div className="text-sm text-gray-400">/월</div>
-                  <div className="text-xs text-gray-500 mt-1">연간 8,000원/월 (20% 할인)</div>
+                  <div className="text-3xl font-bold text-white">
+                    {billingPeriod === 'monthly' ? '10,000' : '8,000'}원
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    /월{billingPeriod === 'yearly' && ' (연간 결제)'}
+                  </div>
+                  {billingPeriod === 'yearly' && (
+                    <div className="text-xs text-green-400 mt-1">
+                      월간 대비 20% 할인
+                    </div>
+                  )}
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2 text-gray-300">
@@ -340,9 +376,17 @@ const UserMenu: React.FC = () => {
                   <span className="text-xs text-purple-400">곧 출시 예정</span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-3xl font-bold text-white">30,000원</div>
-                  <div className="text-sm text-gray-400">/월</div>
-                  <div className="text-xs text-gray-500 mt-1">연간 24,000원/월 (20% 할인)</div>
+                  <div className="text-3xl font-bold text-white">
+                    {billingPeriod === 'monthly' ? '30,000' : '24,000'}원
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    /월{billingPeriod === 'yearly' && ' (연간 결제)'}
+                  </div>
+                  {billingPeriod === 'yearly' && (
+                    <div className="text-xs text-green-400 mt-1">
+                      월간 대비 20% 할인
+                    </div>
+                  )}
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2 text-gray-300">
