@@ -251,10 +251,10 @@ const UserMenu: React.FC = () => {
 
       {/* 요금제 비교 모달 */}
       {showPricingModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[200]" onClick={() => setShowPricingModal(false)}>
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-2xl w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-white">요금제</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start md:items-center justify-center z-[200] overflow-y-auto" onClick={() => setShowPricingModal(false)}>
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 md:p-6 max-w-2xl w-full m-4 my-8 md:my-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4 md:mb-6 sticky top-0 bg-gray-900 pb-2">
+              <h3 className="text-lg md:text-xl font-bold text-white">요금제</h3>
               <button
                 onClick={() => setShowPricingModal(false)}
                 className="p-1 text-gray-400 hover:text-white transition-colors"
@@ -263,9 +263,9 @@ const UserMenu: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
               {/* Free 플랜 */}
-              <div className="bg-gray-800 border-2 border-green-600/50 rounded-xl p-5">
+              <div className="bg-gray-800 border-2 border-green-600/50 rounded-xl p-4 md:p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-bold text-white">Free</h4>
                   <span className="px-2 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
@@ -301,7 +301,7 @@ const UserMenu: React.FC = () => {
               </div>
 
               {/* Pro 플랜 */}
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 opacity-60">
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-5 opacity-60">
                 <div className="mb-4">
                   <h4 className="text-lg font-bold text-white">Pro</h4>
                   <span className="text-xs text-indigo-400">곧 출시 예정</span>
@@ -336,7 +336,7 @@ const UserMenu: React.FC = () => {
               </div>
 
               {/* Business 플랜 */}
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 opacity-60">
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-5 opacity-60">
                 <div className="mb-4">
                   <h4 className="text-lg font-bold text-white">Business</h4>
                   <span className="text-xs text-purple-400">곧 출시 예정</span>

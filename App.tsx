@@ -797,25 +797,25 @@ function App() {
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* Top Navigation Bar */}
-      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">S</div>
-            <span className="font-serif font-bold text-white tracking-wide hidden sm:inline">StoryFlow</span>
+      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-2 sm:px-4 z-50">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm sm:text-lg">S</div>
+            <span className="font-serif font-bold text-white tracking-wide hidden md:inline">StoryFlow</span>
           </div>
 
           {/* 프로젝트 선택 드롭다운 (로그인 시에만 표시) */}
           {isAuthenticated && (
-            <div className="relative" ref={projectDropdownRef}>
+            <div className="relative min-w-0" ref={projectDropdownRef}>
               <button
                 onClick={() => setShowProjectDropdown(!showProjectDropdown)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors max-w-[180px]"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs sm:text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors max-w-[120px] sm:max-w-[180px]"
               >
-                <FileText size={14} className="flex-shrink-0" />
+                <FileText size={12} className="hidden sm:inline flex-shrink-0" />
                 <span className="truncate">
-                  {currentProject?.title || '프로젝트 선택'}
+                  {currentProject?.title || '프로젝트'}
                 </span>
-                <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
+                <ChevronDown size={12} className={`flex-shrink-0 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
               </button>
 
               {showProjectDropdown && (
@@ -883,22 +883,22 @@ function App() {
           )}
         </div>
 
-        <div className="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-700">
-           <button 
+        <div className="flex items-center bg-gray-800 rounded-lg p-0.5 sm:p-1 border border-gray-700 flex-shrink-0">
+           <button
              onClick={() => setViewMode('editor')}
-             className={`px-3 py-1.5 rounded-md text-sm flex items-center gap-2 transition-colors ${viewMode === 'editor' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+             className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center gap-1 sm:gap-2 transition-colors ${viewMode === 'editor' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
            >
-             <Edit3 size={14} /> 편집
+             <Edit3 size={14} /> <span className="hidden sm:inline">편집</span>
            </button>
-           <button 
+           <button
              onClick={() => setViewMode('preview')}
-             className={`px-3 py-1.5 rounded-md text-sm flex items-center gap-2 transition-colors ${viewMode === 'preview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+             className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center gap-1 sm:gap-2 transition-colors ${viewMode === 'preview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
            >
-             <Eye size={14} /> 미리보기
+             <Eye size={14} /> <span className="hidden sm:inline">미리보기</span>
            </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           {viewMode === 'editor' && (
             <>
               <div className="hidden md:flex bg-gray-800 rounded p-1 mr-2">

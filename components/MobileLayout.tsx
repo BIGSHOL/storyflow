@@ -125,49 +125,49 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* 모바일 상단 바 */}
-      <nav className="h-12 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-3 z-50 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm">
+      <nav className="h-12 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-2 z-50 flex-shrink-0">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
             S
           </div>
           {/* rendering-conditional-render: 삼항 연산자 사용 */}
           {currentProject ? (
             <button
               onClick={openProjects}
-              className="flex items-center gap-1 text-sm text-gray-300 max-w-[120px]"
+              className="flex items-center gap-0.5 text-sm text-gray-300 min-w-0"
             >
-              <span className="truncate">{currentProject.title}</span>
-              <ChevronRight size={14} className="flex-shrink-0" />
+              <span className="truncate max-w-[100px]">{currentProject.title}</span>
+              <ChevronRight size={12} className="flex-shrink-0" />
             </button>
           ) : null}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 flex-shrink-0">
           {/* Undo/Redo 버튼 - rendering-conditional-render */}
           {viewMode === 'editor' ? (
-            <div className="flex items-center mr-1">
+            <div className="flex items-center">
               <button
                 onClick={onUndo}
                 disabled={!canUndo}
-                className={`p-2 rounded ${canUndo ? 'text-gray-400' : 'text-gray-700'}`}
+                className={`p-1.5 rounded ${canUndo ? 'text-gray-400' : 'text-gray-700'}`}
               >
-                <Undo2 size={18} />
+                <Undo2 size={16} />
               </button>
               <button
                 onClick={onRedo}
                 disabled={!canRedo}
-                className={`p-2 rounded ${canRedo ? 'text-gray-400' : 'text-gray-700'}`}
+                className={`p-1.5 rounded ${canRedo ? 'text-gray-400' : 'text-gray-700'}`}
               >
-                <Redo2 size={18} />
+                <Redo2 size={16} />
               </button>
             </div>
           ) : null}
           <UserMenu />
           <button
             onClick={openMenu}
-            className="p-2 text-gray-400"
+            className="p-1.5 text-gray-400"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
         </div>
       </nav>
