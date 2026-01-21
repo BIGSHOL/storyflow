@@ -77,37 +77,55 @@ export const inviteCollaborator = async (
   }
 };
 
-// 협업자 목록 조회 (profiles 조인하여 이메일 포함)
+// 협업자 목록 조회 (profiles를 별도 조회하여 안정적으로 처리)
 export const getCollaborators = async (
   projectId: string
 ): Promise<{ data: CollaboratorWithEmail[] | null; error: Error | null }> => {
   try {
-    const { data, error } = await supabase
+    // 1. 협업자 목록 조회
+    const { data: collaboratorsData, error: collabError } = await supabase
       .from('collaborators')
-      .select(`
-        *,
-        profiles!user_id (
-          email,
-          display_name
-        )
-      `)
+      .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (collabError) throw collabError;
 
-    // profiles 데이터를 펼쳐서 email, display_name 추가
-    const collaboratorsWithEmail = (data || []).map((item: Record<string, unknown>) => {
-      const profiles = item.profiles as { email?: string; display_name?: string } | null;
+    const collaborators = collaboratorsData as Collaborator[] | null;
+    if (!collaborators || collaborators.length === 0) {
+      return { data: [], error: null };
+    }
+
+    // 2. 협업자들의 user_id로 profiles 조회
+    const userIds = collaborators.map(c => c.user_id);
+    const { data: profilesData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, display_name')
+      .in('id', userIds);
+
+    if (profileError) {
+      console.warn('프로필 조회 실패, 협업자 정보만 반환:', profileError);
+    }
+
+    // 3. profiles를 Map으로 변환하여 빠른 조회
+    const profiles = profilesData as { id: string; email?: string; display_name?: string }[] | null;
+    const profileMap = new Map<string, { email?: string; display_name?: string }>();
+    (profiles || []).forEach((p) => {
+      profileMap.set(p.id, { email: p.email, display_name: p.display_name });
+    });
+
+    // 4. 협업자 데이터와 프로필 병합
+    const collaboratorsWithEmail: CollaboratorWithEmail[] = collaborators.map((item) => {
+      const profile = profileMap.get(item.user_id);
       return {
-        id: item.id as string,
-        project_id: item.project_id as string,
-        user_id: item.user_id as string,
+        id: item.id,
+        project_id: item.project_id,
+        user_id: item.user_id,
         permission: item.permission as Permission,
-        invited_by: item.invited_by as string | null,
-        created_at: item.created_at as string,
-        email: profiles?.email,
-        display_name: profiles?.display_name,
+        invited_by: item.invited_by,
+        created_at: item.created_at,
+        email: profile?.email,
+        display_name: profile?.display_name,
       };
     });
 
