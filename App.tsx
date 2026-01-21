@@ -821,7 +821,7 @@ function App() {
                   </button>
 
                   {showProjectDropdown && (
-                    <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                    <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[60] overflow-hidden">
                       <div className="max-h-48 overflow-y-auto">
                         {projects.length === 0 ? (
                           <div className="px-3 py-4 text-center text-gray-500 text-sm">프로젝트가 없어요</div>
