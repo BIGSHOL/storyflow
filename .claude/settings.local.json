@@ -5,7 +5,8 @@
       "Skill(tasks-generator)",
       "Bash(timeout:*)",
       "Bash(npm test:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "WebFetch(domain:storyflow-gilt.vercel.app)"
     ]
   }
 }

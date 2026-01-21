@@ -28,8 +28,9 @@ const CollaborationDialog = lazy(() => import('./components/CollaborationDialog'
 const MAX_HISTORY = 50;
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { currentProject, saveAsNewProject, updateCurrentProject } = useProject();
+  const userId = user?.id ?? null;
 
   const [sections, setSections] = useState<Section[]>([]);
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('editor');
@@ -140,14 +141,17 @@ function App() {
 
   // 초기 로드 시 저장된 프로젝트 확인 (커스텀 모달 사용)
   useEffect(() => {
-    if (hasSavedProject()) {
-      const saved = loadProject() || loadAutoSave();
+    // 인증 로딩이 완료된 후에만 확인
+    if (authLoading) return;
+
+    if (hasSavedProject(userId)) {
+      const saved = loadProject(userId) || loadAutoSave(userId);
       if (saved && saved.length > 0) {
         setPendingRecoveryData(saved);
         setShowRecoveryModal(true);
       }
     }
-  }, []);
+  }, [authLoading, userId]);
 
   // 복구 확인
   const handleRecoveryConfirm = useCallback(() => {
@@ -169,9 +173,9 @@ function App() {
   // 섹션 변경 시 자동 저장
   useEffect(() => {
     if (sections.length > 0) {
-      autoSave(sections);
+      autoSave(sections, userId);
     }
-  }, [sections]);
+  }, [sections, userId]);
 
   // 프로젝트 저장
   const handleSave = useCallback(async () => {
@@ -208,7 +212,7 @@ function App() {
         }
       } else {
         // 비로그인 상태면 로컬에 저장
-        const success = await saveProject(sections);
+        const success = await saveProject(sections, userId);
         if (success) {
           setLastSaved(new Date().toLocaleTimeString());
           alert('로컬에 저장되었어요! (로그인하면 클라우드에 저장됩니다)');
@@ -222,11 +226,11 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  }, [sections, isAuthenticated, currentProject, saveAsNewProject]);
+  }, [sections, isAuthenticated, currentProject, saveAsNewProject, userId]);
 
   // 프로젝트 불러오기
   const handleLoad = useCallback(() => {
-    const saved = loadProject() || loadAutoSave();
+    const saved = loadProject(userId) || loadAutoSave(userId);
     if (saved && saved.length > 0) {
       // 기존 Blob URL 해제
       sections.forEach(s => {
@@ -244,7 +248,7 @@ function App() {
     } else {
       alert('저장된 프로젝트가 없어요.');
     }
-  }, [sections]);
+  }, [sections, userId]);
 
   // HTML 내보내기 기능
   const handleExport = useCallback(async () => {

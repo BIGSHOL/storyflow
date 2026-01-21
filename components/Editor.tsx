@@ -857,14 +857,14 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                       type="text"
                       value={section.title}
                       onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold"
+                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold text-white"
                       placeholder="제목"
                     />
                     <textarea
                       value={section.description}
                       onChange={(e) => updateSection(section.id, { description: e.target.value })}
                       rows={4}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none"
+                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none text-white"
                       placeholder="내용"
                     />
                   </div>

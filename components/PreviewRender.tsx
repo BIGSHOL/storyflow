@@ -130,8 +130,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean }> = memo(({ se
 
   // Animation CSS
   const getAnimationStyle = () => {
-    if (!section.animation || section.animation === 'none' || !isVisible) {
-      return { opacity: section.animation === 'none' ? 1 : 0 };
+    // 애니메이션이 없거나 'none'이면 항상 보이도록 opacity: 1
+    if (!section.animation || section.animation === 'none') {
+      return { opacity: 1 };
+    }
+    // 애니메이션이 있지만 아직 화면에 안 보이면 opacity: 0 (애니메이션 대기)
+    if (!isVisible) {
+      return { opacity: 0 };
     }
 
     const duration = section.animationDuration || 0.8;

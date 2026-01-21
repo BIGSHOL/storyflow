@@ -1,7 +1,10 @@
 import { Section } from '../types';
 
-const STORAGE_KEY = 'storyflow_project';
-const AUTO_SAVE_KEY = 'storyflow_autosave';
+// 사용자별 스토리지 키 생성
+const getStorageKey = (userId: string | null) =>
+  `storyflow_project_${userId || 'anonymous'}`;
+const getAutoSaveKey = (userId: string | null) =>
+  `storyflow_autosave_${userId || 'anonymous'}`;
 
 // Blob URL을 Base64로 변환
 const blobUrlToBase64 = async (blobUrl: string): Promise<string> => {
@@ -50,7 +53,7 @@ interface StoredProject {
 }
 
 // 프로젝트 저장
-export const saveProject = async (sections: Section[]): Promise<boolean> => {
+export const saveProject = async (sections: Section[], userId: string | null = null): Promise<boolean> => {
   try {
     const storedSections: StoredSection[] = await Promise.all(
       sections.map(async (section) => {
@@ -73,7 +76,7 @@ export const saveProject = async (sections: Section[]): Promise<boolean> => {
       sections: storedSections,
     };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(project));
     return true;
   } catch (error) {
     console.error('프로젝트 저장 실패:', error);
@@ -82,9 +85,9 @@ export const saveProject = async (sections: Section[]): Promise<boolean> => {
 };
 
 // 프로젝트 불러오기
-export const loadProject = (): Section[] | null => {
+export const loadProject = (userId: string | null = null): Section[] | null => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(getStorageKey(userId));
     if (!data) return null;
 
     const project: StoredProject = JSON.parse(data);
@@ -110,7 +113,7 @@ export const loadProject = (): Section[] | null => {
 // 자동 저장 (throttled)
 let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
-export const autoSave = (sections: Section[]): void => {
+export const autoSave = (sections: Section[], userId: string | null = null): void => {
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout);
   }
@@ -138,7 +141,7 @@ export const autoSave = (sections: Section[]): void => {
         sections: storedSections,
       };
 
-      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(project));
+      localStorage.setItem(getAutoSaveKey(userId), JSON.stringify(project));
     } catch (error) {
       console.error('자동 저장 실패:', error);
     }
@@ -146,9 +149,9 @@ export const autoSave = (sections: Section[]): void => {
 };
 
 // 자동 저장 데이터 불러오기
-export const loadAutoSave = (): Section[] | null => {
+export const loadAutoSave = (userId: string | null = null): Section[] | null => {
   try {
-    const data = localStorage.getItem(AUTO_SAVE_KEY);
+    const data = localStorage.getItem(getAutoSaveKey(userId));
     if (!data) return null;
 
     const project: StoredProject = JSON.parse(data);
@@ -172,21 +175,21 @@ export const loadAutoSave = (): Section[] | null => {
 };
 
 // 저장된 프로젝트가 있는지 확인
-export const hasSavedProject = (): boolean => {
-  return localStorage.getItem(STORAGE_KEY) !== null ||
-         localStorage.getItem(AUTO_SAVE_KEY) !== null;
+export const hasSavedProject = (userId: string | null = null): boolean => {
+  return localStorage.getItem(getStorageKey(userId)) !== null ||
+         localStorage.getItem(getAutoSaveKey(userId)) !== null;
 };
 
 // 저장 데이터 삭제
-export const clearSavedProject = (): void => {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(AUTO_SAVE_KEY);
+export const clearSavedProject = (userId: string | null = null): void => {
+  localStorage.removeItem(getStorageKey(userId));
+  localStorage.removeItem(getAutoSaveKey(userId));
 };
 
 // 마지막 저장 시간 가져오기
-export const getLastSaveTime = (): string | null => {
+export const getLastSaveTime = (userId: string | null = null): string | null => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(AUTO_SAVE_KEY);
+    const data = localStorage.getItem(getStorageKey(userId)) || localStorage.getItem(getAutoSaveKey(userId));
     if (!data) return null;
     const project: StoredProject = JSON.parse(data);
     return project.savedAt;
