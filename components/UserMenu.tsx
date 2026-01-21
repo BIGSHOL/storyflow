@@ -115,7 +115,7 @@ const UserMenu: React.FC = () => {
   const avatarUrl = user?.user_metadata?.avatar_url;
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="relative z-[9999]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-2 py-1 text-sm text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
@@ -137,7 +137,7 @@ const UserMenu: React.FC = () => {
 
       {/* 드롭다운 메뉴 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] py-1">
+        <div className="fixed right-4 top-14 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] py-1">
           {/* 사용자 정보 */}
           <div className="px-3 py-2 border-b border-gray-700">
             <div className="flex items-center justify-between mb-1">
@@ -172,26 +172,24 @@ const UserMenu: React.FC = () => {
                     <HardDrive size={12} className="text-gray-400" />
                     <span className="text-xs text-gray-400">저장 공간</span>
                   </div>
-                  <span className={`text-xs font-medium ${
-                    isOverQuota
+                  <span className={`text-xs font-medium ${isOverQuota
                       ? 'text-red-400'
                       : isNearQuota
-                      ? 'text-yellow-400'
-                      : 'text-gray-300'
-                  }`}>
+                        ? 'text-yellow-400'
+                        : 'text-gray-300'
+                    }`}>
                     {formatMB(storageInfo.used)} / {formatMB(storageInfo.quota)} MB
                   </span>
                 </div>
                 {/* 프로그레스 바 */}
                 <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mb-1.5">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      isOverQuota
+                    className={`h-full rounded-full transition-all ${isOverQuota
                         ? 'bg-red-500'
                         : isNearQuota
-                        ? 'bg-yellow-500'
-                        : 'bg-indigo-500'
-                    }`}
+                          ? 'bg-yellow-500'
+                          : 'bg-indigo-500'
+                      }`}
                     style={{ width: `${Math.min(100, storageInfo.percentage)}%` }}
                   />
                 </div>
