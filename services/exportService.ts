@@ -703,6 +703,23 @@ export const downloadHTML = (html: string, filename: string = 'my-story.html') =
   URL.revokeObjectURL(url);
 };
 
+// blob URL이 포함된 섹션이 있는지 확인
+export const hasBlobUrls = (sections: Section[]): boolean => {
+  return sections.some(section => {
+    // 메인 미디어 URL 체크
+    if (section.mediaUrl?.startsWith('blob:')) return true;
+    if (section.videoUrl?.startsWith('blob:')) return true;
+
+    // Gallery 이미지 체크
+    if (section.galleryImages?.some(img => img.url?.startsWith('blob:'))) return true;
+
+    // Card 이미지 체크
+    if (section.cards?.some(card => card.imageUrl?.startsWith('blob:'))) return true;
+
+    return false;
+  });
+};
+
 // 내보내기 실행 (진행 상태 콜백 지원)
 export const exportToHTML = async (
   sections: Section[],

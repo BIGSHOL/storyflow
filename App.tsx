@@ -15,7 +15,7 @@ import Redo2 from 'lucide-react/dist/esm/icons/redo-2';
 import X from 'lucide-react/dist/esm/icons/x';
 import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Users from 'lucide-react/dist/esm/icons/users';
-import { exportToHTML } from './services/exportService';
+import { exportToHTML, hasBlobUrls } from './services/exportService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
@@ -299,6 +299,17 @@ function App() {
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
       return;
+    }
+
+    // blob URL 경고 (비로그인 사용자가 업로드한 미디어)
+    if (hasBlobUrls(sections)) {
+      const proceed = window.confirm(
+        '⚠️ 로그인하지 않고 업로드한 미디어가 있어요.\n\n' +
+        '이 미디어는 HTML 파일에 포함되지만, 파일 크기가 매우 커질 수 있어요.\n' +
+        '로그인 후 미디어를 다시 업로드하면 더 효율적으로 관리할 수 있어요.\n\n' +
+        '계속 내보내시겠어요?'
+      );
+      if (!proceed) return;
     }
 
     setIsExporting(true);

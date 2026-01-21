@@ -349,12 +349,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         }
       }
 
-      // 비로그인 또는 업로드 실패 시 로컬 blob URL 사용
+      // 비로그인 시 로컬 blob URL 사용 + 경고 표시
       const url = URL.createObjectURL(fileToUpload);
       updateSection(id, {
         mediaUrl: url,
         mediaType: isVideo ? 'video' : 'image'
       });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요. 로그인 후 다시 업로드해주세요.');
     } catch (error) {
       console.error('파일 업로드 오류:', error);
       const url = URL.createObjectURL(file);
@@ -365,7 +366,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     } finally {
       setUploadingId(null);
     }
-  }, [updateSection]);
+  }, [updateSection, showGuestWarning]);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLElement>, id: string) => {
     e.preventDefault();
@@ -627,15 +628,16 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         }
       }
 
-      // 비로그인 시 blob URL 사용
+      // 비로그인 시 blob URL 사용 + 경고 표시
       const url = URL.createObjectURL(file);
       updateGalleryImage(sectionId, imageId, { url });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요.');
     } catch (error) {
       console.error('Gallery 이미지 업로드 오류:', error);
       const url = URL.createObjectURL(file);
       updateGalleryImage(sectionId, imageId, { url });
     }
-  }, [sections, updateGalleryImage]);
+  }, [sections, updateGalleryImage, showGuestWarning]);
 
   // Card 이미지 파일 업로드
   const handleCardImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, cardId: string) => {
@@ -659,15 +661,16 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         }
       }
 
-      // 비로그인 시 blob URL 사용
+      // 비로그인 시 blob URL 사용 + 경고 표시
       const url = URL.createObjectURL(file);
       updateCard(sectionId, cardId, { imageUrl: url });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요.');
     } catch (error) {
       console.error('Card 이미지 업로드 오류:', error);
       const url = URL.createObjectURL(file);
       updateCard(sectionId, cardId, { imageUrl: url });
     }
-  }, [sections, updateCard]);
+  }, [sections, updateCard, showGuestWarning]);
 
   // Video 파일 업로드
   const handleVideoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
@@ -699,9 +702,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         }
       }
 
-      // 비로그인 시 blob URL 사용
+      // 비로그인 시 blob URL 사용 + 경고 표시
       const url = URL.createObjectURL(file);
       updateSection(sectionId, { videoUrl: url });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요.');
     } catch (error) {
       console.error('비디오 업로드 오류:', error);
       const url = URL.createObjectURL(file);
@@ -709,10 +713,28 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     } finally {
       setUploadingId(null);
     }
-  }, [updateSection]);
+  }, [updateSection, showGuestWarning]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-900 border-r border-gray-800 text-white">
+    <div className="w-full h-full flex flex-col bg-gray-900 border-r border-gray-800 text-white relative">
+      {/* 비로그인 경고 토스트 */}
+      {guestWarning && (
+        <div className="absolute top-4 left-4 right-4 z-50 animate-fade-in">
+          <div className="bg-amber-500/90 text-black px-4 py-3 rounded-lg shadow-lg flex items-start gap-3">
+            <span className="text-lg">⚠️</span>
+            <div className="flex-1">
+              <p className="text-sm font-medium">{guestWarning}</p>
+            </div>
+            <button
+              onClick={() => setGuestWarning(null)}
+              className="text-black/60 hover:text-black"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="p-4 border-b border-gray-800 bg-gray-900 sticky top-0 z-20">
         <div className="flex items-center justify-between">
