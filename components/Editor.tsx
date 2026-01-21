@@ -834,7 +834,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           </div>
 
           {/* 카테고리 탭 */}
-          <div className="flex gap-2 p-3 border-b border-gray-700 overflow-x-auto flex-shrink-0">
+          <div className="flex flex-wrap gap-2 p-3 border-b border-gray-700 flex-shrink-0">
             <button
               onClick={() => setSelectedCategory('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
@@ -861,7 +861,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           </div>
 
           {/* 템플릿 목록 */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 relative overflow-hidden">
+            {/* 상단 페이드 그라데이션 */}
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10"></div>
+
+            <div className="h-full overflow-y-auto p-4">
             <div className="space-y-3">
               {TEMPLATES
                 .filter(t => selectedCategory === 'all' || t.category === selectedCategory)
@@ -883,6 +887,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                   </button>
                 ))}
             </div>
+            </div>
+
+            {/* 하단 페이드 그라데이션 */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-10"></div>
           </div>
 
           {/* 푸터 */}
@@ -896,7 +904,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
 
 
       {/* Section List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
+      <div className="flex-1 relative overflow-hidden">
+        {/* 상단 페이드 그라데이션 */}
+        {sections.length > 0 && (
+          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10"></div>
+        )}
+
+        <div className="h-full overflow-y-auto p-4 space-y-3 no-scrollbar">
         {sections.length === 0 && emptyEditorStateElement}
 
         {sections.map((section, index) => (
@@ -2103,6 +2117,12 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         >
           <Plus size={16} /> 섹션 추가하기
         </button>
+        </div>
+
+        {/* 하단 페이드 그라데이션 */}
+        {sections.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-10"></div>
+        )}
       </div>
     </div>
   );
