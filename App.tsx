@@ -288,6 +288,9 @@ function App() {
     // 인증 로딩이 완료된 후에만 확인
     if (authLoading) return;
 
+    // 로그인 상태이고 클라우드 프로젝트가 있으면 localStorage 복구 모달 표시 안함
+    if (isAuthenticated && projects.length > 0) return;
+
     if (hasSavedProject(userId)) {
       const saved = loadProject(userId) || loadAutoSave(userId);
       if (saved && saved.length > 0) {
@@ -295,7 +298,7 @@ function App() {
         setShowRecoveryModal(true);
       }
     }
-  }, [authLoading, userId]);
+  }, [authLoading, userId, isAuthenticated, projects.length]);
 
   // 복구 확인
   const handleRecoveryConfirm = useCallback(() => {
