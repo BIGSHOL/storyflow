@@ -1264,8 +1264,8 @@ function App() {
       <main className="flex-1 flex overflow-hidden relative">
         {viewMode === 'editor' ? (
           <>
-            {/* Editor Sidebar */}
-            <div className="w-80 md:w-96 flex-shrink-0 h-full z-10 shadow-xl">
+            {/* Editor Sidebar - 고정 크기 */}
+            <div className="w-96 flex-shrink-0 h-full z-10 shadow-xl">
               <Editor sections={sections} setSections={handleSetSections} />
             </div>
 
