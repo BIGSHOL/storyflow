@@ -17,11 +17,14 @@ export const useIsMobile = (): boolean => {
     // 초기 체크
     checkMobile();
 
-    // resize 이벤트 리스너 (debounce 적용)
+    // resize 이벤트 리스너 (즉시 반응 + debounce 최적화)
     let timeoutId: ReturnType<typeof setTimeout>;
     const handleResize = () => {
+      // 즉시 체크하여 반응성 개선
+      checkMobile();
+      // debounce로 추가 체크 (성능 최적화)
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(checkMobile, 100);
+      timeoutId = setTimeout(checkMobile, 50);
     };
 
     window.addEventListener('resize', handleResize);
