@@ -5,7 +5,20 @@ export type Permission = 'view' | 'edit';
 
 export interface CollaboratorWithEmail extends Collaborator {
   email?: string;
+  display_name?: string;
 }
+
+// 이메일로 사용자 ID 조회
+const getUserIdByEmail = async (email: string): Promise<string | null> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email.toLowerCase().trim())
+    .single();
+
+  if (error || !data) return null;
+  return (data as { id: string }).id;
+};
 
 // 협업자 초대 (async-parallel 최적화)
 export const inviteCollaborator = async (
@@ -14,30 +27,40 @@ export const inviteCollaborator = async (
   permission: Permission = 'view'
 ): Promise<{ data: Collaborator | null; error: Error | null }> => {
   try {
-    // 사용자 확인과 기존 협업자 확인을 병렬로 실행
-    const [userResult, existingResult] = await Promise.all([
-      supabase.auth.getUser(),
-      supabase
-        .from('collaborators')
-        .select('*')
-        .eq('project_id', projectId)
-        .eq('user_id', email)
-        .single(),
-    ]);
-
-    if (!userResult.data.user) {
+    // 먼저 현재 사용자 확인
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
       throw new Error('로그인이 필요합니다.');
     }
 
-    if (existingResult.data) {
+    // 이메일로 사용자 ID 조회
+    const targetUserId = await getUserIdByEmail(email);
+    if (!targetUserId) {
+      throw new Error('해당 이메일의 사용자를 찾을 수 없어요. 먼저 StoryFlow에 가입해야 해요.');
+    }
+
+    // 본인을 초대하는지 확인
+    if (targetUserId === userData.user.id) {
+      throw new Error('본인을 협업자로 초대할 수 없어요.');
+    }
+
+    // 기존 협업자인지 확인
+    const { data: existingData } = await supabase
+      .from('collaborators')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('user_id', targetUserId)
+      .single();
+
+    if (existingData) {
       throw new Error('이미 초대된 사용자입니다.');
     }
 
     const collaboratorData = {
       project_id: projectId,
-      user_id: email,
+      user_id: targetUserId,
       permission,
-      invited_by: userResult.data.user.id,
+      invited_by: userData.user.id,
     };
 
     const { data, error } = await supabase
@@ -54,19 +77,41 @@ export const inviteCollaborator = async (
   }
 };
 
-// 협업자 목록 조회
+// 협업자 목록 조회 (profiles 조인하여 이메일 포함)
 export const getCollaborators = async (
   projectId: string
 ): Promise<{ data: CollaboratorWithEmail[] | null; error: Error | null }> => {
   try {
     const { data, error } = await supabase
       .from('collaborators')
-      .select('*')
+      .select(`
+        *,
+        profiles:user_id (
+          email,
+          display_name
+        )
+      `)
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return { data: data as CollaboratorWithEmail[], error: null };
+
+    // profiles 데이터를 펼쳐서 email, display_name 추가
+    const collaboratorsWithEmail = (data || []).map((item: Record<string, unknown>) => {
+      const profiles = item.profiles as { email?: string; display_name?: string } | null;
+      return {
+        id: item.id as string,
+        project_id: item.project_id as string,
+        user_id: item.user_id as string,
+        permission: item.permission as Permission,
+        invited_by: item.invited_by as string | null,
+        created_at: item.created_at as string,
+        email: profiles?.email,
+        display_name: profiles?.display_name,
+      };
+    });
+
+    return { data: collaboratorsWithEmail, error: null };
   } catch (error) {
     console.error('협업자 목록 조회 오류:', error);
     return { data: null, error: error as Error };

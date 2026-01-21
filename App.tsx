@@ -15,6 +15,10 @@ import Redo2 from 'lucide-react/dist/esm/icons/redo-2';
 import X from 'lucide-react/dist/esm/icons/x';
 import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Users from 'lucide-react/dist/esm/icons/users';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
 import { exportToHTML, hasBlobUrls } from './services/exportService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
@@ -63,7 +67,7 @@ const MAX_HISTORY = 50;
 
 function App() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject } = useProject();
+  const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject, removeProject } = useProject();
   const userId = user?.id ?? null;
 
   const [sections, setSections] = useState<Section[]>([]);
@@ -93,6 +97,24 @@ function App() {
 
   // 협업자 다이얼로그 상태
   const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
+
+  // 프로젝트 드롭다운 상태
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 프로젝트 개수 제한
+  const MAX_PROJECTS = 3;
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (projectDropdownRef.current && !projectDropdownRef.current.contains(event.target as Node)) {
+        setShowProjectDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // 현재 프로젝트 변경 시 공유 상태 동기화 및 섹션 로드
   useEffect(() => {
@@ -318,6 +340,69 @@ function App() {
     }
   }, [sections, userId]);
 
+  // 새 프로젝트 생성
+  const handleCreateNewProject = useCallback(async () => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    if (projects.length >= MAX_PROJECTS) {
+      alert(`프로젝트는 최대 ${MAX_PROJECTS}개까지 만들 수 있어요. 기존 프로젝트를 삭제해주세요.`);
+      return;
+    }
+
+    const title = prompt('새 프로젝트 이름을 입력하세요:', `프로젝트 ${projects.length + 1}`);
+    if (!title) return;
+
+    const newProject = await saveAsNewProject(title, []);
+    if (newProject) {
+      setCurrentProject(newProject);
+      setSections([]);
+      historyRef.current = [[]];
+      historyIndexRef.current = 0;
+      setCanUndo(false);
+      setCanRedo(false);
+      setShowProjectDropdown(false);
+    }
+  }, [isAuthenticated, projects.length, saveAsNewProject, setCurrentProject]);
+
+  // 프로젝트 전환
+  const handleSwitchProject = useCallback((project: typeof projects[0]) => {
+    setCurrentProject(project);
+    setShowProjectDropdown(false);
+  }, [setCurrentProject]);
+
+  // 프로젝트 삭제
+  const handleDeleteProject = useCallback(async (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const projectToDelete = projects.find(p => p.id === projectId);
+    if (!projectToDelete) return;
+
+    const confirmDelete = window.confirm(
+      `"${projectToDelete.title}" 프로젝트를 삭제하시겠어요?\n\n이 작업은 되돌릴 수 없어요.`
+    );
+    if (!confirmDelete) return;
+
+    await removeProject(projectId);
+
+    // 현재 프로젝트가 삭제된 경우, 다른 프로젝트로 전환하거나 초기화
+    if (currentProject?.id === projectId) {
+      const remainingProjects = projects.filter(p => p.id !== projectId);
+      if (remainingProjects.length > 0) {
+        setCurrentProject(remainingProjects[0]);
+      } else {
+        setCurrentProject(null);
+        setSections([]);
+        historyRef.current = [[]];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
+      }
+    }
+  }, [projects, currentProject, removeProject, setCurrentProject]);
+
   // HTML 내보내기 기능
   const handleExport = useCallback(async () => {
     if (sections.length === 0) {
@@ -352,9 +437,80 @@ function App() {
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* Top Navigation Bar */}
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">S</div>
-          <span className="font-serif font-bold text-white tracking-wide">StoryFlow</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">S</div>
+            <span className="font-serif font-bold text-white tracking-wide hidden sm:inline">StoryFlow</span>
+          </div>
+
+          {/* 프로젝트 선택 드롭다운 (로그인 시에만 표시) */}
+          {isAuthenticated && (
+            <div className="relative" ref={projectDropdownRef}>
+              <button
+                onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors max-w-[180px]"
+              >
+                <FileText size={14} className="flex-shrink-0" />
+                <span className="truncate">
+                  {currentProject?.title || '프로젝트 선택'}
+                </span>
+                <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showProjectDropdown && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {/* 프로젝트 목록 */}
+                  <div className="max-h-48 overflow-y-auto">
+                    {projects.length === 0 ? (
+                      <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                        프로젝트가 없어요
+                      </div>
+                    ) : (
+                      projects.map((project) => (
+                        <button
+                          key={project.id}
+                          onClick={() => handleSwitchProject(project)}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${
+                            currentProject?.id === project.id
+                              ? 'bg-indigo-600/20 text-indigo-300'
+                              : 'text-gray-300 hover:bg-gray-700'
+                          }`}
+                        >
+                          <span className="truncate flex-1">{project.title}</span>
+                          <button
+                            onClick={(e) => handleDeleteProject(project.id, e)}
+                            className="p-1 text-gray-500 hover:text-red-400 transition-colors ml-2"
+                            title="삭제"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  {/* 새 프로젝트 버튼 */}
+                  <div className="border-t border-gray-700">
+                    <button
+                      onClick={handleCreateNewProject}
+                      disabled={projects.length >= MAX_PROJECTS}
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${
+                        projects.length >= MAX_PROJECTS
+                          ? 'text-gray-600 cursor-not-allowed'
+                          : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
+                      }`}
+                    >
+                      <Plus size={14} />
+                      <span>새 프로젝트</span>
+                      <span className="text-gray-500 text-xs ml-auto">
+                        {projects.length}/{MAX_PROJECTS}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-700">
@@ -547,7 +703,7 @@ function App() {
             onClose={() => setShowCollaborationDialog(false)}
             projectId={currentProject.id}
             projectTitle={currentProject.title}
-            isOwner={true}
+            isOwner={currentProject.user_id === userId}
           />
         </Suspense>
       )}

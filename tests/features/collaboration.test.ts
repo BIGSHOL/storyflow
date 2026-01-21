@@ -206,6 +206,7 @@ describe('collaborationService', () => {
       mockFrom.mockImplementation((table: string) => {
         if (table === 'projects') {
           return {
+            insert: mockInsert,
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 single: vi.fn().mockResolvedValue({
@@ -214,10 +215,13 @@ describe('collaborationService', () => {
                 }),
               }),
             }),
+            update: mockUpdate,
+            delete: mockDelete,
           };
         }
         // collaborators
         return {
+          insert: mockInsert,
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -228,6 +232,8 @@ describe('collaborationService', () => {
               }),
             }),
           }),
+          update: mockUpdate,
+          delete: mockDelete,
         };
       });
 
@@ -251,6 +257,7 @@ describe('collaborationService', () => {
       mockFrom.mockImplementation((table: string) => {
         if (table === 'projects') {
           return {
+            insert: mockInsert,
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 single: vi.fn().mockResolvedValue({
@@ -259,10 +266,13 @@ describe('collaborationService', () => {
                 }),
               }),
             }),
+            update: mockUpdate,
+            delete: mockDelete,
           };
         }
         // collaborators
         return {
+          insert: mockInsert,
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -273,6 +283,8 @@ describe('collaborationService', () => {
               }),
             }),
           }),
+          update: mockUpdate,
+          delete: mockDelete,
         };
       });
 

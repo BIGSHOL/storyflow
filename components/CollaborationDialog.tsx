@@ -238,11 +238,16 @@ const CollaborationDialog: React.FC<CollaborationDialogProps> = ({
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                       <span className="text-sm font-medium text-gray-300">
-                        {collaborator.user_id.charAt(0).toUpperCase()}
+                        {(collaborator.display_name || collaborator.email || collaborator.user_id).charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="text-white text-sm">{collaborator.user_id}</p>
+                      <p className="text-white text-sm">
+                        {collaborator.display_name || collaborator.email || '알 수 없는 사용자'}
+                      </p>
+                      {collaborator.email && collaborator.display_name && (
+                        <p className="text-xs text-gray-500">{collaborator.email}</p>
+                      )}
                       <p className="text-xs text-gray-500">
                         {new Date(collaborator.created_at).toLocaleDateString('ko-KR')}에 초대됨
                       </p>
