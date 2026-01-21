@@ -72,9 +72,14 @@ const UserMenu: React.FC = () => {
 
       {/* 드롭다운 메뉴 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 py-1">
+        <div className="absolute right-0 mt-2 w-52 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 py-1">
           <div className="px-3 py-2 border-b border-gray-700">
-            <p className="text-sm font-medium text-white truncate">{displayName}</p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-medium text-white truncate flex-1">{displayName}</p>
+              <span className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
+                무료
+              </span>
+            </div>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
 
