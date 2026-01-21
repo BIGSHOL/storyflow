@@ -47,6 +47,15 @@
           scrollbar-width: none;  /* Firefox */
       }
 
+      /* 모든 스크롤바 숨기기 (전역) */
+      * {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+      }
+      *::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
+      }
+
       /* Custom Animations */
       @keyframes fadeIn {
         from { opacity: 0; }
