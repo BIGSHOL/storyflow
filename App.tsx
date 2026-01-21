@@ -311,11 +311,30 @@ function App() {
     setPendingRecoveryData(null);
   }, [pendingRecoveryData]);
 
-  // 복구 취소
+  // 복구 취소 (새로 시작)
   const handleRecoveryCancel = useCallback(() => {
     setShowRecoveryModal(false);
     setPendingRecoveryData(null);
   }, []);
+
+  // 로컬 데이터 삭제
+  const handleRecoveryDelete = useCallback(() => {
+    const confirmDelete = window.confirm(
+      '브라우저에 저장된 데이터를 완전히 삭제할까요?\n\n삭제하면 복구할 수 없어요.'
+    );
+    if (confirmDelete) {
+      // localStorage 데이터 삭제
+      if (!isAuthenticated) {
+        clearAnonymousSavedProject();
+      } else {
+        import('./services/storageService').then(({ clearSavedProject }) => {
+          clearSavedProject(userId);
+        });
+      }
+      setShowRecoveryModal(false);
+      setPendingRecoveryData(null);
+    }
+  }, [isAuthenticated, userId]);
 
   // 마이그레이션 확인 (익명 데이터를 클라우드에 저장)
   const handleMigrationConfirm = useCallback(async () => {
@@ -705,21 +724,29 @@ function App() {
                 브라우저에 임시 저장된 프로젝트가 있어요.<br />
                 <span className="text-gray-500 text-sm">({pendingRecoveryData?.length || 0}개 섹션)</span>
               </p>
-              <p className="text-yellow-400 text-sm mb-6">
+              <p className="text-yellow-400 text-sm mb-4">
                 ⚠️ 로그인하면 클라우드에 안전하게 저장할 수 있어요.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleRecoveryCancel}
+                    className="flex-1 px-4 py-2.5 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    새로 시작
+                  </button>
+                  <button
+                    onClick={handleRecoveryConfirm}
+                    className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
+                  >
+                    불러오기
+                  </button>
+                </div>
                 <button
-                  onClick={handleRecoveryCancel}
-                  className="flex-1 px-4 py-2.5 bg-gray-800 text-gray-300 rounded-lg"
+                  onClick={handleRecoveryDelete}
+                  className="w-full px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors border border-red-900/30"
                 >
-                  새로 시작
-                </button>
-                <button
-                  onClick={handleRecoveryConfirm}
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium"
-                >
-                  불러오기
+                  로컬 데이터 완전히 삭제
                 </button>
               </div>
             </div>
@@ -1003,21 +1030,29 @@ function App() {
               브라우저에 임시 저장된 프로젝트가 있어요.<br />
               <span className="text-gray-500 text-sm">({pendingRecoveryData?.length || 0}개 섹션)</span>
             </p>
-            <p className="text-yellow-400 text-sm mb-6">
+            <p className="text-yellow-400 text-sm mb-4">
               ⚠️ 로그인하면 클라우드에 안전하게 저장할 수 있어요.
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-3">
+                <button
+                  onClick={handleRecoveryCancel}
+                  className="flex-1 px-4 py-2.5 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  새로 시작
+                </button>
+                <button
+                  onClick={handleRecoveryConfirm}
+                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors font-medium"
+                >
+                  불러오기
+                </button>
+              </div>
               <button
-                onClick={handleRecoveryCancel}
-                className="flex-1 px-4 py-2.5 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                onClick={handleRecoveryDelete}
+                className="w-full px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors border border-red-900/30"
               >
-                새로 시작
-              </button>
-              <button
-                onClick={handleRecoveryConfirm}
-                className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors font-medium"
-              >
-                불러오기
+                로컬 데이터 완전히 삭제
               </button>
             </div>
           </div>

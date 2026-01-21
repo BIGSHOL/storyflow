@@ -7,6 +7,76 @@ const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
 const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
 
+// 사용자별 저장 용량 제한 (100MB)
+export const STORAGE_QUOTA = 100 * 1024 * 1024; // 100MB
+
+// 저장 용량 정보 타입
+export interface StorageInfo {
+  used: number;       // 사용 중인 용량 (bytes)
+  quota: number;      // 총 할당 용량 (bytes)
+  remaining: number;  // 남은 용량 (bytes)
+  percentage: number; // 사용률 (0-100)
+}
+
+// 사용자의 저장 용량 사용량 조회
+export const getStorageUsage = async (): Promise<{ data: StorageInfo | null; error: Error | null }> => {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      return { data: null, error: new Error('로그인이 필요합니다.') };
+    }
+
+    // 사용자의 모든 미디어 파일 크기 합산
+    const { data, error } = await supabase
+      .from('media')
+      .select('file_size')
+      .eq('user_id', userData.user.id);
+
+    if (error) throw error;
+
+    const used = (data || []).reduce((sum, item) => sum + ((item as { file_size: number }).file_size || 0), 0);
+    const remaining = Math.max(0, STORAGE_QUOTA - used);
+    const percentage = Math.min(100, Math.round((used / STORAGE_QUOTA) * 100));
+
+    return {
+      data: {
+        used,
+        quota: STORAGE_QUOTA,
+        remaining,
+        percentage,
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error('저장 용량 조회 오류:', error);
+    return { data: null, error: error as Error };
+  }
+};
+
+// 용량 초과 여부 확인 (업로드 전 체크용)
+export const checkStorageQuota = async (
+  fileSize: number
+): Promise<{ allowed: boolean; storageInfo: StorageInfo | null; error: Error | null }> => {
+  const { data: storageInfo, error } = await getStorageUsage();
+
+  if (error || !storageInfo) {
+    return { allowed: false, storageInfo: null, error: error || new Error('용량 정보를 가져올 수 없습니다.') };
+  }
+
+  const allowed = storageInfo.remaining >= fileSize;
+
+  return { allowed, storageInfo, error: null };
+};
+
+// 용량을 읽기 쉬운 형태로 포맷
+export const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+};
+
 // 파일 검증
 export const validateFile = (file: File): { valid: boolean; error?: string } => {
   if (!ALLOWED_TYPES.includes(file.type)) {
@@ -42,6 +112,25 @@ export const uploadMedia = async (
     const validation = validateFile(file);
     if (!validation.valid) {
       throw new Error(validation.error);
+    }
+
+    // 저장 용량 확인
+    const { allowed, storageInfo, error: quotaError } = await checkStorageQuota(file.size);
+    if (quotaError) {
+      throw quotaError;
+    }
+    if (!allowed && storageInfo) {
+      const usedStr = formatBytes(storageInfo.used);
+      const quotaStr = formatBytes(storageInfo.quota);
+      const fileSizeStr = formatBytes(file.size);
+      const remainingStr = formatBytes(storageInfo.remaining);
+      throw new Error(
+        `저장 공간이 부족해요!\n\n` +
+        `• 현재 사용량: ${usedStr} / ${quotaStr}\n` +
+        `• 남은 공간: ${remainingStr}\n` +
+        `• 업로드 파일: ${fileSizeStr}\n\n` +
+        `기존 미디어를 삭제하거나 더 작은 파일을 사용해주세요.`
+      );
     }
 
     // 고유한 파일 경로 생성
@@ -200,4 +289,8 @@ export default {
   getMediaList,
   linkMediaToProject,
   migrateBlobToStorage,
+  getStorageUsage,
+  checkStorageQuota,
+  formatBytes,
+  STORAGE_QUOTA,
 };
