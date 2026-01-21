@@ -700,10 +700,13 @@ function App() {
         {showRecoveryModal && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[200]">
             <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-              <h3 className="text-lg font-bold text-white mb-2">프로젝트 복구</h3>
-              <p className="text-gray-300 mb-6">
-                이전에 작업하던 프로젝트가 있어요.<br />
+              <h3 className="text-lg font-bold text-white mb-2">로컬 저장 데이터 발견</h3>
+              <p className="text-gray-300 mb-2">
+                브라우저에 임시 저장된 프로젝트가 있어요.<br />
                 <span className="text-gray-500 text-sm">({pendingRecoveryData?.length || 0}개 섹션)</span>
+              </p>
+              <p className="text-yellow-400 text-sm mb-6">
+                ⚠️ 로그인하면 클라우드에 안전하게 저장할 수 있어요.
               </p>
               <div className="flex gap-3">
                 <button
@@ -988,7 +991,7 @@ function App() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
           <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">프로젝트 복구</h3>
+              <h3 className="text-lg font-bold text-white">로컬 저장 데이터 발견</h3>
               <button
                 onClick={handleRecoveryCancel}
                 className="p-1 text-gray-400 hover:text-white transition-colors"
@@ -996,9 +999,12 @@ function App() {
                 <X size={20} />
               </button>
             </div>
-            <p className="text-gray-300 mb-6">
-              이전에 작업하던 프로젝트가 있어요.<br />
+            <p className="text-gray-300 mb-2">
+              브라우저에 임시 저장된 프로젝트가 있어요.<br />
               <span className="text-gray-500 text-sm">({pendingRecoveryData?.length || 0}개 섹션)</span>
+            </p>
+            <p className="text-yellow-400 text-sm mb-6">
+              ⚠️ 로그인하면 클라우드에 안전하게 저장할 수 있어요.
             </p>
             <div className="flex gap-3">
               <button
