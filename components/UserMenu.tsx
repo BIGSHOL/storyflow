@@ -137,7 +137,7 @@ const UserMenu: React.FC = () => {
 
       {/* 드롭다운 메뉴 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 py-1">
+        <div className="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] py-1">
           {/* 사용자 정보 */}
           <div className="px-3 py-2 border-b border-gray-700">
             <div className="flex items-center justify-between mb-1">
