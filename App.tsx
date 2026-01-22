@@ -366,6 +366,7 @@ function App() {
       }
       // 메모리 초기화
       setSections([]);
+      setCurrentProject(null);
       historyRef.current = [[]];
       historyIndexRef.current = 0;
       setCanUndo(false);
@@ -373,7 +374,7 @@ function App() {
       setShowRecoveryModal(false);
       setPendingRecoveryData(null);
     }
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, userId, setCurrentProject]);
 
   // 마이그레이션 확인 (익명 데이터를 클라우드에 저장)
   const handleMigrationConfirm = useCallback(async () => {
@@ -452,6 +453,7 @@ function App() {
       clearAnonymousSavedProject();
       // 메모리 초기화
       setSections([]);
+      setCurrentProject(null);
       historyRef.current = [[]];
       historyIndexRef.current = 0;
       setCanUndo(false);
@@ -459,7 +461,7 @@ function App() {
     }
     setShowMigrationModal(false);
     setPendingMigrationData(null);
-  }, []);
+  }, [setCurrentProject]);
 
   // 마이그레이션 나중에 처리 (데이터 유지, 모달만 닫기)
   const handleMigrationLater = useCallback(() => {
