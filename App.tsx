@@ -112,7 +112,7 @@ const CollaborationDialog = lazy(() => import('./components/CollaborationDialog'
 const MAX_HISTORY = 50;
 
 function App() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, signIn } = useAuth();
   const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject, removeProject } = useProject();
   const userId = user?.id ?? null;
   const isMobile = useIsMobile();
@@ -891,10 +891,18 @@ function App() {
       <>
         {/* 비로그인 경고 배너 - 모바일 */}
         {!isAuthenticated && !authLoading && (
-          <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-2.5 text-center z-[100]">
-            <p className="text-xs text-yellow-200">
-              ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다
-            </p>
+          <div className="bg-red-600/30 border-b-2 border-red-500 px-3 py-2.5 z-[100]">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-red-100 font-medium flex-1">
+                🚨 <span className="font-bold">로그인 필수!</span> 지금 작업 중인 내용이 브라우저를 닫으면 <span className="underline">영구 삭제</span>됩니다
+              </p>
+              <button
+                onClick={signIn}
+                className="flex-shrink-0 px-3 py-1.5 bg-white text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors"
+              >
+                로그인
+              </button>
+            </div>
           </div>
         )}
 
@@ -1012,10 +1020,18 @@ function App() {
       <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
         {/* 비로그인 경고 배너 - 태블릿 */}
         {!isAuthenticated && !authLoading && (
-          <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-2.5 text-center z-[100]">
-            <p className="text-sm text-yellow-200">
-              ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다
-            </p>
+          <div className="bg-red-600/30 border-b-2 border-red-500 px-4 py-2.5 z-[100]">
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-sm text-red-100 font-medium">
+                🚨 <span className="font-bold">로그인 필수!</span> 지금 작업 중인 내용이 브라우저를 닫으면 <span className="underline">영구 삭제</span>됩니다
+              </p>
+              <button
+                onClick={signIn}
+                className="flex-shrink-0 px-4 py-1.5 bg-white text-red-600 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors"
+              >
+                로그인하기
+              </button>
+            </div>
           </div>
         )}
 
@@ -1351,10 +1367,18 @@ function App() {
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* 비로그인 경고 배너 - 데스크탑 */}
       {!isAuthenticated && !authLoading && (
-        <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-3 text-center z-[100]">
-          <p className="text-sm text-yellow-200">
-            ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다. 작업을 계속하려면 로그인하세요.
-          </p>
+        <div className="bg-red-600/30 border-b-2 border-red-500 px-4 py-3 z-[100]">
+          <div className="flex items-center justify-center gap-4">
+            <p className="text-sm text-red-100 font-medium">
+              🚨 <span className="font-bold text-white">주의: 로그인하지 않으면 작업 내용이 삭제됩니다!</span> 브라우저를 닫거나 새로고침하면 지금 작업 중인 모든 내용이 <span className="underline font-bold">영구적으로 사라집니다.</span>
+            </p>
+            <button
+              onClick={signIn}
+              className="flex-shrink-0 px-5 py-2 bg-white text-red-600 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors shadow-lg"
+            >
+              지금 로그인하기
+            </button>
+          </div>
         </div>
       )}
 
