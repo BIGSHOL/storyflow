@@ -49,6 +49,8 @@ import { uploadMedia } from '../services/mediaService';
 import PreviewRender from './PreviewRender';
 import KoreanInput from './KoreanInput';
 import { supabase } from '../services/supabaseClient';
+import { useAuth } from '../hooks/useAuth';
+import Crown from 'lucide-react/dist/esm/icons/crown';
 
 // 레이아웃 타입을 한글로 변환
 const getLayoutName = (layout: LayoutType): string => {
@@ -174,10 +176,9 @@ const LayoutSelector = memo<{
       {/* 검색 입력 */}
       <div className="relative border-b border-gray-700">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-        <input
-          type="text"
+        <KoreanInput
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(v) => setSearchQuery(v)}
           placeholder="레이아웃 검색..."
           className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
           autoFocus
@@ -326,10 +327,9 @@ const FontSelector = memo<{
       {/* 검색 입력 */}
       <div className="relative border-b border-gray-700">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-        <input
-          type="text"
+        <KoreanInput
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(v) => setSearchQuery(v)}
           placeholder="폰트 검색..."
           className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
           autoFocus
@@ -455,10 +455,9 @@ const StyledDropdown = memo<{
       {options.length >= 5 && (
         <div className="relative border-b border-gray-700">
           <Search size={size === 'sm' ? 12 : 14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-          <input
-            type="text"
+          <KoreanInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(v) => setSearchQuery(v)}
             placeholder="검색..."
             className={`w-full bg-transparent pl-9 pr-8 py-2 text-white placeholder-gray-500 focus:outline-none ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
             autoFocus
@@ -546,6 +545,9 @@ const preventDragProps = {
 };
 
 const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) => {
+  // 사용자 티어 체크
+  const { isProOrAbove } = useAuth();
+
   // sections를 ref로 유지하여 콜백 재생성 방지 (rerender-functional-setstate)
   const sectionsRef = useRef(sections);
   useEffect(() => { sectionsRef.current = sections; }, [sections]);
@@ -1886,6 +1888,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
             >
               <User size={12} className="inline mr-1" />
               내 템플릿
+              {!isProOrAbove && <Crown size={10} className="inline ml-1 text-yellow-500" />}
             </button>
             <button
               onClick={() => setMarketplaceTab('export')}
@@ -1896,6 +1899,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
             >
               <Share2 size={12} className="inline mr-1" />
               등록
+              {!isProOrAbove && <Crown size={10} className="inline ml-1 text-yellow-500" />}
             </button>
           </div>
 
@@ -1904,10 +1908,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
             <div className="px-4 py-3 border-b border-gray-700 flex-shrink-0">
               <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
+                <KoreanInput
                   value={templateSearchQuery}
-                  onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                  onChange={(v) => setTemplateSearchQuery(v)}
                   placeholder="템플릿 검색..."
                   className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
                 />
@@ -2040,13 +2043,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           <div className="flex-1">
                             <p className="font-medium text-white">{template.name}</p>
                             <p className="text-xs text-gray-400 mt-1">{template.description}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-xs text-gray-500">by {template.author}</span>
-                              <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-500">{template.downloads.toLocaleString()} 다운로드</span>
-                              <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-400">{template.sections.length}개 섹션</span>
-                            </div>
+                            <p className="text-xs text-gray-500 mt-2 truncate">
+                              {template.author} · {template.downloads.toLocaleString()}회 · {template.sections.length}섹션
+                            </p>
                             {template.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {template.tags.slice(0, 3).map((tag: string) => (
@@ -2082,7 +2081,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
               {/* 내 템플릿 탭 */}
               {marketplaceTab === 'myTemplates' && (
                 <div className="space-y-3">
-                  {myTemplates.length === 0 ? (
+                  {!isProOrAbove ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <Crown size={40} className="mx-auto mb-4 text-yellow-500" />
+                      <p className="text-lg font-medium text-white mb-2">Pro 기능입니다</p>
+                      <p className="text-sm text-gray-400 mb-4">내 템플릿 관리는 Pro 플랜 이상에서<br />이용할 수 있어요.</p>
+                      <div className="text-xs text-gray-500 bg-gray-800 rounded-lg p-3 max-w-xs mx-auto">
+                        <p className="mb-1">✨ Pro 플랜 혜택</p>
+                        <ul className="text-left space-y-1">
+                          <li>• 무제한 템플릿 등록</li>
+                          <li>• 커뮤니티 공유 기능</li>
+                          <li>• 템플릿 관리 및 분석</li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : myTemplates.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <User size={32} className="mx-auto mb-3 opacity-50" />
                       <p className="text-sm">등록한 템플릿이 없습니다</p>
@@ -2136,6 +2149,22 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
               {/* 내보내기 탭 */}
               {marketplaceTab === 'export' && (
                 <div className="space-y-6">
+                  {!isProOrAbove ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <Crown size={40} className="mx-auto mb-4 text-yellow-500" />
+                      <p className="text-lg font-medium text-white mb-2">Pro 기능입니다</p>
+                      <p className="text-sm text-gray-400 mb-4">템플릿 등록은 Pro 플랜 이상에서<br />이용할 수 있어요.</p>
+                      <div className="text-xs text-gray-500 bg-gray-800 rounded-lg p-3 max-w-xs mx-auto">
+                        <p className="mb-1">✨ Pro 플랜 혜택</p>
+                        <ul className="text-left space-y-1">
+                          <li>• 무제한 템플릿 등록</li>
+                          <li>• 커뮤니티 공유 기능</li>
+                          <li>• 템플릿 관리 및 분석</li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                  <>
                   {/* 템플릿으로 내보내기 */}
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <h4 className="font-medium text-white mb-3 flex items-center gap-2">
@@ -2147,19 +2176,19 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                     <div className="space-y-3">
                       <div>
                         <label className="text-xs text-gray-400 mb-1 block">템플릿 이름 *</label>
-                        <input
-                          type="text"
+                        <KoreanInput
                           value={exportTemplateName}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExportTemplateName(e.target.value)}
+                          onChange={(v) => setExportTemplateName(v)}
                           placeholder="예: 미니멀 포트폴리오"
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
                         />
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 mb-1 block">설명</label>
-                        <textarea
+                        <KoreanInput
+                          type="textarea"
                           value={exportTemplateDesc}
-                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setExportTemplateDesc(e.target.value)}
+                          onChange={(v) => setExportTemplateDesc(v)}
                           placeholder="템플릿에 대한 간단한 설명"
                           rows={2}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm resize-none"
@@ -2179,10 +2208,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 mb-1 block">태그 (쉼표로 구분)</label>
-                        <input
-                          type="text"
+                        <KoreanInput
                           value={exportTemplateTags}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExportTemplateTags(e.target.value)}
+                          onChange={(v) => setExportTemplateTags(v)}
                           placeholder="예: 미니멀, 포트폴리오, 모던"
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
                         />
@@ -2228,6 +2256,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       />
                     </label>
                   </div>
+                  </>
+                  )}
                 </div>
               )}
             </div>
@@ -2971,19 +3001,17 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
                           <div>
                             <label className="text-xs text-gray-500 mb-1 block">버튼 텍스트</label>
-                            <input
-                              type="text"
+                            <KoreanInput
                               value={section.ctaButton?.text || '자세히 보기'}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCtaTextChange(e, section.id, 'text')}
+                              onChange={(v) => updateCtaButton(section.id, { text: v })}
                               className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
                             />
                           </div>
                           <div>
                             <label className="text-xs text-gray-500 mb-1 block">링크 URL</label>
-                            <input
-                              type="text"
+                            <KoreanInput
                               value={section.ctaButton?.link || '#'}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCtaTextChange(e, section.id, 'link')}
+                              onChange={(v) => updateCtaButton(section.id, { link: v })}
                               className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
                               placeholder="https://..."
                             />
@@ -3088,10 +3116,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   <input type="file" className="hidden" accept="image/*" onChange={(e) => handleGalleryImageUpload(e, section.id, image.id)} />
                                 </label>
                               )}
-                              <input
-                                type="text"
+                              <KoreanInput
                                 value={image.caption || ''}
-                                onChange={(e) => updateGalleryImage(section.id, image.id, { caption: e.target.value })}
+                                onChange={(v) => updateGalleryImage(section.id, image.id, { caption: v })}
                                 placeholder="캡션"
                                 className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                               />
@@ -3139,17 +3166,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           {(section.timelineItems || []).map((item, idx) => (
                             <div key={item.id} className="p-3 bg-gray-800 rounded space-y-2">
                               <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={item.date}
-                                  onChange={(e) => updateTimelineItem(section.id, item.id, { date: e.target.value })}
+                                  onChange={(v) => updateTimelineItem(section.id, item.id, { date: v })}
                                   placeholder="날짜"
                                   className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                 />
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={item.title}
-                                  onChange={(e) => updateTimelineItem(section.id, item.id, { title: e.target.value })}
+                                  onChange={(v) => updateTimelineItem(section.id, item.id, { title: v })}
                                   placeholder="제목"
                                   className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                 />
@@ -3157,9 +3182,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   <Trash2 size={14} />
                                 </button>
                               </div>
-                              <textarea
+                              <KoreanInput
+                                type="textarea"
                                 value={item.description}
-                                onChange={(e) => updateTimelineItem(section.id, item.id, { description: e.target.value })}
+                                onChange={(v) => updateTimelineItem(section.id, item.id, { description: v })}
                                 placeholder="설명"
                                 rows={2}
                                 className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
@@ -3234,17 +3260,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   </label>
                                 )}
                                 <div className="flex-1">
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={card.title}
-                                    onChange={(e) => updateCard(section.id, card.id, { title: e.target.value })}
+                                    onChange={(v) => updateCard(section.id, card.id, { title: v })}
                                     placeholder="제목"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs mb-1"
                                   />
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={card.description}
-                                    onChange={(e) => updateCard(section.id, card.id, { description: e.target.value })}
+                                    onChange={(v) => updateCard(section.id, card.id, { description: v })}
                                     placeholder="설명"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
@@ -3277,9 +3301,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       <div className="space-y-4">
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">인용문</label>
-                          <textarea
+                          <KoreanInput
+                            type="textarea"
                             value={section.quoteText || ''}
-                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleQuoteFieldChange(e, section.id, 'quoteText')}
+                            onChange={(v) => updateSection(section.id, { quoteText: v })}
                             rows={4}
                             placeholder="인용문을 입력하세요..."
                             className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm resize-none"
@@ -3287,10 +3312,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         </div>
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">저자/출처</label>
-                          <input
-                            type="text"
+                          <KoreanInput
                             value={section.quoteAuthor || ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleQuoteFieldChange(e, section.id, 'quoteAuthor')}
+                            onChange={(v) => updateSection(section.id, { quoteAuthor: v })}
                             placeholder="저자 이름"
                             className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
                           />
@@ -3350,17 +3374,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           {(section.stats || []).map((stat, idx) => (
                             <div key={stat.id} className="p-3 bg-gray-800 rounded space-y-2">
                               <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={stat.value}
-                                  onChange={(e) => updateStat(section.id, stat.id, { value: e.target.value })}
+                                  onChange={(v) => updateStat(section.id, stat.id, { value: v })}
                                   placeholder="숫자 (예: 1,234)"
                                   className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs font-bold"
                                 />
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={stat.label}
-                                  onChange={(e) => updateStat(section.id, stat.id, { label: e.target.value })}
+                                  onChange={(v) => updateStat(section.id, stat.id, { label: v })}
                                   placeholder="라벨"
                                   className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                 />
@@ -3587,10 +3609,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   </label>
                                 )}
                                 <div className="flex-1 space-y-1">
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={image.title || ''}
-                                    onChange={(e) => updateCarouselImage(section.id, image.id, { title: e.target.value })}
+                                    onChange={(v) => updateCarouselImage(section.id, image.id, { title: v })}
                                     placeholder="제목 (선택)"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
@@ -3599,19 +3620,19 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   <Trash2 size={14} />
                                 </button>
                               </div>
-                              <textarea
+                              <KoreanInput
+                                type="textarea"
                                 value={image.description || ''}
-                                onChange={(e) => updateCarouselImage(section.id, image.id, { description: e.target.value })}
+                                onChange={(v) => updateCarouselImage(section.id, image.id, { description: v })}
                                 placeholder="설명 (선택)"
                                 rows={2}
                                 className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
                               />
                               <div className="flex items-center gap-2">
                                 <Link size={12} className="text-gray-500" />
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={image.link || ''}
-                                  onChange={(e) => updateCarouselImage(section.id, image.id, { link: e.target.value })}
+                                  onChange={(v) => updateCarouselImage(section.id, image.id, { link: v })}
                                   placeholder="링크 URL (선택)"
                                   className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                 />
@@ -3724,10 +3745,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   </label>
                                 )}
                                 <div className="flex-1">
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={image.caption || ''}
-                                    onChange={(e) => updateMasonryImage(section.id, image.id, { caption: e.target.value })}
+                                    onChange={(v) => updateMasonryImage(section.id, image.id, { caption: v })}
                                     placeholder="캡션 (선택)"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
@@ -3748,10 +3768,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   <option value="landscape">가로</option>
                                 </select>
                                 <Link size={12} className="text-gray-500" />
-                                <input
-                                  type="text"
+                                <KoreanInput
                                   value={image.link || ''}
-                                  onChange={(e) => updateMasonryImage(section.id, image.id, { link: e.target.value })}
+                                  onChange={(v) => updateMasonryImage(section.id, image.id, { link: v })}
                                   placeholder="링크 URL (선택)"
                                   className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                 />
@@ -3883,16 +3902,16 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
                                 <div className="flex-1 space-y-2">
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={entry.name}
-                                    onChange={(e) => updateGuestbookEntry(section.id, entry.id, { name: e.target.value })}
+                                    onChange={(v) => updateGuestbookEntry(section.id, entry.id, { name: v })}
                                     placeholder="이름"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
-                                  <textarea
+                                  <KoreanInput
+                                    type="textarea"
                                     value={entry.message}
-                                    onChange={(e) => updateGuestbookEntry(section.id, entry.id, { message: e.target.value })}
+                                    onChange={(v) => updateGuestbookEntry(section.id, entry.id, { message: v })}
                                     placeholder="메시지"
                                     rows={2}
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
@@ -3997,41 +4016,36 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                               <div className="flex items-start gap-2">
                                 <span className="text-xs text-gray-500 w-5 pt-1">{idx + 1}</span>
                                 <div className="flex-1 space-y-2">
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={track.title}
-                                    onChange={(e) => updateAudioTrack(section.id, track.id, { title: e.target.value })}
+                                    onChange={(v) => updateAudioTrack(section.id, track.id, { title: v })}
                                     placeholder="트랙 제목"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={track.artist || ''}
-                                    onChange={(e) => updateAudioTrack(section.id, track.id, { artist: e.target.value })}
+                                    onChange={(v) => updateAudioTrack(section.id, track.id, { artist: v })}
                                     placeholder="아티스트 (선택)"
                                     className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                   />
                                   <div className="grid grid-cols-2 gap-2">
-                                    <input
-                                      type="text"
+                                    <KoreanInput
                                       value={track.duration || ''}
-                                      onChange={(e) => updateAudioTrack(section.id, track.id, { duration: e.target.value })}
+                                      onChange={(v) => updateAudioTrack(section.id, track.id, { duration: v })}
                                       placeholder="길이 (3:45)"
                                       className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                     />
-                                    <input
-                                      type="text"
+                                    <KoreanInput
                                       value={track.coverImage || ''}
-                                      onChange={(e) => updateAudioTrack(section.id, track.id, { coverImage: e.target.value })}
+                                      onChange={(v) => updateAudioTrack(section.id, track.id, { coverImage: v })}
                                       placeholder="커버 URL"
                                       className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                     />
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <input
-                                      type="text"
+                                    <KoreanInput
                                       value={track.url}
-                                      onChange={(e) => updateAudioTrack(section.id, track.id, { url: e.target.value })}
+                                      onChange={(v) => updateAudioTrack(section.id, track.id, { url: v })}
                                       placeholder="오디오 URL"
                                       className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                                     />
@@ -4141,13 +4155,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                     <span>대체 텍스트</span>
                                     <span className="text-[10px] text-blue-400">(접근성)</span>
                                   </label>
-                                  <input
-                                    type="text"
+                                  <KoreanInput
                                     value={section.imageAlt || ''}
-                                    onChange={(e) => updateSection(section.id, { imageAlt: e.target.value })}
+                                    onChange={(v) => updateSection(section.id, { imageAlt: v })}
                                     placeholder="이미지에 대한 설명을 입력하세요"
                                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                                    {...preventDragProps}
                                   />
                                   <p className="text-[10px] text-gray-500 mt-1">
                                     시각 장애인 사용자를 위해 이미지를 설명해주세요
@@ -4289,10 +4301,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                 <div className="space-y-3">
                   {/* URL 입력 + 업로드 */}
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
+                    <KoreanInput
                       value={bgm.url}
-                      onChange={(e) => setBgm(prev => ({ ...prev, url: e.target.value }))}
+                      onChange={(v) => setBgm(prev => ({ ...prev, url: v }))}
                       placeholder="오디오 URL"
                       className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
                     />

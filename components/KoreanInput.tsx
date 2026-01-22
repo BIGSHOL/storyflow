@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-interface KoreanInputProps {
+interface KoreanInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'type'> {
   value: string;
   onChange: (value: string) => void;
-  className?: string;
-  placeholder?: string;
   type?: 'text' | 'textarea';
   rows?: number;
 }
 
 /**
  * 한글 IME 입력을 위한 컴포넌트
- * 로컬 상태를 사용하여 입력 중 리렌더링으로 인한 자모 분리 문제 방지
- * onBlur 시에만 상위 상태 업데이트
+ * onCompositionStart/End 이벤트를 사용하여 조합 중에는 로컬 상태만 업데이트
+ * 조합 완료 후 상위 상태 업데이트 (실시간 반영)
  */
 const KoreanInput: React.FC<KoreanInputProps> = ({
   value,
@@ -21,42 +19,49 @@ const KoreanInput: React.FC<KoreanInputProps> = ({
   placeholder = '',
   type = 'text',
   rows = 4,
+  ...restProps
 }) => {
   const [localValue, setLocalValue] = useState(value);
-  const [isFocused, setIsFocused] = useState(false);
+  const isComposingRef = useRef(false);
 
-  // 외부 value가 변경되고 포커스가 없을 때만 로컬 값 동기화
+  // 외부 value가 변경되면 로컬 값 동기화 (조합 중이 아닐 때만)
   useEffect(() => {
-    if (!isFocused) {
+    if (!isComposingRef.current) {
       setLocalValue(value);
     }
-  }, [value, isFocused]);
+  }, [value]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setLocalValue(e.target.value);
-  }, []);
+    const newValue = e.target.value;
+    setLocalValue(newValue);
 
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-    if (localValue !== value) {
-      onChange(localValue);
+    // 조합 중이 아닐 때만 부모에게 전달 (영문, 숫자 등은 즉시 반영)
+    if (!isComposingRef.current) {
+      onChange(newValue);
     }
-  }, [localValue, value, onChange]);
+  }, [onChange]);
 
-  const handleFocus = useCallback(() => {
-    setIsFocused(true);
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
   }, []);
+
+  const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    isComposingRef.current = false;
+    // 조합 완료 시 최종 값 전달
+    onChange(e.currentTarget.value);
+  }, [onChange]);
 
   if (type === 'textarea') {
     return (
       <textarea
         value={localValue}
         onChange={handleChange}
-        onBlur={handleBlur}
-        onFocus={handleFocus}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         className={className}
         placeholder={placeholder}
         rows={rows}
+        {...(restProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
       />
     );
   }
@@ -66,10 +71,11 @@ const KoreanInput: React.FC<KoreanInputProps> = ({
       type="text"
       value={localValue}
       onChange={handleChange}
-      onBlur={handleBlur}
-      onFocus={handleFocus}
+      onCompositionStart={handleCompositionStart}
+      onCompositionEnd={handleCompositionEnd}
       className={className}
       placeholder={placeholder}
+      {...restProps}
     />
   );
 };

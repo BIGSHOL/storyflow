@@ -8,6 +8,8 @@ import {
   onAuthStateChange,
 } from '../services/authService';
 
+export type UserTier = 'free' | 'pro' | 'business';
+
 interface UseAuthReturn {
   user: User | null;
   session: Session | null;
@@ -16,6 +18,8 @@ interface UseAuthReturn {
   signIn: () => Promise<void>;
   logOut: () => Promise<void>;
   isAuthenticated: boolean;
+  userTier: UserTier;
+  isProOrAbove: boolean;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -23,6 +27,10 @@ export const useAuth = (): UseAuthReturn => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 사용자 티어 계산 (user_metadata에서 가져오거나 기본값 'free')
+  const userTier: UserTier = (user?.user_metadata?.tier as UserTier) || 'free';
+  const isProOrAbove = userTier === 'pro' || userTier === 'business';
 
   // 초기 세션 체크
   useEffect(() => {
@@ -49,7 +57,6 @@ export const useAuth = (): UseAuthReturn => {
   // Auth 상태 변경 리스너
   useEffect(() => {
     const { data: { subscription } } = onAuthStateChange((event, newSession) => {
-      console.log('Auth event:', event);
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setError(null);
@@ -107,6 +114,8 @@ export const useAuth = (): UseAuthReturn => {
     signIn,
     logOut,
     isAuthenticated: !!user,
+    userTier,
+    isProOrAbove,
   };
 };
 

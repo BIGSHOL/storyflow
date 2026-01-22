@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, lazy, Suspense, useCallback, useMemo } from 'react';
+import React, { memo, useState, useEffect, useRef, lazy, Suspense, useCallback, useMemo, ComponentType } from 'react';
 import { Section, LayoutType, BackgroundMusic } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
@@ -6,17 +6,40 @@ import ImageOff from 'lucide-react/dist/esm/icons/image-off';
 import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
 import VolumeX from 'lucide-react/dist/esm/icons/volume-x';
 
-// 신규 레이아웃 컴포넌트 (lazy loading으로 번들 최적화)
-const GalleryLayout = lazy(() => import('./layouts/GalleryLayout'));
-const TimelineLayout = lazy(() => import('./layouts/TimelineLayout'));
-const CardsLayout = lazy(() => import('./layouts/CardsLayout'));
-const QuoteLayout = lazy(() => import('./layouts/QuoteLayout'));
-const StatsLayout = lazy(() => import('./layouts/StatsLayout'));
-const VideoHeroLayout = lazy(() => import('./layouts/VideoHeroLayout'));
-const CarouselLayout = lazy(() => import('./layouts/CarouselLayout'));
-const MasonryLayout = lazy(() => import('./layouts/MasonryLayout'));
-const GuestbookLayout = lazy(() => import('./layouts/GuestbookLayout'));
-const AudioLayout = lazy(() => import('./layouts/AudioLayout'));
+// Lazy import with retry (배포 후 캐시 무효화 문제 해결)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const lazyWithRetry = <T extends ComponentType<any>>(
+  componentImport: () => Promise<{ default: T }>
+): React.LazyExoticComponent<T> => {
+  return lazy(async () => {
+    const pageHasAlreadyReloaded = sessionStorage.getItem('chunk_reload');
+
+    try {
+      const component = await componentImport();
+      sessionStorage.removeItem('chunk_reload');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyReloaded) {
+        // 한 번만 새로고침 시도
+        sessionStorage.setItem('chunk_reload', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+};
+
+// 신규 레이아웃 컴포넌트 (lazy loading + 자동 재시도)
+const GalleryLayout = lazyWithRetry(() => import('./layouts/GalleryLayout'));
+const TimelineLayout = lazyWithRetry(() => import('./layouts/TimelineLayout'));
+const CardsLayout = lazyWithRetry(() => import('./layouts/CardsLayout'));
+const QuoteLayout = lazyWithRetry(() => import('./layouts/QuoteLayout'));
+const StatsLayout = lazyWithRetry(() => import('./layouts/StatsLayout'));
+const VideoHeroLayout = lazyWithRetry(() => import('./layouts/VideoHeroLayout'));
+const CarouselLayout = lazyWithRetry(() => import('./layouts/CarouselLayout'));
+const MasonryLayout = lazyWithRetry(() => import('./layouts/MasonryLayout'));
+const GuestbookLayout = lazyWithRetry(() => import('./layouts/GuestbookLayout'));
+const AudioLayout = lazyWithRetry(() => import('./layouts/AudioLayout'));
 
 interface PreviewRenderProps {
   sections: Section[];

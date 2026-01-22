@@ -18,11 +18,12 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
     minHeight: section.sectionHeight || '100vh',
   };
 
-  const gridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${columns}, 1fr)`,
-    gap: `${gap}px`,
-  };
+  // 반응형 그리드 클래스: 모바일 2열 → 태블릿 3열 → 데스크탑 사용자 설정
+  const gridClasses = `grid grid-cols-2 sm:grid-cols-3 ${
+    columns >= 4 ? 'lg:grid-cols-4' : ''
+  } ${columns >= 5 ? 'xl:grid-cols-5' : ''}`;
+
+  const gapStyle = { gap: `${gap}px` };
 
   if (galleryImages.length === 0) {
     return (
@@ -41,7 +42,7 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
       {section.description && (
         <p className="text-lg text-center opacity-80 mb-12 max-w-2xl mx-auto">{section.description}</p>
       )}
-      <div className="max-w-6xl mx-auto" style={gridStyle}>
+      <div className={`max-w-6xl mx-auto ${gridClasses}`} style={gapStyle}>
         {galleryImages.map((image) => (
           <div key={image.id} className="group relative overflow-hidden rounded-lg">
             {image.url ? (

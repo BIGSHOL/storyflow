@@ -1,5 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { GuestbookEntry, GuestbookSettings } from '../../types';
+
+// IME 지원 Input 컴포넌트 (한글 입력 버그 방지)
+const IMEInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ value, onChange, ...props }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const isComposingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isComposingRef.current) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    if (!isComposingRef.current) {
+      onChange(newValue);
+    }
+  }, [onChange]);
+
+  return (
+    <input
+      type="text"
+      value={localValue}
+      onChange={handleChange}
+      onCompositionStart={() => { isComposingRef.current = true; }}
+      onCompositionEnd={(e) => {
+        isComposingRef.current = false;
+        onChange(e.currentTarget.value);
+      }}
+      {...props}
+    />
+  );
+};
+
+// IME 지원 Textarea 컴포넌트
+const IMETextarea: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  rows?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ value, onChange, ...props }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const isComposingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isComposingRef.current) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    if (!isComposingRef.current) {
+      onChange(newValue);
+    }
+  }, [onChange]);
+
+  return (
+    <textarea
+      value={localValue}
+      onChange={handleChange}
+      onCompositionStart={() => { isComposingRef.current = true; }}
+      onCompositionEnd={(e) => {
+        isComposingRef.current = false;
+        onChange(e.currentTarget.value);
+      }}
+      {...props}
+    />
+  );
+};
 
 interface GuestbookLayoutProps {
   title?: string;
@@ -101,19 +183,18 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
           <form onSubmit={handleSubmit} className="mb-12 max-w-2xl mx-auto">
             <div className="space-y-4">
               {(!settings.allowAnonymous || settings.requireName) && (
-                <input
-                  type="text"
+                <IMEInput
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={setName}
                   placeholder={`이름${settings.requireName ? ' (필수)' : ' (선택)'}`}
                   required={settings.requireName}
                   className="w-full px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 focus:border-indigo-500 focus:outline-none"
                   style={{ color: textColor }}
                 />
               )}
-              <textarea
+              <IMETextarea
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={setMessage}
                 placeholder="메시지를 남겨주세요..."
                 required
                 rows={4}

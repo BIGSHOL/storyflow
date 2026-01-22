@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import { Section } from '../../types';
 import ImageOff from 'lucide-react/dist/esm/icons/image-off';
 
@@ -8,14 +8,35 @@ interface MasonryLayoutProps {
 
 const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
   const { masonryImages = [], masonrySettings } = section;
-  const columns = masonrySettings?.columns || 3;
+  const desktopColumns = masonrySettings?.columns || 3;
   const gap = masonrySettings?.gap || 16;
   const showCaptions = masonrySettings?.showCaptions ?? true;
   const hoverEffect = masonrySettings?.hoverEffect ?? true;
   const rounded = masonrySettings?.rounded ?? true;
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [columnHeights, setColumnHeights] = useState<number[]>(Array(columns).fill(0));
+
+  // 반응형 컬럼 수 계산
+  const getResponsiveColumns = useCallback(() => {
+    if (typeof window === 'undefined') return desktopColumns;
+    if (window.innerWidth < 640) return 1; // 모바일
+    if (window.innerWidth < 1024) return Math.min(desktopColumns, 2); // 태블릿
+    return desktopColumns;
+  }, [desktopColumns]);
+
+  const [columns, setColumns] = useState(getResponsiveColumns);
+
+  // 윈도우 리사이즈 시 컬럼 수 업데이트
+  useEffect(() => {
+    const handleResize = () => {
+      setColumns(getResponsiveColumns());
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 초기 설정
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [getResponsiveColumns]);
 
   const containerStyle: React.CSSProperties = {
     backgroundColor: section.backgroundColor || '#000000',

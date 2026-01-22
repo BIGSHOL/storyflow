@@ -22,11 +22,10 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
     minHeight: section.sectionHeight || '100vh',
   };
 
-  const gridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${columns}, 1fr)`,
-    gap: '32px',
-  };
+  // 반응형 그리드 클래스: 모바일 1열 → 태블릿 2열 → 데스크탑 사용자 설정
+  const gridClasses = `grid gap-8 grid-cols-1 sm:grid-cols-2 ${
+    columns >= 3 ? 'lg:grid-cols-3' : ''
+  } ${columns >= 4 ? 'xl:grid-cols-4' : ''}`;
 
   if (stats.length === 0) {
     return (
@@ -46,7 +45,7 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
         <p className="text-lg text-center opacity-80 mb-16 max-w-2xl">{section.description}</p>
       )}
 
-      <div className="max-w-5xl w-full" style={gridStyle}>
+      <div className={`max-w-5xl w-full ${gridClasses}`}>
         {stats.map((stat) => (
           <StatCard key={stat.id} stat={stat} animate={animateNumbers} />
         ))}
