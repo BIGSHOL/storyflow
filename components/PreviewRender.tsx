@@ -106,26 +106,57 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
   };
 
   // Image filter CSS
-  const getImageFilterStyle = () => {
-    if (!section.imageFilter || section.imageFilter === 'none') return {};
-    const intensity = section.imageFilterIntensity || 100;
+  const getImageFilterStyle = (): React.CSSProperties => {
+    const filters: string[] = [];
+    const style: React.CSSProperties = {};
 
-    switch (section.imageFilter) {
-      case 'grayscale':
-        return { filter: `grayscale(${intensity}%)` };
-      case 'sepia':
-        return { filter: `sepia(${intensity}%)` };
-      case 'blur':
-        return { filter: `blur(${intensity / 20}px)` };
-      case 'brightness':
-        return { filter: `brightness(${intensity}%)` };
-      case 'contrast':
-        return { filter: `contrast(${intensity}%)` };
-      case 'saturate':
-        return { filter: `saturate(${intensity}%)` };
-      default:
-        return {};
+    // 기본 필터
+    if (section.imageFilter && section.imageFilter !== 'none') {
+      const intensity = section.imageFilterIntensity || 100;
+      switch (section.imageFilter) {
+        case 'grayscale':
+          filters.push(`grayscale(${intensity}%)`);
+          break;
+        case 'sepia':
+          filters.push(`sepia(${intensity}%)`);
+          break;
+        case 'blur':
+          filters.push(`blur(${intensity / 20}px)`);
+          break;
+        case 'brightness':
+          filters.push(`brightness(${intensity}%)`);
+          break;
+        case 'contrast':
+          filters.push(`contrast(${intensity}%)`);
+          break;
+        case 'saturate':
+          filters.push(`saturate(${intensity}%)`);
+          break;
+      }
     }
+
+    // 밝기 조절
+    if (section.imageBrightness && section.imageBrightness !== 0) {
+      const brightness = 100 + section.imageBrightness; // -100~100 -> 0~200
+      filters.push(`brightness(${brightness}%)`);
+    }
+
+    // 대비 조절
+    if (section.imageContrast && section.imageContrast !== 0) {
+      const contrast = 100 + section.imageContrast; // -100~100 -> 0~200
+      filters.push(`contrast(${contrast}%)`);
+    }
+
+    if (filters.length > 0) {
+      style.filter = filters.join(' ');
+    }
+
+    // 이미지 회전
+    if (section.imageRotation && section.imageRotation !== 0) {
+      style.transform = `rotate(${section.imageRotation}deg)`;
+    }
+
+    return style;
   };
 
   // Gradient overlay CSS

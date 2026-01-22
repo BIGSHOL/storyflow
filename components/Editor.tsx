@@ -177,6 +177,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       paddingY: DEFAULT_SECTION_VALUES.paddingY,
       imageFilter: DEFAULT_SECTION_VALUES.imageFilter,
       imageFilterIntensity: DEFAULT_SECTION_VALUES.imageFilterIntensity,
+      imageRotation: DEFAULT_SECTION_VALUES.imageRotation,
+      imageBrightness: DEFAULT_SECTION_VALUES.imageBrightness,
+      imageContrast: DEFAULT_SECTION_VALUES.imageContrast,
       gradientOverlay: { ...DEFAULT_SECTION_VALUES.gradientOverlay },
       animation: DEFAULT_SECTION_VALUES.animation,
       animationDuration: DEFAULT_SECTION_VALUES.animationDuration,
@@ -1451,6 +1454,60 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                           />
                         </div>
                       )}
+
+                      {/* 이미지 회전 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">회전</label>
+                        <div className="flex gap-2">
+                          {[0, 90, 180, 270].map(degree => (
+                            <button
+                              key={degree}
+                              onClick={() => updateSection(section.id, { imageRotation: degree })}
+                              className={`flex-1 px-2 py-1.5 rounded text-xs transition-colors ${
+                                (section.imageRotation || 0) === degree
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              }`}
+                            >
+                              {degree}°
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 밝기 조절 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                          <span>밝기</span>
+                          <span className="text-white">{section.imageBrightness || 0}</span>
+                        </label>
+                        <input
+                          type="range"
+                          min="-100"
+                          max="100"
+                          value={section.imageBrightness || 0}
+                          onChange={(e) => updateSection(section.id, { imageBrightness: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                          {...preventDragProps}
+                        />
+                      </div>
+
+                      {/* 대비 조절 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                          <span>대비</span>
+                          <span className="text-white">{section.imageContrast || 0}</span>
+                        </label>
+                        <input
+                          type="range"
+                          min="-100"
+                          max="100"
+                          value={section.imageContrast || 0}
+                          onChange={(e) => updateSection(section.id, { imageContrast: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                          {...preventDragProps}
+                        />
+                      </div>
                     </div>
                   </AccordionSection>
                 )}

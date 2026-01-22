@@ -94,6 +94,9 @@ export const DEFAULT_SECTION_VALUES = {
   paddingY: 24,
   imageFilter: 'none' as const,
   imageFilterIntensity: 100,
+  imageRotation: 0,
+  imageBrightness: 0,
+  imageContrast: 0,
   gradientOverlay: {
     enabled: false,
     startColor: '#000000',

@@ -150,6 +150,9 @@ export interface Section {
   // Image Effects
   imageFilter?: ImageFilter;
   imageFilterIntensity?: number;
+  imageRotation?: number; // 0, 90, 180, 270
+  imageBrightness?: number; // -100 ~ 100
+  imageContrast?: number; // -100 ~ 100
 
   // Gradient Overlay
   gradientOverlay?: GradientOverlay;
