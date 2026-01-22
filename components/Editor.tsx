@@ -96,11 +96,31 @@ const AccordionSection: React.FC<{
 );
 
 // Range input에서 부모의 드래그 이벤트가 시작되는 것을 방지
+// 슬라이더 조작 시 부모 요소가 드래그되는 것을 방지하기 위해 모든 관련 이벤트를 중단
 const preventDragProps = {
-  onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
-  onPointerDown: (e: React.PointerEvent) => e.stopPropagation(),
-  onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
-  onDragStart: (e: React.DragEvent) => e.preventDefault(),
+  onMouseDown: (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // 부모 요소의 draggable을 일시적으로 비활성화
+    const parentDraggable = (e.currentTarget as HTMLElement).closest('[draggable="true"]');
+    if (parentDraggable) {
+      parentDraggable.setAttribute('draggable', 'false');
+      const restoreDraggable = () => {
+        parentDraggable.setAttribute('draggable', 'true');
+        window.removeEventListener('mouseup', restoreDraggable);
+      };
+      window.addEventListener('mouseup', restoreDraggable);
+    }
+  },
+  onPointerDown: (e: React.PointerEvent) => {
+    e.stopPropagation();
+  },
+  onTouchStart: (e: React.TouchEvent) => {
+    e.stopPropagation();
+  },
+  onDragStart: (e: React.DragEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  },
   draggable: false,
 };
 
@@ -904,11 +924,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           <div className="flex flex-wrap gap-2 p-3 border-b border-gray-700 flex-shrink-0">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === 'all'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
             >
               전체 ({TEMPLATES.length})
             </button>
@@ -916,11 +935,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === category.id
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === category.id
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
               >
                 {category.name} ({TEMPLATES.filter(t => t.category === category.id).length})
               </button>
@@ -933,27 +951,27 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
             <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10"></div>
 
             <div className="h-full overflow-y-auto p-4">
-            <div className="space-y-3">
-              {TEMPLATES
-                .filter(t => selectedCategory === 'all' || t.category === selectedCategory)
-                .map(template => (
-                  <button
-                    key={template.id}
-                    onClick={() => handleApplyTemplate(template)}
-                    className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="font-medium text-white">{template.name}</p>
-                        <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+              <div className="space-y-3">
+                {TEMPLATES
+                  .filter(t => selectedCategory === 'all' || t.category === selectedCategory)
+                  .map(template => (
+                    <button
+                      key={template.id}
+                      onClick={() => handleApplyTemplate(template)}
+                      className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-white">{template.name}</p>
+                          <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+                        </div>
+                        <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
+                          {template.sections.length}개 섹션
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
-                        {template.sections.length}개 섹션
-                      </span>
-                    </div>
-                  </button>
-                ))}
-            </div>
+                    </button>
+                  ))}
+              </div>
             </div>
 
             {/* 하단 페이드 그라데이션 */}
@@ -978,1268 +996,1265 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         )}
 
         <div className="h-full overflow-y-auto p-4 space-y-3 no-scrollbar">
-        {sections.length === 0 && emptyEditorStateElement}
+          {sections.length === 0 && emptyEditorStateElement}
 
-        {sections.map((section, index) => (
-          <div
-            key={section.id}
-            className={`editor-section-item bg-gray-800 rounded-lg overflow-hidden border transition-all ${dropTargetId === section.id
-              ? 'border-blue-500 border-2 scale-[1.02]'
-              : draggedSectionId === section.id
-                ? 'opacity-50 border-gray-700'
-                : 'border-gray-700'
-              }`}
-            draggable
-            onDragStart={(e) => handleSectionDragStart(e, section.id)}
-            onDragEnd={handleSectionDragEnd}
-            onDragOver={(e) => handleSectionDragOver(e, section.id)}
-            onDrop={(e) => handleSectionDrop(e, section.id)}
-          >
-            {/* Header/Summary of Section */}
+          {sections.map((section, index) => (
             <div
-              className={`p-3 flex items-center gap-3 cursor-pointer hover:bg-gray-700 ${activeSectionId === section.id ? 'bg-gray-700 border-b border-gray-600' : ''}`}
-              onClick={() => setActiveSectionId(activeSectionId === section.id ? null : section.id)}
+              key={section.id}
+              className={`editor-section-item bg-gray-800 rounded-lg overflow-hidden border transition-all ${dropTargetId === section.id
+                ? 'border-blue-500 border-2 scale-[1.02]'
+                : draggedSectionId === section.id
+                  ? 'opacity-50 border-gray-700'
+                  : 'border-gray-700'
+                }`}
+              draggable
+              onDragStart={(e) => handleSectionDragStart(e, section.id)}
+              onDragEnd={handleSectionDragEnd}
+              onDragOver={(e) => handleSectionDragOver(e, section.id)}
+              onDrop={(e) => handleSectionDrop(e, section.id)}
             >
-              <div className="text-gray-500 cursor-grab active:cursor-grabbing"><GripVertical size={16} /></div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{section.title || '제목 없음'}</p>
-                <p className="text-xs text-gray-500 truncate">{getLayoutName(section.layout)}</p>
+              {/* Header/Summary of Section */}
+              <div
+                className={`p-3 flex items-center gap-3 cursor-pointer hover:bg-gray-700 ${activeSectionId === section.id ? 'bg-gray-700 border-b border-gray-600' : ''}`}
+                onClick={() => setActiveSectionId(activeSectionId === section.id ? null : section.id)}
+              >
+                <div className="text-gray-500 cursor-grab active:cursor-grabbing"><GripVertical size={16} /></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{section.title || '제목 없음'}</p>
+                  <p className="text-xs text-gray-500 truncate">{getLayoutName(section.layout)}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={(e) => moveSection(index, 'up', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === 0} title="위로 이동"><ArrowUp size={14} /></button>
+                  <button onClick={(e) => moveSection(index, 'down', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === sections.length - 1} title="아래로 이동"><ArrowDown size={14} /></button>
+                  <button onClick={(e) => duplicateSection(section.id, e)} className="p-1 hover:text-blue-400 text-gray-500" title="복제"><Copy size={14} /></button>
+                  <button onClick={(e) => deleteSection(section.id, e)} className="p-1 hover:text-red-400 text-gray-500" title="삭제"><Trash2 size={14} /></button>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={(e) => moveSection(index, 'up', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === 0} title="위로 이동"><ArrowUp size={14} /></button>
-                <button onClick={(e) => moveSection(index, 'down', e)} className="p-1 hover:text-white text-gray-500 disabled:opacity-30" disabled={index === sections.length - 1} title="아래로 이동"><ArrowDown size={14} /></button>
-                <button onClick={(e) => duplicateSection(section.id, e)} className="p-1 hover:text-blue-400 text-gray-500" title="복제"><Copy size={14} /></button>
-                <button onClick={(e) => deleteSection(section.id, e)} className="p-1 hover:text-red-400 text-gray-500" title="삭제"><Trash2 size={14} /></button>
-              </div>
-            </div>
 
-            {/* Detailed Editor for Active Section */}
-            {activeSectionId === section.id && (
-              <div className="p-4 bg-gray-800/50 space-y-1 animate-fade-in text-sm">
+              {/* Detailed Editor for Active Section */}
+              {activeSectionId === section.id && (
+                <div className="p-4 bg-gray-800/50 space-y-1 animate-fade-in text-sm">
 
-                {/* 레이아웃 & 기본 설정 */}
-                <AccordionSection
-                  title="레이아웃"
-                  icon={<Layout size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'layout')}
-                  onToggle={() => toggleAccordion(section.id, 'layout')}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">레이아웃 타입</label>
-                      <select
-                        value={section.layout}
-                        onChange={(e) => updateSection(section.id, { layout: e.target.value as LayoutType })}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                      >
-                        <optgroup label="기본 레이아웃">
-                          <option value={LayoutType.HERO}>Hero (전체화면)</option>
-                          <option value={LayoutType.SPLIT_LEFT}>이미지 왼쪽 (분할)</option>
-                          <option value={LayoutType.SPLIT_RIGHT}>이미지 오른쪽 (분할)</option>
-                          <option value={LayoutType.FULL_IMAGE_TEXT_OVERLAY}>이미지 배경 + 텍스트</option>
-                          <option value={LayoutType.SIMPLE_TEXT}>중앙 텍스트</option>
-                        </optgroup>
-                        <optgroup label="신규 레이아웃">
-                          <option value={LayoutType.GALLERY}>갤러리 (이미지 그리드)</option>
-                          <option value={LayoutType.TIMELINE}>타임라인 (시간순)</option>
-                          <option value={LayoutType.CARDS}>카드 (그리드)</option>
-                          <option value={LayoutType.QUOTE}>인용문</option>
-                          <option value={LayoutType.STATS}>통계 (숫자 강조)</option>
-                          <option value={LayoutType.VIDEO_HERO}>비디오 Hero</option>
-                        </optgroup>
-                      </select>
-                    </div>
-
-                    {/* 섹션 높이 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">섹션 높이</label>
-                      <select
-                        value={section.sectionHeight || '100vh'}
-                        onChange={(e) => updateSection(section.id, { sectionHeight: e.target.value as SectionHeight })}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                      >
-                        {SECTION_HEIGHTS.map(h => (
-                          <option key={h.value} value={h.value}>{h.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Split Ratio (Split layouts only) */}
-                    {(section.layout === LayoutType.SPLIT_LEFT || section.layout === LayoutType.SPLIT_RIGHT) && (
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>이미지 비율</span>
-                          <span className="text-white">{section.splitRatio || 50}%</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="20"
-                          max="80"
-                          value={section.splitRatio || 50}
-                          onChange={(e) => updateSection(section.id, { splitRatio: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                    )}
-
-                    {/* Overlay Opacity (Overlay layouts only) */}
-                    {(section.layout === LayoutType.HERO || section.layout === LayoutType.FULL_IMAGE_TEXT_OVERLAY) && (
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>오버레이 투명도</span>
-                          <span className="text-white">{Math.round((section.overlayOpacity || 0) * 100)}%</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.1"
-                          value={section.overlayOpacity ?? 0.4}
-                          onChange={(e) => updateSection(section.id, { overlayOpacity: parseFloat(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                    )}
-
-                    {/* 여백 설정 */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>좌우 여백</span>
-                          <span className="text-white">{section.paddingX || 24}px</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={section.paddingX || 24}
-                          onChange={(e) => updateSection(section.id, { paddingX: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>상하 여백</span>
-                          <span className="text-white">{section.paddingY || 24}px</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={section.paddingY || 24}
-                          onChange={(e) => updateSection(section.id, { paddingY: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </AccordionSection>
-
-                {/* 텍스트 컨텐츠 */}
-                <AccordionSection
-                  title="텍스트 내용"
-                  icon={<Type size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'text')}
-                  onToggle={() => toggleAccordion(section.id, 'text')}
-                >
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      value={section.title}
-                      onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold text-white"
-                      placeholder="제목"
-                    />
-                    <textarea
-                      value={section.description}
-                      onChange={(e) => updateSection(section.id, { description: e.target.value })}
-                      rows={4}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none text-white"
-                      placeholder="내용"
-                    />
-                  </div>
-                </AccordionSection>
-
-                {/* 타이포그래피 */}
-                <AccordionSection
-                  title="타이포그래피"
-                  icon={<Type size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'typography')}
-                  onToggle={() => toggleAccordion(section.id, 'typography')}
-                >
-                  <div className="space-y-4">
-                    {/* 폰트 선택 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">폰트</label>
-                      <select
-                        value={section.fontFamily || DEFAULT_SECTION_VALUES.fontFamily}
-                        onChange={(e) => updateSection(section.id, { fontFamily: e.target.value })}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                      >
-                        {GOOGLE_FONTS.map(font => (
-                          <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                            {font.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* 제목 폰트 크기 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                        <span>제목 크기</span>
-                        <span className="text-white">{section.titleFontSize || 48}px</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="24"
-                        max="120"
-                        value={section.titleFontSize || 48}
-                        onChange={(e) => updateSection(section.id, { titleFontSize: parseInt(e.target.value) })}
-                        className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                        {...preventDragProps}
-                      />
-                    </div>
-
-                    {/* 본문 폰트 크기 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                        <span>본문 크기</span>
-                        <span className="text-white">{section.descriptionFontSize || 18}px</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="12"
-                        max="36"
-                        value={section.descriptionFontSize || 18}
-                        onChange={(e) => updateSection(section.id, { descriptionFontSize: parseInt(e.target.value) })}
-                        className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                        {...preventDragProps}
-                      />
-                    </div>
-
-                    {/* 텍스트 정렬 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">수평 정렬</label>
-                      <div className="flex bg-gray-900 rounded border border-gray-700 p-0.5">
-                        {(['left', 'center', 'right'] as const).map((align) => (
-                          <button
-                            key={align}
-                            onClick={() => updateSection(section.id, { textHorizontalPosition: align as TextHorizontalPosition })}
-                            className={`flex-1 flex items-center justify-center py-1.5 rounded hover:bg-gray-700 ${(section.textHorizontalPosition || 'center') === align ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
-                          >
-                            {align === 'left' && <AlignLeft size={14} />}
-                            {align === 'center' && <AlignCenter size={14} />}
-                            {align === 'right' && <AlignRight size={14} />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* 텍스트 색상 */}
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">텍스트 색상</label>
-                      <div className="flex items-center gap-2 h-9 bg-gray-900 border border-gray-700 rounded px-2">
-                        <input
-                          type="color"
-                          value={section.textColor || '#ffffff'}
-                          onChange={(e) => updateSection(section.id, { textColor: e.target.value })}
-                          className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
-                        />
-                        <span className="text-xs text-gray-400 font-mono">{section.textColor}</span>
-                      </div>
-                    </div>
-
-                    {/* 텍스트 그림자 */}
-                    <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">텍스트 그림자</label>
-                        <button
-                          onClick={() => updateTextShadow(section.id, { enabled: !(section.textShadow?.enabled) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${section.textShadow?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.textShadow?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-                      {section.textShadow?.enabled && (
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <label className="text-xs text-gray-400 w-12">색상</label>
-                            <input
-                              type="color"
-                              value={section.textShadow?.color || '#000000'}
-                              onChange={(e) => updateTextShadow(section.id, { color: e.target.value })}
-                              className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs text-gray-400 mb-1 flex justify-between">
-                              <span>흐림</span>
-                              <span className="text-white">{section.textShadow?.blur || 4}px</span>
-                            </label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="20"
-                              value={section.textShadow?.blur || 4}
-                              onChange={(e) => updateTextShadow(section.id, { blur: parseInt(e.target.value) })}
-                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                              {...preventDragProps}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </AccordionSection>
-
-                {/* 텍스트 위치 (9방향) */}
-                <AccordionSection
-                  title="텍스트 위치"
-                  icon={<Move size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'position')}
-                  onToggle={() => toggleAccordion(section.id, 'position')}
-                >
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-3 gap-1 w-32 mx-auto">
-                      {(['top', 'center', 'bottom'] as const).map(v => (
-                        (['left', 'center', 'right'] as const).map(h => (
-                          <button
-                            key={`${v}-${h}`}
-                            onClick={() => updateSection(section.id, {
-                              textVerticalPosition: v as TextVerticalPosition,
-                              textHorizontalPosition: h as TextHorizontalPosition
-                            })}
-                            className={`w-10 h-10 rounded border transition-colors ${section.textVerticalPosition === v && section.textHorizontalPosition === h
-                              ? 'bg-blue-500 border-blue-400'
-                              : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                              }`}
-                          />
-                        ))
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500 text-center">
-                      현재: {section.textVerticalPosition || 'center'} / {section.textHorizontalPosition || 'center'}
-                    </p>
-                  </div>
-                </AccordionSection>
-
-                {/* 색상 & 배경 */}
-                <AccordionSection
-                  title="색상 & 배경"
-                  icon={<Palette size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'colors')}
-                  onToggle={() => toggleAccordion(section.id, 'colors')}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">배경 색상</label>
-                      <div className="flex items-center gap-2 h-9 bg-gray-900 border border-gray-700 rounded px-2">
-                        <input
-                          type="color"
-                          value={section.backgroundColor || '#000000'}
-                          onChange={(e) => updateSection(section.id, { backgroundColor: e.target.value })}
-                          className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
-                        />
-                        <span className="text-xs text-gray-400 font-mono">{section.backgroundColor}</span>
-                      </div>
-                    </div>
-
-                    {/* 그라데이션 오버레이 */}
-                    <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">그라데이션 오버레이</label>
-                        <button
-                          onClick={() => updateGradientOverlay(section.id, { enabled: !(section.gradientOverlay?.enabled) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${section.gradientOverlay?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.gradientOverlay?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-                      {section.gradientOverlay?.enabled && (
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="text-xs text-gray-500 mb-1 block">시작 색상</label>
-                              <input
-                                type="color"
-                                value={section.gradientOverlay?.startColor || '#000000'}
-                                onChange={(e) => updateGradientOverlay(section.id, { startColor: e.target.value })}
-                                className="w-full h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-gray-500 mb-1 block">끝 색상</label>
-                              <input
-                                type="color"
-                                value={section.gradientOverlay?.endColor || '#000000'}
-                                onChange={(e) => updateGradientOverlay(section.id, { endColor: e.target.value })}
-                                className="w-full h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="text-xs text-gray-500 mb-1 block">방향</label>
-                            <select
-                              value={section.gradientOverlay?.direction || 'to-bottom'}
-                              onChange={(e) => updateGradientOverlay(section.id, { direction: e.target.value as GradientOverlay['direction'] })}
-                              className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                            >
-                              {GRADIENT_DIRECTIONS.map(d => (
-                                <option key={d.value} value={d.value}>{d.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-xs text-gray-500 mb-1 flex justify-between">
-                              <span>투명도</span>
-                              <span>{Math.round((section.gradientOverlay?.opacity || 0.5) * 100)}%</span>
-                            </label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={section.gradientOverlay?.opacity || 0.5}
-                              onChange={(e) => updateGradientOverlay(section.id, { opacity: parseFloat(e.target.value) })}
-                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                              {...preventDragProps}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </AccordionSection>
-
-                {/* 이미지 필터 */}
-                {section.layout !== LayoutType.SIMPLE_TEXT && (
+                  {/* 레이아웃 & 기본 설정 */}
                   <AccordionSection
-                    title="이미지 필터"
-                    icon={<Filter size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'filter')}
-                    onToggle={() => toggleAccordion(section.id, 'filter')}
+                    title="레이아웃"
+                    icon={<Layout size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'layout')}
+                    onToggle={() => toggleAccordion(section.id, 'layout')}
                   >
                     <div className="space-y-4">
                       <div>
-                        <label className="text-xs text-gray-400 mb-2 block">필터 타입</label>
+                        <label className="text-xs text-gray-400 mb-2 block">레이아웃 타입</label>
                         <select
-                          value={section.imageFilter || 'none'}
-                          onChange={(e) => updateSection(section.id, { imageFilter: e.target.value as ImageFilter })}
+                          value={section.layout}
+                          onChange={(e) => updateSection(section.id, { layout: e.target.value as LayoutType })}
                           className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
                         >
-                          {IMAGE_FILTERS.map(f => (
-                            <option key={f.value} value={f.value}>{f.name}</option>
+                          <optgroup label="기본 레이아웃">
+                            <option value={LayoutType.HERO}>Hero (전체화면)</option>
+                            <option value={LayoutType.SPLIT_LEFT}>이미지 왼쪽 (분할)</option>
+                            <option value={LayoutType.SPLIT_RIGHT}>이미지 오른쪽 (분할)</option>
+                            <option value={LayoutType.FULL_IMAGE_TEXT_OVERLAY}>이미지 배경 + 텍스트</option>
+                            <option value={LayoutType.SIMPLE_TEXT}>중앙 텍스트</option>
+                          </optgroup>
+                          <optgroup label="신규 레이아웃">
+                            <option value={LayoutType.GALLERY}>갤러리 (이미지 그리드)</option>
+                            <option value={LayoutType.TIMELINE}>타임라인 (시간순)</option>
+                            <option value={LayoutType.CARDS}>카드 (그리드)</option>
+                            <option value={LayoutType.QUOTE}>인용문</option>
+                            <option value={LayoutType.STATS}>통계 (숫자 강조)</option>
+                            <option value={LayoutType.VIDEO_HERO}>비디오 Hero</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      {/* 섹션 높이 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">섹션 높이</label>
+                        <select
+                          value={section.sectionHeight || '100vh'}
+                          onChange={(e) => updateSection(section.id, { sectionHeight: e.target.value as SectionHeight })}
+                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
+                        >
+                          {SECTION_HEIGHTS.map(h => (
+                            <option key={h.value} value={h.value}>{h.name}</option>
                           ))}
                         </select>
                       </div>
 
-                      {section.imageFilter && section.imageFilter !== 'none' && (
+                      {/* Split Ratio (Split layouts only) */}
+                      {(section.layout === LayoutType.SPLIT_LEFT || section.layout === LayoutType.SPLIT_RIGHT) && (
                         <div>
                           <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                            <span>필터 강도</span>
-                            <span className="text-white">{section.imageFilterIntensity || 100}%</span>
+                            <span>이미지 비율</span>
+                            <span className="text-white">{section.splitRatio || 50}%</span>
                           </label>
                           <input
                             type="range"
-                            min="0"
-                            max="200"
-                            value={section.imageFilterIntensity || 100}
-                            onChange={(e) => updateSection(section.id, { imageFilterIntensity: parseInt(e.target.value) })}
+                            min="20"
+                            max="80"
+                            value={section.splitRatio || 50}
+                            onChange={(e) => updateSection(section.id, { splitRatio: parseInt(e.target.value) })}
                             className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
                             {...preventDragProps}
                           />
                         </div>
                       )}
 
-                      {/* 이미지 회전 */}
+                      {/* Overlay Opacity (Overlay layouts only) */}
+                      {(section.layout === LayoutType.HERO || section.layout === LayoutType.FULL_IMAGE_TEXT_OVERLAY) && (
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>오버레이 투명도</span>
+                            <span className="text-white">{Math.round((section.overlayOpacity || 0) * 100)}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={section.overlayOpacity ?? 0.4}
+                            onChange={(e) => updateSection(section.id, { overlayOpacity: parseFloat(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+                      )}
+
+                      {/* 여백 설정 */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>좌우 여백</span>
+                            <span className="text-white">{section.paddingX || 24}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={section.paddingX || 24}
+                            onChange={(e) => updateSection(section.id, { paddingX: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>상하 여백</span>
+                            <span className="text-white">{section.paddingY || 24}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={section.paddingY || 24}
+                            onChange={(e) => updateSection(section.id, { paddingY: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionSection>
+
+                  {/* 텍스트 컨텐츠 */}
+                  <AccordionSection
+                    title="텍스트 내용"
+                    icon={<Type size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'text')}
+                    onToggle={() => toggleAccordion(section.id, 'text')}
+                  >
+                    <div className="space-y-4">
+                      <input
+                        type="text"
+                        value={section.title}
+                        onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold text-white"
+                        placeholder="제목"
+                      />
+                      <textarea
+                        value={section.description}
+                        onChange={(e) => updateSection(section.id, { description: e.target.value })}
+                        rows={4}
+                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none text-white"
+                        placeholder="내용"
+                      />
+                    </div>
+                  </AccordionSection>
+
+                  {/* 타이포그래피 */}
+                  <AccordionSection
+                    title="타이포그래피"
+                    icon={<Type size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'typography')}
+                    onToggle={() => toggleAccordion(section.id, 'typography')}
+                  >
+                    <div className="space-y-4">
+                      {/* 폰트 선택 */}
                       <div>
-                        <label className="text-xs text-gray-400 mb-2 block">회전</label>
-                        <div className="flex gap-2">
-                          {[0, 90, 180, 270].map(degree => (
+                        <label className="text-xs text-gray-400 mb-2 block">폰트</label>
+                        <select
+                          value={section.fontFamily || DEFAULT_SECTION_VALUES.fontFamily}
+                          onChange={(e) => updateSection(section.id, { fontFamily: e.target.value })}
+                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
+                        >
+                          {GOOGLE_FONTS.map(font => (
+                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                              {font.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* 제목 폰트 크기 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                          <span>제목 크기</span>
+                          <span className="text-white">{section.titleFontSize || 48}px</span>
+                        </label>
+                        <input
+                          type="range"
+                          min="24"
+                          max="120"
+                          value={section.titleFontSize || 48}
+                          onChange={(e) => updateSection(section.id, { titleFontSize: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                          {...preventDragProps}
+                        />
+                      </div>
+
+                      {/* 본문 폰트 크기 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                          <span>본문 크기</span>
+                          <span className="text-white">{section.descriptionFontSize || 18}px</span>
+                        </label>
+                        <input
+                          type="range"
+                          min="12"
+                          max="36"
+                          value={section.descriptionFontSize || 18}
+                          onChange={(e) => updateSection(section.id, { descriptionFontSize: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                          {...preventDragProps}
+                        />
+                      </div>
+
+                      {/* 텍스트 정렬 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">수평 정렬</label>
+                        <div className="flex bg-gray-900 rounded border border-gray-700 p-0.5">
+                          {(['left', 'center', 'right'] as const).map((align) => (
                             <button
-                              key={degree}
-                              onClick={() => updateSection(section.id, { imageRotation: degree })}
-                              className={`flex-1 px-2 py-1.5 rounded text-xs transition-colors ${
-                                (section.imageRotation || 0) === degree
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                              }`}
-                              {...preventDragProps}
+                              key={align}
+                              onClick={() => updateSection(section.id, { textHorizontalPosition: align as TextHorizontalPosition })}
+                              className={`flex-1 flex items-center justify-center py-1.5 rounded hover:bg-gray-700 ${(section.textHorizontalPosition || 'center') === align ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
                             >
-                              {degree}°
+                              {align === 'left' && <AlignLeft size={14} />}
+                              {align === 'center' && <AlignCenter size={14} />}
+                              {align === 'right' && <AlignRight size={14} />}
                             </button>
                           ))}
                         </div>
                       </div>
 
-                      {/* 밝기 조절 */}
+                      {/* 텍스트 색상 */}
                       <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>밝기</span>
-                          <span className="text-white">{section.imageBrightness || 0}</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="-100"
-                          max="100"
-                          value={section.imageBrightness || 0}
-                          onChange={(e) => updateSection(section.id, { imageBrightness: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
+                        <label className="text-xs text-gray-400 mb-2 block">텍스트 색상</label>
+                        <div className="flex items-center gap-2 h-9 bg-gray-900 border border-gray-700 rounded px-2">
+                          <input
+                            type="color"
+                            value={section.textColor || '#ffffff'}
+                            onChange={(e) => updateSection(section.id, { textColor: e.target.value })}
+                            className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
+                          />
+                          <span className="text-xs text-gray-400 font-mono">{section.textColor}</span>
+                        </div>
                       </div>
 
-                      {/* 대비 조절 */}
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>대비</span>
-                          <span className="text-white">{section.imageContrast || 0}</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="-100"
-                          max="100"
-                          value={section.imageContrast || 0}
-                          onChange={(e) => updateSection(section.id, { imageContrast: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                    </div>
-                  </AccordionSection>
-                )}
-
-                {/* 애니메이션 */}
-                <AccordionSection
-                  title="애니메이션"
-                  icon={<Zap size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'animation')}
-                  onToggle={() => toggleAccordion(section.id, 'animation')}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs text-gray-400 mb-2 block">애니메이션 타입</label>
-                      <select
-                        value={section.animation || 'fade-in'}
-                        onChange={(e) => updateSection(section.id, { animation: e.target.value as AnimationType })}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                      >
-                        {ANIMATIONS.map(a => (
-                          <option key={a.value} value={a.value}>{a.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {section.animation && section.animation !== 'none' && (
-                      <>
-                        <div>
-                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                            <span>지속 시간</span>
-                            <span className="text-white">{section.animationDuration || 0.8}초</span>
-                          </label>
-                          <input
-                            type="range"
-                            min="0.1"
-                            max="3"
-                            step="0.1"
-                            value={section.animationDuration || 0.8}
-                            onChange={(e) => updateSection(section.id, { animationDuration: parseFloat(e.target.value) })}
-                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                            {...preventDragProps}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                            <span>지연 시간</span>
-                            <span className="text-white">{section.animationDelay || 0}초</span>
-                          </label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="2"
-                            step="0.1"
-                            value={section.animationDelay || 0}
-                            onChange={(e) => updateSection(section.id, { animationDelay: parseFloat(e.target.value) })}
-                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                            {...preventDragProps}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </AccordionSection>
-
-                {/* CTA 버튼 */}
-                <AccordionSection
-                  title="CTA 버튼"
-                  icon={<MousePointer size={12} />}
-                  isOpen={isAccordionOpen(section.id, 'cta')}
-                  onToggle={() => toggleAccordion(section.id, 'cta')}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs text-gray-400">버튼 표시</label>
-                      <button
-                        onClick={() => updateCtaButton(section.id, { enabled: !(section.ctaButton?.enabled) })}
-                        className={`w-10 h-5 rounded-full transition-colors ${section.ctaButton?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
-                      >
-                        <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.ctaButton?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                      </button>
-                    </div>
-
-                    {section.ctaButton?.enabled && (
+                      {/* 텍스트 그림자 */}
                       <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
-                        <div>
-                          <label className="text-xs text-gray-500 mb-1 block">버튼 텍스트</label>
-                          <input
-                            type="text"
-                            value={section.ctaButton?.text || '자세히 보기'}
-                            onChange={(e) => updateCtaButton(section.id, { text: e.target.value })}
-                            className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500 mb-1 block">링크 URL</label>
-                          <input
-                            type="text"
-                            value={section.ctaButton?.link || '#'}
-                            onChange={(e) => updateCtaButton(section.id, { link: e.target.value })}
-                            className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
-                            placeholder="https://..."
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-xs text-gray-500 mb-1 block">스타일</label>
-                            <select
-                              value={section.ctaButton?.style || 'solid'}
-                              onChange={(e) => updateCtaButton(section.id, { style: e.target.value as CTAButton['style'] })}
-                              className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                            >
-                              {BUTTON_STYLES.map(s => (
-                                <option key={s.value} value={s.value}>{s.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-xs text-gray-500 mb-1 block">크기</label>
-                            <select
-                              value={section.ctaButton?.size || 'medium'}
-                              onChange={(e) => updateCtaButton(section.id, { size: e.target.value as CTAButton['size'] })}
-                              className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                            >
-                              {BUTTON_SIZES.map(s => (
-                                <option key={s.value} value={s.value}>{s.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500 mb-1 block">버튼 색상</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={section.ctaButton?.color || '#ffffff'}
-                              onChange={(e) => updateCtaButton(section.id, { color: e.target.value })}
-                              className="w-8 h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
-                            />
-                            <span className="text-xs text-gray-400 font-mono">{section.ctaButton?.color}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </AccordionSection>
-
-                {/* ========== 신규 레이아웃별 편집 UI ========== */}
-
-                {/* Gallery 레이아웃 편집 */}
-                {section.layout === LayoutType.GALLERY && (
-                  <AccordionSection
-                    title="갤러리 설정"
-                    icon={<Grid size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'gallery')}
-                    onToggle={() => toggleAccordion(section.id, 'gallery')}
-                  >
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-2">
-                        {[2, 3, 4].map(cols => (
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">텍스트 그림자</label>
                           <button
-                            key={cols}
-                            onClick={() => updateGallerySettings(section.id, { columns: cols as 2 | 3 | 4 })}
-                            className={`py-2 rounded text-xs font-medium ${(section.gallerySettings?.columns || 3) === cols
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                              }`}
+                            onClick={() => updateTextShadow(section.id, { enabled: !(section.textShadow?.enabled) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${section.textShadow?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
                           >
-                            {cols}열
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.textShadow?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
                           </button>
-                        ))}
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 flex justify-between">
-                          <span>이미지 간격</span>
-                          <span className="text-white">{section.gallerySettings?.gap || 16}px</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="40"
-                          value={section.gallerySettings?.gap || 16}
-                          onChange={(e) => updateGallerySettings(section.id, { gap: parseInt(e.target.value) })}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                          {...preventDragProps}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">캡션 표시</label>
-                        <button
-                          onClick={() => updateGallerySettings(section.id, { showCaptions: !(section.gallerySettings?.showCaptions ?? true) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${(section.gallerySettings?.showCaptions ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.gallerySettings?.showCaptions ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-
-                      {/* 이미지 목록 */}
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-400">이미지 ({section.galleryImages?.length || 0}개)</label>
-                        {(section.galleryImages || []).map((image, idx) => (
-                          <div key={image.id} className="flex items-center gap-2 p-2 bg-gray-800 rounded">
-                            {image.url ? (
-                              <img src={image.url} alt="" className="w-10 h-10 object-cover rounded" />
-                            ) : (
-                              <label className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                <Plus size={16} className="text-gray-400" />
-                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleGalleryImageUpload(e, section.id, image.id)} />
+                        </div>
+                        {section.textShadow?.enabled && (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs text-gray-400 w-12">색상</label>
+                              <input
+                                type="color"
+                                value={section.textShadow?.color || '#000000'}
+                                onChange={(e) => updateTextShadow(section.id, { color: e.target.value })}
+                                className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 flex justify-between">
+                                <span>흐림</span>
+                                <span className="text-white">{section.textShadow?.blur || 4}px</span>
                               </label>
-                            )}
-                            <input
-                              type="text"
-                              value={image.caption || ''}
-                              onChange={(e) => updateGalleryImage(section.id, image.id, { caption: e.target.value })}
-                              placeholder="캡션"
-                              className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
-                            />
-                            <button onClick={() => removeGalleryImage(section.id, image.id)} className="p-1 text-gray-400 hover:text-red-400">
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          onClick={() => addGalleryImage(section.id)}
-                          className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
-                        >
-                          + 이미지 추가
-                        </button>
-                      </div>
-                    </div>
-                  </AccordionSection>
-                )}
-
-                {/* Timeline 레이아웃 편집 */}
-                {section.layout === LayoutType.TIMELINE && (
-                  <AccordionSection
-                    title="타임라인 설정"
-                    icon={<Clock size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'timeline')}
-                    onToggle={() => toggleAccordion(section.id, 'timeline')}
-                  >
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 block">정렬</label>
-                        <select
-                          value={section.timelineAlignment || 'alternate'}
-                          onChange={(e) => updateSection(section.id, { timelineAlignment: e.target.value as TimelineAlignment })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
-                        >
-                          <option value="alternate">좌우 번갈아</option>
-                          <option value="left">왼쪽 정렬</option>
-                          <option value="right">오른쪽 정렬</option>
-                        </select>
-                      </div>
-
-                      {/* 이벤트 목록 */}
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-400">이벤트 ({section.timelineItems?.length || 0}개)</label>
-                        {(section.timelineItems || []).map((item, idx) => (
-                          <div key={item.id} className="p-3 bg-gray-800 rounded space-y-2">
-                            <div className="flex items-center gap-2">
                               <input
-                                type="text"
-                                value={item.date}
-                                onChange={(e) => updateTimelineItem(section.id, item.id, { date: e.target.value })}
-                                placeholder="날짜"
-                                className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                type="range"
+                                min="0"
+                                max="20"
+                                value={section.textShadow?.blur || 4}
+                                onChange={(e) => updateTextShadow(section.id, { blur: parseInt(e.target.value) })}
+                                className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                {...preventDragProps}
                               />
-                              <input
-                                type="text"
-                                value={item.title}
-                                onChange={(e) => updateTimelineItem(section.id, item.id, { title: e.target.value })}
-                                placeholder="제목"
-                                className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
-                              />
-                              <button onClick={() => removeTimelineItem(section.id, item.id)} className="p-1 text-gray-400 hover:text-red-400">
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                            <textarea
-                              value={item.description}
-                              onChange={(e) => updateTimelineItem(section.id, item.id, { description: e.target.value })}
-                              placeholder="설명"
-                              rows={2}
-                              className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
-                            />
-                          </div>
-                        ))}
-                        <button
-                          onClick={() => addTimelineItem(section.id)}
-                          className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
-                        >
-                          + 이벤트 추가
-                        </button>
-                      </div>
-                    </div>
-                  </AccordionSection>
-                )}
-
-                {/* Cards 레이아웃 편집 */}
-                {section.layout === LayoutType.CARDS && (
-                  <AccordionSection
-                    title="카드 설정"
-                    icon={<CreditCard size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'cards')}
-                    onToggle={() => toggleAccordion(section.id, 'cards')}
-                  >
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-2">
-                        {[2, 3, 4].map(cols => (
-                          <button
-                            key={cols}
-                            onClick={() => updateCardsSettings(section.id, { columns: cols as 2 | 3 | 4 })}
-                            className={`py-2 rounded text-xs font-medium ${(section.cardsSettings?.columns || 3) === cols
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                              }`}
-                          >
-                            {cols}열
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">그림자</label>
-                        <button
-                          onClick={() => updateCardsSettings(section.id, { showShadow: !(section.cardsSettings?.showShadow ?? true) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${(section.cardsSettings?.showShadow ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.cardsSettings?.showShadow ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">호버 효과</label>
-                        <button
-                          onClick={() => updateCardsSettings(section.id, { hoverEffect: !(section.cardsSettings?.hoverEffect ?? true) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${(section.cardsSettings?.hoverEffect ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.cardsSettings?.hoverEffect ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-
-                      {/* 카드 목록 */}
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-400">카드 ({section.cards?.length || 0}개)</label>
-                        {(section.cards || []).map((card, idx) => (
-                          <div key={card.id} className="p-3 bg-gray-800 rounded space-y-2">
-                            <div className="flex items-center gap-2">
-                              {card.imageUrl ? (
-                                <img src={card.imageUrl} alt="" className="w-12 h-12 object-cover rounded" />
-                              ) : (
-                                <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                  <ImageIcon size={16} className="text-gray-400" />
-                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCardImageUpload(e, section.id, card.id)} />
-                                </label>
-                              )}
-                              <div className="flex-1">
-                                <input
-                                  type="text"
-                                  value={card.title}
-                                  onChange={(e) => updateCard(section.id, card.id, { title: e.target.value })}
-                                  placeholder="제목"
-                                  className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs mb-1"
-                                />
-                                <input
-                                  type="text"
-                                  value={card.description}
-                                  onChange={(e) => updateCard(section.id, card.id, { description: e.target.value })}
-                                  placeholder="설명"
-                                  className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
-                                />
-                              </div>
-                              <button onClick={() => removeCard(section.id, card.id)} className="p-1 text-gray-400 hover:text-red-400">
-                                <Trash2 size={14} />
-                              </button>
                             </div>
                           </div>
-                        ))}
-                        <button
-                          onClick={() => addCard(section.id)}
-                          className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
-                        >
-                          + 카드 추가
-                        </button>
+                        )}
                       </div>
                     </div>
                   </AccordionSection>
-                )}
 
-                {/* Quote 레이아웃 편집 */}
-                {section.layout === LayoutType.QUOTE && (
+                  {/* 텍스트 위치 (9방향) */}
                   <AccordionSection
-                    title="인용문 설정"
-                    icon={<Quote size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'quote')}
-                    onToggle={() => toggleAccordion(section.id, 'quote')}
+                    title="텍스트 위치"
+                    icon={<Move size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'position')}
+                    onToggle={() => toggleAccordion(section.id, 'position')}
                   >
                     <div className="space-y-4">
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 block">인용문</label>
-                        <textarea
-                          value={section.quoteText || ''}
-                          onChange={(e) => updateSection(section.id, { quoteText: e.target.value })}
-                          rows={4}
-                          placeholder="인용문을 입력하세요..."
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm resize-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 block">저자/출처</label>
-                        <input
-                          type="text"
-                          value={section.quoteAuthor || ''}
-                          onChange={(e) => updateSection(section.id, { quoteAuthor: e.target.value })}
-                          placeholder="저자 이름"
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 block">인용 부호 스타일</label>
-                        <select
-                          value={section.quoteSettings?.quoteStyle || 'double'}
-                          onChange={(e) => updateQuoteSettings(section.id, { quoteStyle: e.target.value as 'double' | 'single' | 'none' })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
-                        >
-                          <option value="double">큰따옴표 ("")</option>
-                          <option value="single">작은따옴표 ('')</option>
-                          <option value="none">없음</option>
-                        </select>
-                      </div>
-                    </div>
-                  </AccordionSection>
-                )}
-
-                {/* Stats 레이아웃 편집 */}
-                {section.layout === LayoutType.STATS && (
-                  <AccordionSection
-                    title="통계 설정"
-                    icon={<BarChart3 size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'stats')}
-                    onToggle={() => toggleAccordion(section.id, 'stats')}
-                  >
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-2">
-                        {[2, 3, 4].map(cols => (
-                          <button
-                            key={cols}
-                            onClick={() => updateStatsSettings(section.id, { columns: cols as 2 | 3 | 4 })}
-                            className={`py-2 rounded text-xs font-medium ${(section.statsSettings?.columns || 3) === cols
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                              }`}
-                          >
-                            {cols}열
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-400">숫자 애니메이션</label>
-                        <button
-                          onClick={() => updateStatsSettings(section.id, { animateNumbers: !(section.statsSettings?.animateNumbers ?? true) })}
-                          className={`w-10 h-5 rounded-full transition-colors ${(section.statsSettings?.animateNumbers ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                        >
-                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.statsSettings?.animateNumbers ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                      </div>
-
-                      {/* 통계 항목 */}
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-400">통계 항목 ({section.stats?.length || 0}개)</label>
-                        {(section.stats || []).map((stat, idx) => (
-                          <div key={stat.id} className="p-3 bg-gray-800 rounded space-y-2">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="text"
-                                value={stat.value}
-                                onChange={(e) => updateStat(section.id, stat.id, { value: e.target.value })}
-                                placeholder="숫자 (예: 1,234)"
-                                className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs font-bold"
-                              />
-                              <input
-                                type="text"
-                                value={stat.label}
-                                onChange={(e) => updateStat(section.id, stat.id, { label: e.target.value })}
-                                placeholder="라벨"
-                                className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
-                              />
-                              <button onClick={() => removeStat(section.id, stat.id)} className="p-1 text-gray-400 hover:text-red-400">
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                        <button
-                          onClick={() => addStat(section.id)}
-                          className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
-                        >
-                          + 통계 항목 추가
-                        </button>
-                      </div>
-                    </div>
-                  </AccordionSection>
-                )}
-
-                {/* Video Hero 레이아웃 편집 */}
-                {section.layout === LayoutType.VIDEO_HERO && (
-                  <AccordionSection
-                    title="비디오 설정"
-                    icon={<Video size={12} />}
-                    isOpen={isAccordionOpen(section.id, 'videoHero')}
-                    onToggle={() => toggleAccordion(section.id, 'videoHero')}
-                  >
-                    <div className="space-y-4">
-                      {/* 비디오 업로드 */}
-                      <div>
-                        <label className="text-xs text-gray-400 mb-2 block">비디오 파일</label>
-                        {section.videoUrl ? (
-                          <div className="relative">
-                            <video src={section.videoUrl} className="w-full h-24 object-cover rounded" muted />
+                      <div className="grid grid-cols-3 gap-1 w-32 mx-auto">
+                        {(['top', 'center', 'bottom'] as const).map(v => (
+                          (['left', 'center', 'right'] as const).map(h => (
                             <button
-                              onClick={() => {
-                                if (section.videoUrl?.startsWith('blob:')) URL.revokeObjectURL(section.videoUrl);
-                                updateSection(section.id, { videoUrl: '' });
-                              }}
-                              className="absolute top-1 right-1 p-1 bg-red-500 rounded text-white"
-                            >
-                              <X size={12} />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="w-full h-24 flex flex-col items-center justify-center bg-gray-900 border border-dashed border-gray-600 rounded cursor-pointer hover:border-gray-500">
-                            <Video size={24} className="text-gray-500 mb-2" />
-                            <span className="text-xs text-gray-400">MP4, WebM (최대 50MB)</span>
-                            <input type="file" className="hidden" accept="video/*" onChange={(e) => handleVideoUpload(e, section.id)} />
-                          </label>
-                        )}
+                              key={`${v}-${h}`}
+                              onClick={() => updateSection(section.id, {
+                                textVerticalPosition: v as TextVerticalPosition,
+                                textHorizontalPosition: h as TextHorizontalPosition
+                              })}
+                              className={`w-10 h-10 rounded border transition-colors ${section.textVerticalPosition === v && section.textHorizontalPosition === h
+                                ? 'bg-blue-500 border-blue-400'
+                                : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                                }`}
+                            />
+                          ))
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 text-center">
+                        현재: {section.textVerticalPosition || 'center'} / {section.textHorizontalPosition || 'center'}
+                      </p>
+                    </div>
+                  </AccordionSection>
+
+                  {/* 색상 & 배경 */}
+                  <AccordionSection
+                    title="색상 & 배경"
+                    icon={<Palette size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'colors')}
+                    onToggle={() => toggleAccordion(section.id, 'colors')}
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">배경 색상</label>
+                        <div className="flex items-center gap-2 h-9 bg-gray-900 border border-gray-700 rounded px-2">
+                          <input
+                            type="color"
+                            value={section.backgroundColor || '#000000'}
+                            onChange={(e) => updateSection(section.id, { backgroundColor: e.target.value })}
+                            className="w-5 h-5 rounded border-none bg-transparent cursor-pointer"
+                          />
+                          <span className="text-xs text-gray-400 font-mono">{section.backgroundColor}</span>
+                        </div>
                       </div>
 
-                      {/* 비디오 옵션 */}
-                      <div className="space-y-3">
+                      {/* 그라데이션 오버레이 */}
+                      <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
                         <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-400">자동 재생</label>
+                          <label className="text-xs text-gray-400">그라데이션 오버레이</label>
                           <button
-                            onClick={() => updateVideoHeroSettings(section.id, { autoPlay: !(section.videoHeroSettings?.autoPlay ?? true) })}
-                            className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.autoPlay ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            onClick={() => updateGradientOverlay(section.id, { enabled: !(section.gradientOverlay?.enabled) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${section.gradientOverlay?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
                           >
-                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.autoPlay ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.gradientOverlay?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
                           </button>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-400">음소거</label>
-                          <button
-                            onClick={() => updateVideoHeroSettings(section.id, { muted: !(section.videoHeroSettings?.muted ?? true) })}
-                            className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.muted ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                          >
-                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.muted ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                          </button>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-400">반복 재생</label>
-                          <button
-                            onClick={() => updateVideoHeroSettings(section.id, { loop: !(section.videoHeroSettings?.loop ?? true) })}
-                            className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.loop ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
-                          >
-                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.loop ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                          </button>
-                        </div>
+                        {section.gradientOverlay?.enabled && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="text-xs text-gray-500 mb-1 block">시작 색상</label>
+                                <input
+                                  type="color"
+                                  value={section.gradientOverlay?.startColor || '#000000'}
+                                  onChange={(e) => updateGradientOverlay(section.id, { startColor: e.target.value })}
+                                  className="w-full h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-500 mb-1 block">끝 색상</label>
+                                <input
+                                  type="color"
+                                  value={section.gradientOverlay?.endColor || '#000000'}
+                                  onChange={(e) => updateGradientOverlay(section.id, { endColor: e.target.value })}
+                                  className="w-full h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">방향</label>
+                              <select
+                                value={section.gradientOverlay?.direction || 'to-bottom'}
+                                onChange={(e) => updateGradientOverlay(section.id, { direction: e.target.value as GradientOverlay['direction'] })}
+                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
+                              >
+                                {GRADIENT_DIRECTIONS.map(d => (
+                                  <option key={d.value} value={d.value}>{d.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 flex justify-between">
+                                <span>투명도</span>
+                                <span>{Math.round((section.gradientOverlay?.opacity || 0.5) * 100)}%</span>
+                              </label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value={section.gradientOverlay?.opacity || 0.5}
+                                onChange={(e) => updateGradientOverlay(section.id, { opacity: parseFloat(e.target.value) })}
+                                className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                {...preventDragProps}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </AccordionSection>
-                )}
 
-                {/* 미디어 업로드 (기존 레이아웃용) */}
-                {section.layout !== LayoutType.SIMPLE_TEXT &&
-                  section.layout !== LayoutType.GALLERY &&
-                  section.layout !== LayoutType.TIMELINE &&
-                  section.layout !== LayoutType.CARDS &&
-                  section.layout !== LayoutType.STATS &&
-                  section.layout !== LayoutType.VIDEO_HERO && (
+                  {/* 이미지 필터 */}
+                  {section.layout !== LayoutType.SIMPLE_TEXT && (
                     <AccordionSection
-                      title="미디어"
-                      icon={<ImageIcon size={12} />}
-                      isOpen={isAccordionOpen(section.id, 'media')}
-                      onToggle={() => toggleAccordion(section.id, 'media')}
+                      title="이미지 필터"
+                      icon={<Filter size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'filter')}
+                      onToggle={() => toggleAccordion(section.id, 'filter')}
                     >
-                      <div
-                        className="relative group"
-                        onDrop={(e) => handleDrop(e, section.id)}
-                        onDragOver={(e) => handleDragOver(e, section.id)}
-                        onDragLeave={handleDragLeave}
-                      >
-                        {section.mediaUrl ? (
-                          <div className={`w-full h-32 bg-black rounded border overflow-hidden relative transition-all ${dragOverSectionId === section.id
-                            ? 'border-blue-500 border-2 scale-[1.02]'
-                            : 'border-gray-700'
-                            }`}>
-                            {section.mediaType === 'video' ? (
-                              <video
-                                src={section.mediaUrl}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLVideoElement).style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              <img
-                                src={section.mediaUrl}
-                                alt="preview"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23333" width="100" height="100"/><text fill="%23666" x="50%" y="50%" text-anchor="middle" dy=".3em">이미지 오류</text></svg>';
-                                }}
-                              />
-                            )}
-                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity gap-2 ${dragOverSectionId === section.id
-                              ? 'bg-blue-500/30 opacity-100'
-                              : 'bg-black/50 opacity-0 group-hover:opacity-100'
-                              }`}>
-                              {dragOverSectionId === section.id ? (
-                                <span className="text-white font-bold text-sm">여기에 놓으세요</span>
-                              ) : (
-                                <>
-                                  <label className="cursor-pointer bg-white text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-200">
-                                    변경
-                                    <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} />
-                                  </label>
-                                  <button
-                                    onClick={() => handleMediaDelete(section.id)}
-                                    className="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600"
-                                  >
-                                    삭제
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {/* 업로드/URL 탭 */}
-                            <div className="flex bg-gray-800 rounded-lg p-0.5">
-                              <button
-                                onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: false }))}
-                                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${
-                                  !urlInputMode[section.id]
-                                    ? 'bg-gray-700 text-white'
-                                    : 'text-gray-400 hover:text-white'
-                                }`}
-                              >
-                                <Upload size={12} /> 파일 업로드
-                              </button>
-                              <button
-                                onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: true }))}
-                                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${
-                                  urlInputMode[section.id]
-                                    ? 'bg-gray-700 text-white'
-                                    : 'text-gray-400 hover:text-white'
-                                }`}
-                              >
-                                <Link size={12} /> URL 입력
-                              </button>
-                            </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">필터 타입</label>
+                          <select
+                            value={section.imageFilter || 'none'}
+                            onChange={(e) => updateSection(section.id, { imageFilter: e.target.value as ImageFilter })}
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
+                          >
+                            {IMAGE_FILTERS.map(f => (
+                              <option key={f.value} value={f.value}>{f.name}</option>
+                            ))}
+                          </select>
+                        </div>
 
-                            {urlInputMode[section.id] ? (
-                              /* URL 입력 모드 */
-                              <div className="space-y-2">
-                                <input
-                                  type="url"
-                                  value={urlInputValue[section.id] || ''}
-                                  onChange={(e) => setUrlInputValue(prev => ({ ...prev, [section.id]: e.target.value }))}
-                                  placeholder="https://example.com/image.jpg"
-                                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      handleUrlSubmit(section.id);
-                                    }
-                                  }}
-                                />
-                                <button
-                                  onClick={() => handleUrlSubmit(section.id)}
-                                  className="w-full py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-500 transition-colors"
-                                >
-                                  이미지 적용
-                                </button>
-                                <p className="text-xs text-gray-500 text-center">
-                                  웹 이미지 URL을 입력하세요
-                                </p>
-                              </div>
-                            ) : (
-                              /* 파일 업로드 모드 */
-                              <label className={`w-full h-28 flex flex-col items-center justify-center bg-gray-900 border border-dashed rounded cursor-pointer transition-all ${dragOverSectionId === section.id
-                                ? 'border-blue-500 border-2 bg-blue-500/10 scale-[1.02]'
-                                : uploadingId === section.id
-                                  ? 'border-purple-500 bg-purple-500/10'
-                                  : 'border-gray-600 hover:border-gray-400 hover:bg-gray-800'
-                                }`}>
-                                {uploadingId === section.id ? (
-                                  <>
-                                    <Loader2 className="text-purple-400 mb-2 animate-spin" size={24} />
-                                    <span className="text-sm text-purple-400 font-medium">이미지 최적화 중...</span>
-                                  </>
-                                ) : dragOverSectionId === section.id ? (
-                                  <>
-                                    <ImageIcon className="text-blue-400 mb-2" size={24} />
-                                    <span className="text-sm text-blue-400 font-medium">여기에 놓으세요</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <ImageIcon className="text-gray-500 mb-2" size={20} />
-                                    <span className="text-xs text-gray-400">드래그하거나 클릭해서 업로드</span>
-                                    <span className="text-xs text-gray-500 mt-1">PNG, JPG, GIF, MP4 (최대 50MB)</span>
-                                  </>
-                                )}
-                                <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} disabled={uploadingId === section.id} />
-                              </label>
-                            )}
+                        {section.imageFilter && section.imageFilter !== 'none' && (
+                          <div>
+                            <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                              <span>필터 강도</span>
+                              <span className="text-white">{section.imageFilterIntensity || 100}%</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="200"
+                              value={section.imageFilterIntensity || 100}
+                              onChange={(e) => updateSection(section.id, { imageFilterIntensity: parseInt(e.target.value) })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
                           </div>
                         )}
+
+                        {/* 이미지 회전 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">회전</label>
+                          <div className="flex gap-2">
+                            {[0, 90, 180, 270].map(degree => (
+                              <button
+                                key={degree}
+                                onClick={() => updateSection(section.id, { imageRotation: degree })}
+                                className={`flex-1 px-2 py-1.5 rounded text-xs transition-colors ${(section.imageRotation || 0) === degree
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                  }`}
+                                {...preventDragProps}
+                              >
+                                {degree}°
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 밝기 조절 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>밝기</span>
+                            <span className="text-white">{section.imageBrightness || 0}</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={section.imageBrightness || 0}
+                            onChange={(e) => updateSection(section.id, { imageBrightness: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+
+                        {/* 대비 조절 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>대비</span>
+                            <span className="text-white">{section.imageContrast || 0}</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={section.imageContrast || 0}
+                            onChange={(e) => updateSection(section.id, { imageContrast: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
                       </div>
                     </AccordionSection>
                   )}
-              </div>
-            )}
-          </div>
-        ))}
 
-        <button
-          onClick={addSection}
-          className="w-full py-3 border border-dashed border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-gray-500 flex items-center justify-center gap-2 transition-colors"
-        >
-          <Plus size={16} /> 섹션 추가하기
-        </button>
+                  {/* 애니메이션 */}
+                  <AccordionSection
+                    title="애니메이션"
+                    icon={<Zap size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'animation')}
+                    onToggle={() => toggleAccordion(section.id, 'animation')}
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">애니메이션 타입</label>
+                        <select
+                          value={section.animation || 'fade-in'}
+                          onChange={(e) => updateSection(section.id, { animation: e.target.value as AnimationType })}
+                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
+                        >
+                          {ANIMATIONS.map(a => (
+                            <option key={a.value} value={a.value}>{a.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {section.animation && section.animation !== 'none' && (
+                        <>
+                          <div>
+                            <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                              <span>지속 시간</span>
+                              <span className="text-white">{section.animationDuration || 0.8}초</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="0.1"
+                              max="3"
+                              step="0.1"
+                              value={section.animationDuration || 0.8}
+                              onChange={(e) => updateSection(section.id, { animationDuration: parseFloat(e.target.value) })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                              <span>지연 시간</span>
+                              <span className="text-white">{section.animationDelay || 0}초</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="2"
+                              step="0.1"
+                              value={section.animationDelay || 0}
+                              onChange={(e) => updateSection(section.id, { animationDelay: parseFloat(e.target.value) })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </AccordionSection>
+
+                  {/* CTA 버튼 */}
+                  <AccordionSection
+                    title="CTA 버튼"
+                    icon={<MousePointer size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'cta')}
+                    onToggle={() => toggleAccordion(section.id, 'cta')}
+                  >
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs text-gray-400">버튼 표시</label>
+                        <button
+                          onClick={() => updateCtaButton(section.id, { enabled: !(section.ctaButton?.enabled) })}
+                          className={`w-10 h-5 rounded-full transition-colors ${section.ctaButton?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.ctaButton?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                        </button>
+                      </div>
+
+                      {section.ctaButton?.enabled && (
+                        <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">버튼 텍스트</label>
+                            <input
+                              type="text"
+                              value={section.ctaButton?.text || '자세히 보기'}
+                              onChange={(e) => updateCtaButton(section.id, { text: e.target.value })}
+                              className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">링크 URL</label>
+                            <input
+                              type="text"
+                              value={section.ctaButton?.link || '#'}
+                              onChange={(e) => updateCtaButton(section.id, { link: e.target.value })}
+                              className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
+                              placeholder="https://..."
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">스타일</label>
+                              <select
+                                value={section.ctaButton?.style || 'solid'}
+                                onChange={(e) => updateCtaButton(section.id, { style: e.target.value as CTAButton['style'] })}
+                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
+                              >
+                                {BUTTON_STYLES.map(s => (
+                                  <option key={s.value} value={s.value}>{s.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">크기</label>
+                              <select
+                                value={section.ctaButton?.size || 'medium'}
+                                onChange={(e) => updateCtaButton(section.id, { size: e.target.value as CTAButton['size'] })}
+                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
+                              >
+                                {BUTTON_SIZES.map(s => (
+                                  <option key={s.value} value={s.value}>{s.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">버튼 색상</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={section.ctaButton?.color || '#ffffff'}
+                                onChange={(e) => updateCtaButton(section.id, { color: e.target.value })}
+                                className="w-8 h-8 rounded border border-gray-600 bg-transparent cursor-pointer"
+                              />
+                              <span className="text-xs text-gray-400 font-mono">{section.ctaButton?.color}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </AccordionSection>
+
+                  {/* ========== 신규 레이아웃별 편집 UI ========== */}
+
+                  {/* Gallery 레이아웃 편집 */}
+                  {section.layout === LayoutType.GALLERY && (
+                    <AccordionSection
+                      title="갤러리 설정"
+                      icon={<Grid size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'gallery')}
+                      onToggle={() => toggleAccordion(section.id, 'gallery')}
+                    >
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {[2, 3, 4].map(cols => (
+                            <button
+                              key={cols}
+                              onClick={() => updateGallerySettings(section.id, { columns: cols as 2 | 3 | 4 })}
+                              className={`py-2 rounded text-xs font-medium ${(section.gallerySettings?.columns || 3) === cols
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                              {cols}열
+                            </button>
+                          ))}
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>이미지 간격</span>
+                            <span className="text-white">{section.gallerySettings?.gap || 16}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="40"
+                            value={section.gallerySettings?.gap || 16}
+                            onChange={(e) => updateGallerySettings(section.id, { gap: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">캡션 표시</label>
+                          <button
+                            onClick={() => updateGallerySettings(section.id, { showCaptions: !(section.gallerySettings?.showCaptions ?? true) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${(section.gallerySettings?.showCaptions ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.gallerySettings?.showCaptions ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+
+                        {/* 이미지 목록 */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-400">이미지 ({section.galleryImages?.length || 0}개)</label>
+                          {(section.galleryImages || []).map((image, idx) => (
+                            <div key={image.id} className="flex items-center gap-2 p-2 bg-gray-800 rounded">
+                              {image.url ? (
+                                <img src={image.url} alt="" className="w-10 h-10 object-cover rounded" />
+                              ) : (
+                                <label className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
+                                  <Plus size={16} className="text-gray-400" />
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleGalleryImageUpload(e, section.id, image.id)} />
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={image.caption || ''}
+                                onChange={(e) => updateGalleryImage(section.id, image.id, { caption: e.target.value })}
+                                placeholder="캡션"
+                                className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                              />
+                              <button onClick={() => removeGalleryImage(section.id, image.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addGalleryImage(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 이미지 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* Timeline 레이아웃 편집 */}
+                  {section.layout === LayoutType.TIMELINE && (
+                    <AccordionSection
+                      title="타임라인 설정"
+                      icon={<Clock size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'timeline')}
+                      onToggle={() => toggleAccordion(section.id, 'timeline')}
+                    >
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">정렬</label>
+                          <select
+                            value={section.timelineAlignment || 'alternate'}
+                            onChange={(e) => updateSection(section.id, { timelineAlignment: e.target.value as TimelineAlignment })}
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
+                          >
+                            <option value="alternate">좌우 번갈아</option>
+                            <option value="left">왼쪽 정렬</option>
+                            <option value="right">오른쪽 정렬</option>
+                          </select>
+                        </div>
+
+                        {/* 이벤트 목록 */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-400">이벤트 ({section.timelineItems?.length || 0}개)</label>
+                          {(section.timelineItems || []).map((item, idx) => (
+                            <div key={item.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={item.date}
+                                  onChange={(e) => updateTimelineItem(section.id, item.id, { date: e.target.value })}
+                                  placeholder="날짜"
+                                  className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                />
+                                <input
+                                  type="text"
+                                  value={item.title}
+                                  onChange={(e) => updateTimelineItem(section.id, item.id, { title: e.target.value })}
+                                  placeholder="제목"
+                                  className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                />
+                                <button onClick={() => removeTimelineItem(section.id, item.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                              <textarea
+                                value={item.description}
+                                onChange={(e) => updateTimelineItem(section.id, item.id, { description: e.target.value })}
+                                placeholder="설명"
+                                rows={2}
+                                className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
+                              />
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addTimelineItem(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 이벤트 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* Cards 레이아웃 편집 */}
+                  {section.layout === LayoutType.CARDS && (
+                    <AccordionSection
+                      title="카드 설정"
+                      icon={<CreditCard size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'cards')}
+                      onToggle={() => toggleAccordion(section.id, 'cards')}
+                    >
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {[2, 3, 4].map(cols => (
+                            <button
+                              key={cols}
+                              onClick={() => updateCardsSettings(section.id, { columns: cols as 2 | 3 | 4 })}
+                              className={`py-2 rounded text-xs font-medium ${(section.cardsSettings?.columns || 3) === cols
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                              {cols}열
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">그림자</label>
+                          <button
+                            onClick={() => updateCardsSettings(section.id, { showShadow: !(section.cardsSettings?.showShadow ?? true) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${(section.cardsSettings?.showShadow ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.cardsSettings?.showShadow ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">호버 효과</label>
+                          <button
+                            onClick={() => updateCardsSettings(section.id, { hoverEffect: !(section.cardsSettings?.hoverEffect ?? true) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${(section.cardsSettings?.hoverEffect ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.cardsSettings?.hoverEffect ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+
+                        {/* 카드 목록 */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-400">카드 ({section.cards?.length || 0}개)</label>
+                          {(section.cards || []).map((card, idx) => (
+                            <div key={card.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                {card.imageUrl ? (
+                                  <img src={card.imageUrl} alt="" className="w-12 h-12 object-cover rounded" />
+                                ) : (
+                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
+                                    <ImageIcon size={16} className="text-gray-400" />
+                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCardImageUpload(e, section.id, card.id)} />
+                                  </label>
+                                )}
+                                <div className="flex-1">
+                                  <input
+                                    type="text"
+                                    value={card.title}
+                                    onChange={(e) => updateCard(section.id, card.id, { title: e.target.value })}
+                                    placeholder="제목"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs mb-1"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={card.description}
+                                    onChange={(e) => updateCard(section.id, card.id, { description: e.target.value })}
+                                    placeholder="설명"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                </div>
+                                <button onClick={() => removeCard(section.id, card.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addCard(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 카드 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* Quote 레이아웃 편집 */}
+                  {section.layout === LayoutType.QUOTE && (
+                    <AccordionSection
+                      title="인용문 설정"
+                      icon={<Quote size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'quote')}
+                      onToggle={() => toggleAccordion(section.id, 'quote')}
+                    >
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">인용문</label>
+                          <textarea
+                            value={section.quoteText || ''}
+                            onChange={(e) => updateSection(section.id, { quoteText: e.target.value })}
+                            rows={4}
+                            placeholder="인용문을 입력하세요..."
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm resize-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">저자/출처</label>
+                          <input
+                            type="text"
+                            value={section.quoteAuthor || ''}
+                            onChange={(e) => updateSection(section.id, { quoteAuthor: e.target.value })}
+                            placeholder="저자 이름"
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">인용 부호 스타일</label>
+                          <select
+                            value={section.quoteSettings?.quoteStyle || 'double'}
+                            onChange={(e) => updateQuoteSettings(section.id, { quoteStyle: e.target.value as 'double' | 'single' | 'none' })}
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
+                          >
+                            <option value="double">큰따옴표 ("")</option>
+                            <option value="single">작은따옴표 ('')</option>
+                            <option value="none">없음</option>
+                          </select>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* Stats 레이아웃 편집 */}
+                  {section.layout === LayoutType.STATS && (
+                    <AccordionSection
+                      title="통계 설정"
+                      icon={<BarChart3 size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'stats')}
+                      onToggle={() => toggleAccordion(section.id, 'stats')}
+                    >
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {[2, 3, 4].map(cols => (
+                            <button
+                              key={cols}
+                              onClick={() => updateStatsSettings(section.id, { columns: cols as 2 | 3 | 4 })}
+                              className={`py-2 rounded text-xs font-medium ${(section.statsSettings?.columns || 3) === cols
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                              {cols}열
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">숫자 애니메이션</label>
+                          <button
+                            onClick={() => updateStatsSettings(section.id, { animateNumbers: !(section.statsSettings?.animateNumbers ?? true) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${(section.statsSettings?.animateNumbers ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.statsSettings?.animateNumbers ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+
+                        {/* 통계 항목 */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-400">통계 항목 ({section.stats?.length || 0}개)</label>
+                          {(section.stats || []).map((stat, idx) => (
+                            <div key={stat.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={stat.value}
+                                  onChange={(e) => updateStat(section.id, stat.id, { value: e.target.value })}
+                                  placeholder="숫자 (예: 1,234)"
+                                  className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs font-bold"
+                                />
+                                <input
+                                  type="text"
+                                  value={stat.label}
+                                  onChange={(e) => updateStat(section.id, stat.id, { label: e.target.value })}
+                                  placeholder="라벨"
+                                  className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                />
+                                <button onClick={() => removeStat(section.id, stat.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addStat(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 통계 항목 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* Video Hero 레이아웃 편집 */}
+                  {section.layout === LayoutType.VIDEO_HERO && (
+                    <AccordionSection
+                      title="비디오 설정"
+                      icon={<Video size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'videoHero')}
+                      onToggle={() => toggleAccordion(section.id, 'videoHero')}
+                    >
+                      <div className="space-y-4">
+                        {/* 비디오 업로드 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">비디오 파일</label>
+                          {section.videoUrl ? (
+                            <div className="relative">
+                              <video src={section.videoUrl} className="w-full h-24 object-cover rounded" muted />
+                              <button
+                                onClick={() => {
+                                  if (section.videoUrl?.startsWith('blob:')) URL.revokeObjectURL(section.videoUrl);
+                                  updateSection(section.id, { videoUrl: '' });
+                                }}
+                                className="absolute top-1 right-1 p-1 bg-red-500 rounded text-white"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="w-full h-24 flex flex-col items-center justify-center bg-gray-900 border border-dashed border-gray-600 rounded cursor-pointer hover:border-gray-500">
+                              <Video size={24} className="text-gray-500 mb-2" />
+                              <span className="text-xs text-gray-400">MP4, WebM (최대 50MB)</span>
+                              <input type="file" className="hidden" accept="video/*" onChange={(e) => handleVideoUpload(e, section.id)} />
+                            </label>
+                          )}
+                        </div>
+
+                        {/* 비디오 옵션 */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">자동 재생</label>
+                            <button
+                              onClick={() => updateVideoHeroSettings(section.id, { autoPlay: !(section.videoHeroSettings?.autoPlay ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.autoPlay ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.autoPlay ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">음소거</label>
+                            <button
+                              onClick={() => updateVideoHeroSettings(section.id, { muted: !(section.videoHeroSettings?.muted ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.muted ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.muted ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">반복 재생</label>
+                            <button
+                              onClick={() => updateVideoHeroSettings(section.id, { loop: !(section.videoHeroSettings?.loop ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.videoHeroSettings?.loop ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.videoHeroSettings?.loop ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
+                  {/* 미디어 업로드 (기존 레이아웃용) */}
+                  {section.layout !== LayoutType.SIMPLE_TEXT &&
+                    section.layout !== LayoutType.GALLERY &&
+                    section.layout !== LayoutType.TIMELINE &&
+                    section.layout !== LayoutType.CARDS &&
+                    section.layout !== LayoutType.STATS &&
+                    section.layout !== LayoutType.VIDEO_HERO && (
+                      <AccordionSection
+                        title="미디어"
+                        icon={<ImageIcon size={12} />}
+                        isOpen={isAccordionOpen(section.id, 'media')}
+                        onToggle={() => toggleAccordion(section.id, 'media')}
+                      >
+                        <div
+                          className="relative group"
+                          onDrop={(e) => handleDrop(e, section.id)}
+                          onDragOver={(e) => handleDragOver(e, section.id)}
+                          onDragLeave={handleDragLeave}
+                        >
+                          {section.mediaUrl ? (
+                            <div className={`w-full h-32 bg-black rounded border overflow-hidden relative transition-all ${dragOverSectionId === section.id
+                              ? 'border-blue-500 border-2 scale-[1.02]'
+                              : 'border-gray-700'
+                              }`}>
+                              {section.mediaType === 'video' ? (
+                                <video
+                                  src={section.mediaUrl}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLVideoElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <img
+                                  src={section.mediaUrl}
+                                  alt="preview"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23333" width="100" height="100"/><text fill="%23666" x="50%" y="50%" text-anchor="middle" dy=".3em">이미지 오류</text></svg>';
+                                  }}
+                                />
+                              )}
+                              <div className={`absolute inset-0 flex items-center justify-center transition-opacity gap-2 ${dragOverSectionId === section.id
+                                ? 'bg-blue-500/30 opacity-100'
+                                : 'bg-black/50 opacity-0 group-hover:opacity-100'
+                                }`}>
+                                {dragOverSectionId === section.id ? (
+                                  <span className="text-white font-bold text-sm">여기에 놓으세요</span>
+                                ) : (
+                                  <>
+                                    <label className="cursor-pointer bg-white text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-200">
+                                      변경
+                                      <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} />
+                                    </label>
+                                    <button
+                                      onClick={() => handleMediaDelete(section.id)}
+                                      className="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600"
+                                    >
+                                      삭제
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {/* 업로드/URL 탭 */}
+                              <div className="flex bg-gray-800 rounded-lg p-0.5">
+                                <button
+                                  onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: false }))}
+                                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${!urlInputMode[section.id]
+                                    ? 'bg-gray-700 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                                    }`}
+                                >
+                                  <Upload size={12} /> 파일 업로드
+                                </button>
+                                <button
+                                  onClick={() => setUrlInputMode(prev => ({ ...prev, [section.id]: true }))}
+                                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${urlInputMode[section.id]
+                                    ? 'bg-gray-700 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                                    }`}
+                                >
+                                  <Link size={12} /> URL 입력
+                                </button>
+                              </div>
+
+                              {urlInputMode[section.id] ? (
+                                /* URL 입력 모드 */
+                                <div className="space-y-2">
+                                  <input
+                                    type="url"
+                                    value={urlInputValue[section.id] || ''}
+                                    onChange={(e) => setUrlInputValue(prev => ({ ...prev, [section.id]: e.target.value }))}
+                                    placeholder="https://example.com/image.jpg"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleUrlSubmit(section.id);
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    onClick={() => handleUrlSubmit(section.id)}
+                                    className="w-full py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-500 transition-colors"
+                                  >
+                                    이미지 적용
+                                  </button>
+                                  <p className="text-xs text-gray-500 text-center">
+                                    웹 이미지 URL을 입력하세요
+                                  </p>
+                                </div>
+                              ) : (
+                                /* 파일 업로드 모드 */
+                                <label className={`w-full h-28 flex flex-col items-center justify-center bg-gray-900 border border-dashed rounded cursor-pointer transition-all ${dragOverSectionId === section.id
+                                  ? 'border-blue-500 border-2 bg-blue-500/10 scale-[1.02]'
+                                  : uploadingId === section.id
+                                    ? 'border-purple-500 bg-purple-500/10'
+                                    : 'border-gray-600 hover:border-gray-400 hover:bg-gray-800'
+                                  }`}>
+                                  {uploadingId === section.id ? (
+                                    <>
+                                      <Loader2 className="text-purple-400 mb-2 animate-spin" size={24} />
+                                      <span className="text-sm text-purple-400 font-medium">이미지 최적화 중...</span>
+                                    </>
+                                  ) : dragOverSectionId === section.id ? (
+                                    <>
+                                      <ImageIcon className="text-blue-400 mb-2" size={24} />
+                                      <span className="text-sm text-blue-400 font-medium">여기에 놓으세요</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ImageIcon className="text-gray-500 mb-2" size={20} />
+                                      <span className="text-xs text-gray-400">드래그하거나 클릭해서 업로드</span>
+                                      <span className="text-xs text-gray-500 mt-1">PNG, JPG, GIF, MP4 (최대 50MB)</span>
+                                    </>
+                                  )}
+                                  <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} disabled={uploadingId === section.id} />
+                                </label>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </AccordionSection>
+                    )}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button
+            onClick={addSection}
+            className="w-full py-3 border border-dashed border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-gray-500 flex items-center justify-center gap-2 transition-colors"
+          >
+            <Plus size={16} /> 섹션 추가하기
+          </button>
         </div>
 
         {/* 하단 페이드 그라데이션 */}
