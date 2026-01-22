@@ -531,9 +531,21 @@ function App() {
         const success = await saveProject(sections, userId);
         if (success) {
           setLastSaved(new Date().toLocaleTimeString());
-          alert('로컬에 저장되었어요! (로그인하면 클라우드에 저장됩니다)');
+          alert('임시 저장되었어요!\n\n⚠️ 주의: 브라우저를 닫으면 삭제됩니다.\n로그인하면 안전하게 클라우드에 저장됩니다.');
         } else {
-          throw new Error('저장 실패');
+          // 비로그인 상태에서 저장 실패 - 용량 초과 가능성 높음
+          const confirmLogin = window.confirm(
+            '❌ 저장에 실패했어요!\n\n' +
+            '이미지가 포함된 프로젝트는 용량이 커서\n' +
+            '로컬 저장이 어려울 수 있어요.\n\n' +
+            '로그인하면 클라우드에 안전하게 저장할 수 있어요.\n\n' +
+            '지금 로그인하시겠어요?'
+          );
+          if (confirmLogin) {
+            signIn();
+          }
+          setIsSaving(false);
+          return;
         }
       }
     } catch (err) {
