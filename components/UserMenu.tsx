@@ -146,6 +146,7 @@ const UserMenu: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  setIsOpen(false); // 드롭다운 닫기
                   setShowPricingModal(true);
                 }}
                 className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30 hover:bg-green-600/30 transition-colors cursor-pointer"
@@ -250,7 +251,7 @@ const UserMenu: React.FC = () => {
 
       {/* 요금제 비교 모달 */}
       {showPricingModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start md:items-center justify-center z-[200] overflow-y-auto" onClick={() => setShowPricingModal(false)}>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start md:items-center justify-center z-[10000] overflow-y-auto" onClick={() => setShowPricingModal(false)}>
           <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 md:p-6 max-w-2xl w-full m-4 my-8 md:my-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 md:mb-6 sticky top-0 bg-gray-900 pb-2">
               <h3 className="text-lg md:text-xl font-bold text-white">요금제</h3>
