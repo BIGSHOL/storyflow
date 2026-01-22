@@ -38,8 +38,8 @@ StoryFlow 템플릿에 필요한 이미지 파일 목록입니다.
 
 ### 1. 제품 소개 (product)
 - [임시] `business/product-hero.jpg` - 혁신적인 기술 제품 ✅
-- [임시] `business/product-feature.jpg` - 제품 특징 화면 → `modern gadget device close-up technology`
-- [임시] `business/product-usage.jpg` - 앱 사용 화면 → `person using mobile app interface screen`
+- [✅] `business/product-feature.jpg` - 제품 특징 화면 → `modern gadget device close-up technology`
+- [✅] `business/product-usage.jpg` - 앱 사용 화면 → `person using mobile app interface screen`
 
 ### 2. 회사 소개 (company)
 - [임시] `business/company-hero.jpg` - 현대적인 오피스 빌딩 ✅
@@ -47,33 +47,33 @@ StoryFlow 템플릿에 필요한 이미지 파일 목록입니다.
 
 ### 3. 서비스 랜딩 (service)
 - [임시] `business/service-hero.jpg` - 스타트업/혁신 이미지 ✅
-- [임시] `business/service-fast.jpg` - 속도감 표현
-- [임시] `business/service-ui.jpg` - UI/인터페이스
-- [임시] `business/service-support.jpg` - 고객 지원 이미지
+- [✅] `business/service-fast.jpg` - 속도감 표현
+- [✅] `business/service-ui.jpg` - UI/인터페이스
+- [✅] `business/service-support.jpg` - 고객 지원 이미지
 
 ### 4. 프라이싱 (pricing)
 - 이미지 없음 (텍스트 위주)
 
 ### 5. 레스토랑/카페 (restaurant)
 - [임시] `business/restaurant-hero.jpg` - 레스토랑 음식 ✅
-- [임시] `business/restaurant-dish.jpg` - 요리 접시
-- [임시] `business/restaurant-steak.jpg` - 스테이크
-- [임시] `business/restaurant-pasta.jpg` - 파스타
-- [임시] `business/restaurant-risotto.jpg` - 리조또
-- [임시] `business/restaurant-interior.jpg` - 레스토랑 인테리어
+- [✅] `business/restaurant-dish.jpg` - 요리 접시
+- [✅] `business/restaurant-steak.jpg` - 스테이크
+- [✅] `business/restaurant-pasta.jpg` - 파스타
+- [✅] `business/restaurant-risotto.jpg` - 리조또
+- [✅] `business/restaurant-interior.jpg` - 레스토랑 인테리어
 
 ### 6. 부동산 소개 (real-estate)
 - [임시] `business/realestate-hero.jpg` - 현대적인 주택 ✅
-- [임시] `business/realestate-apartment.jpg` - 아파트 외관
-- [임시] `business/realestate-livingroom.jpg` - 거실
-- [임시] `business/realestate-kitchen.jpg` - 주방
-- [임시] `business/realestate-bedroom.jpg` - 침실
-- [임시] `business/realestate-bathroom.jpg` - 욕실
+- [✅] `business/realestate-apartment.jpg` - 아파트 외관
+- [✅] `business/realestate-livingroom.jpg` - 거실
+- [✅] `business/realestate-kitchen.jpg` - 주방
+- [✅] `business/realestate-bedroom.jpg` - 침실
+- [✅] `business/realestate-bathroom.jpg` - 욕실
 
 ### 7. SaaS 랜딩 (saas)
 - [임시] `business/saas-hero.jpg` - 소프트웨어 화면 ✅
-- [임시] `business/saas-collaboration.jpg` - 협업 코딩
-- [임시] `business/saas-integration.jpg` - 통합 시스템
+- [✅] `business/saas-collaboration.jpg` - 협업 코딩
+- [✅] `business/saas-integration.jpg` - 통합 시스템
 
 ### 8. 스타트업 피칭 (startup-pitch)
 - [임시] `business/startup-presentation.jpg` - 프레젠테이션 장면
