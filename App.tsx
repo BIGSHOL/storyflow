@@ -142,6 +142,7 @@ function App() {
   // 복구 모달 상태
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [pendingRecoveryData, setPendingRecoveryData] = useState<Section[] | null>(null);
+  const recoveryHandledRef = useRef(false); // 복구가 처리되었는지 추적
 
   // 로그인 후 익명 데이터 마이그레이션 모달 상태
   const [showMigrationModal, setShowMigrationModal] = useState(false);
@@ -323,6 +324,9 @@ function App() {
     // 인증 로딩이 완료된 후에만 확인
     if (authLoading) return;
 
+    // 이미 복구가 처리되었으면 다시 표시하지 않음
+    if (recoveryHandledRef.current) return;
+
     // 로그인 상태이고 클라우드 프로젝트가 있으면 localStorage 복구 모달 표시 안함
     if (isAuthenticated && projects.length > 0) return;
 
@@ -344,13 +348,18 @@ function App() {
     }
     setShowRecoveryModal(false);
     setPendingRecoveryData(null);
+    recoveryHandledRef.current = true;
   }, [pendingRecoveryData]);
 
   // 복구 취소 (새로 시작)
   const handleRecoveryCancel = useCallback(() => {
+    // 로컬 데이터도 함께 삭제
+    clearSavedProject(userId);
+    clearAnonymousSavedProject();
     setShowRecoveryModal(false);
     setPendingRecoveryData(null);
-  }, []);
+    recoveryHandledRef.current = true;
+  }, [userId]);
 
   // 로컬 데이터 삭제
   const handleRecoveryDelete = useCallback(() => {
@@ -364,6 +373,10 @@ function App() {
       } else {
         clearAnonymousSavedProject();
       }
+      // 둘 다 삭제 (로그인/비로그인 상태 전환으로 양쪽에 데이터가 있을 수 있음)
+      clearSavedProject(userId);
+      clearAnonymousSavedProject();
+
       // 메모리 초기화
       setSections([]);
       setCurrentProject(null);
@@ -373,6 +386,9 @@ function App() {
       setCanRedo(false);
       setShowRecoveryModal(false);
       setPendingRecoveryData(null);
+
+      // 복구가 처리되었음을 표시 (useEffect에서 다시 모달 표시 방지)
+      recoveryHandledRef.current = true;
     }
   }, [isAuthenticated, userId, setCurrentProject]);
 
