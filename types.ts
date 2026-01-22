@@ -63,6 +63,7 @@ export interface GallerySettings {
   columns: 2 | 3 | 4;
   gap: number;
   showCaptions: boolean;
+  enableLightbox?: boolean; // 클릭 시 전체화면 팝업
 }
 
 /** Timeline 레이아웃 - 시간순 스토리 */
@@ -156,6 +157,7 @@ export interface MasonrySettings {
   showCaptions: boolean;
   hoverEffect: boolean;
   rounded: boolean;
+  enableLightbox?: boolean; // 클릭 시 전체화면 팝업
 }
 
 // Guestbook (방명록)
@@ -173,8 +175,12 @@ export interface GuestbookSettings {
   requireName: boolean; // 이름 필수 여부
   allowAnonymous: boolean; // 익명 허용 여부
   sortOrder: 'newest' | 'oldest'; // 정렬 순서
-  cardStyle: 'default' | 'minimal' | 'bordered'; // 카드 스타일
-  columns: 1 | 2 | 3; // 컬럼 수
+  cardStyle: 'default' | 'minimal' | 'bordered'; // 카드 스타일 (카드형에서만 사용)
+  columns: 1 | 2 | 3; // 컬럼 수 (카드형에서만 사용)
+  displayStyle?: 'card' | 'list' | 'chat' | 'timeline'; // 레이아웃 형태
+  useAnimalAvatars?: boolean; // 동물 아바타 사용 (채팅형)
+  chatBubbleColor?: string; // 채팅 말풍선 배경색 (채팅형)
+  backgroundImage?: string; // 배경 이미지 URL
 }
 
 // Audio (오디오 플레이어)

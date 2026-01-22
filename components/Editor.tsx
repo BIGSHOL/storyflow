@@ -43,6 +43,7 @@ import User from 'lucide-react/dist/esm/icons/user';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
 import Info from 'lucide-react/dist/esm/icons/info';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
@@ -3111,6 +3112,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.gallerySettings?.showCaptions ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                           </button>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-400">클릭 시 확대</label>
+                          <button
+                            onClick={() => updateGallerySettings(section.id, { enableLightbox: !(section.gallerySettings?.enableLightbox ?? false) })}
+                            className={`w-10 h-5 rounded-full transition-colors ${(section.gallerySettings?.enableLightbox ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.gallerySettings?.enableLightbox ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
 
                         {/* 이미지 목록 */}
                         <div className="space-y-2">
@@ -3736,6 +3746,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                               <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.masonrySettings?.rounded ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                             </button>
                           </div>
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">클릭 시 확대</label>
+                            <button
+                              onClick={() => updateMasonrySettings(section.id, { enableLightbox: !(section.masonrySettings?.enableLightbox ?? false) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.masonrySettings?.enableLightbox ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.masonrySettings?.enableLightbox ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
                         </div>
 
                         {/* 이미지 목록 */}
@@ -3806,7 +3825,23 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       onToggle={() => toggleAccordion(section.id, 'guestbook')}
                     >
                       <div className="space-y-4">
-                        {/* 컬럼 수 */}
+                        {/* 레이아웃 형태 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">레이아웃 형태</label>
+                          <select
+                            value={section.guestbookSettings?.displayStyle || 'card'}
+                            onChange={(e) => updateGuestbookSettings(section.id, { displayStyle: e.target.value as 'card' | 'list' | 'chat' | 'timeline' })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                          >
+                            <option value="card">카드형</option>
+                            <option value="list">리스트형</option>
+                            <option value="chat">채팅형</option>
+                            <option value="timeline">타임라인형</option>
+                          </select>
+                        </div>
+
+                        {/* 컬럼 수 (카드형에서만) */}
+                        {(section.guestbookSettings?.displayStyle || 'card') === 'card' && (
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">컬럼 수</label>
                           <div className="grid grid-cols-3 gap-2">
@@ -3824,6 +3859,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             ))}
                           </div>
                         </div>
+                        )}
 
                         {/* 최대 표시 개수 */}
                         <div>
@@ -3843,7 +3879,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           />
                         </div>
 
-                        {/* 카드 스타일 */}
+                        {/* 카드 스타일 (카드형에서만) */}
+                        {(section.guestbookSettings?.displayStyle || 'card') === 'card' && (
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">카드 스타일</label>
                           <select
@@ -3856,6 +3893,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <option value="bordered">테두리</option>
                           </select>
                         </div>
+                        )}
 
                         {/* 정렬 순서 */}
                         <div>
@@ -3901,6 +3939,69 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                               <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.guestbookSettings?.allowAnonymous ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                             </button>
                           </div>
+
+                          {/* 채팅형 전용 옵션 */}
+                          {(section.guestbookSettings?.displayStyle || 'card') === 'chat' && (
+                            <>
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs text-gray-400">동물 아바타 사용</label>
+                                <button
+                                  onClick={() => updateGuestbookSettings(section.id, { useAnimalAvatars: !(section.guestbookSettings?.useAnimalAvatars ?? false) })}
+                                  className={`w-10 h-5 rounded-full transition-colors ${(section.guestbookSettings?.useAnimalAvatars ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                                >
+                                  <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.guestbookSettings?.useAnimalAvatars ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                                </button>
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-400 mb-2 block">말풍선 색상</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={section.guestbookSettings?.chatBubbleColor || '#4f46e5'}
+                                    onChange={(e) => updateGuestbookSettings(section.id, { chatBubbleColor: e.target.value })}
+                                    className="w-8 h-8 rounded cursor-pointer"
+                                  />
+                                  <span className="text-xs text-gray-300">{section.guestbookSettings?.chatBubbleColor || '#4f46e5'}</span>
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {/* 배경 이미지 */}
+                        <div className="pt-2 border-t border-gray-700">
+                          <label className="text-xs text-gray-400 mb-2 block">배경 이미지</label>
+                          {section.guestbookSettings?.backgroundImage ? (
+                            <div className="relative">
+                              <img
+                                src={section.guestbookSettings.backgroundImage}
+                                alt="배경"
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <button
+                                onClick={() => updateGuestbookSettings(section.id, { backgroundImage: undefined })}
+                                className="absolute top-1 right-1 p-1 bg-red-500 rounded-full hover:bg-red-600"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="block w-full py-3 border-2 border-dashed border-gray-600 rounded text-center text-gray-400 text-xs cursor-pointer hover:border-gray-500">
+                              이미지 업로드
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const url = URL.createObjectURL(file);
+                                    updateGuestbookSettings(section.id, { backgroundImage: url });
+                                  }
+                                }}
+                              />
+                            </label>
+                          )}
                         </div>
 
                         {/* 샘플 엔트리 목록 */}
@@ -4373,6 +4474,30 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${bgm.loop ? 'translate-x-5' : 'translate-x-0.5'}`} />
                     </button>
                   </div>
+
+                  {/* 비디오 음소거 옵션 */}
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-gray-400">비디오 자동 음소거</label>
+                    <button
+                      onClick={() => setBgm(prev => ({ ...prev, muteVideoOnPlay: !prev.muteVideoOnPlay }))}
+                      className={`w-10 h-5 rounded-full transition-colors ${bgm.muteVideoOnPlay ? 'bg-blue-500' : 'bg-gray-600'}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${bgm.muteVideoOnPlay ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    활성화하면 BGM 재생 시 비디오 소리가 자동으로 음소거됩니다.
+                  </p>
+
+                  {/* 오디오 충돌 경고 */}
+                  {!bgm.muteVideoOnPlay && sections.some((s: Section) => s.mediaType === 'video' && s.videoMuted === false) && (
+                    <div className="mt-3 p-2 bg-amber-900/30 border border-amber-700/50 rounded flex items-start gap-2">
+                      <AlertTriangle size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-300">
+                        비디오 소리와 BGM이 동시에 재생됩니다. 소리가 겹치지 않게 하려면 위 옵션을 활성화하세요.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

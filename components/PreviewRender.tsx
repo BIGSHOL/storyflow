@@ -122,6 +122,7 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
           section={section}
           isFirst={index === 0}
           onScrollDown={index === 0 ? handleScrollDown : undefined}
+          bgm={bgm}
         />
       ))}
 
@@ -156,13 +157,16 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
   );
 });
 
-const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?: () => void }> = memo(({ section, isFirst, onScrollDown }) => {
+const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?: () => void; bgm?: BackgroundMusic }> = memo(({ section, isFirst, onScrollDown, bgm }) => {
   const [mediaError, setMediaError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-  const [isVideoMuted, setIsVideoMuted] = useState(section.videoMuted ?? true);
+
+  // BGM이 활성화되고 muteVideoOnPlay 옵션이 켜져 있으면 비디오 자동 음소거
+  const shouldMuteForBgm = bgm?.enabled && bgm?.muteVideoOnPlay;
+  const [isVideoMuted, setIsVideoMuted] = useState(shouldMuteForBgm || (section.videoMuted ?? true));
 
   // 비디오 재생/일시정지 토글
   const toggleVideoPlay = useCallback(() => {
@@ -183,6 +187,14 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       setIsVideoMuted(!isVideoMuted);
     }
   }, [isVideoMuted]);
+
+  // BGM 설정 변경 시 비디오 음소거 상태 업데이트
+  useEffect(() => {
+    if (shouldMuteForBgm && videoRef.current) {
+      videoRef.current.muted = true;
+      setIsVideoMuted(true);
+    }
+  }, [shouldMuteForBgm]);
 
   // 미디어 비율 계산 (useMemo로 캐싱)
   const { mediaRatio, textRatio } = useMemo(() => ({
@@ -459,7 +471,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     backgroundColor: section.backgroundColor || '#000000',
     color: section.textColor || '#ffffff',
     fontFamily: section.fontFamily || 'system-ui, -apple-system, sans-serif',
-    minHeight: section.sectionHeight === 'auto' ? '100vh' : (section.sectionHeight || '100vh'),
+    minHeight: section.sectionHeight === 'auto' ? undefined : (section.sectionHeight || '100vh'),
     height: section.sectionHeight === 'auto' ? 'auto' : section.sectionHeight,
   }), [section.backgroundColor, section.textColor, section.fontFamily, section.sectionHeight]);
 

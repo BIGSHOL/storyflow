@@ -1,6 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import { Section } from '../../types';
 import ImageOff from 'lucide-react/dist/esm/icons/image-off';
+import X from 'lucide-react/dist/esm/icons/x';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 
 interface GalleryLayoutProps {
   section: Section;
@@ -11,6 +14,10 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
   const columns = gallerySettings?.columns || 3;
   const gap = gallerySettings?.gap || 16;
   const showCaptions = gallerySettings?.showCaptions ?? true;
+  const enableLightbox = gallerySettings?.enableLightbox ?? false;
+
+  // 라이트박스 상태
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const containerStyle: React.CSSProperties = {
     backgroundColor: section.backgroundColor || '#000000',
@@ -25,6 +32,64 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
 
   const gapStyle = { gap: `${gap}px` };
 
+  // 이미지 클릭 핸들러
+  const handleImageClick = useCallback((index: number) => {
+    if (enableLightbox) {
+      setLightboxIndex(index);
+    }
+  }, [enableLightbox]);
+
+  // 라이트박스 닫기
+  const closeLightbox = useCallback(() => {
+    setLightboxIndex(null);
+  }, []);
+
+  // 이전 이미지
+  const goToPrevious = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex(lightboxIndex === 0 ? galleryImages.length - 1 : lightboxIndex - 1);
+    }
+  }, [lightboxIndex, galleryImages.length]);
+
+  // 다음 이미지
+  const goToNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex(lightboxIndex === galleryImages.length - 1 ? 0 : lightboxIndex + 1);
+    }
+  }, [lightboxIndex, galleryImages.length]);
+
+  // 키보드 네비게이션
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        setLightboxIndex(lightboxIndex === 0 ? galleryImages.length - 1 : lightboxIndex - 1);
+      } else if (e.key === 'ArrowRight') {
+        setLightboxIndex(lightboxIndex === galleryImages.length - 1 ? 0 : lightboxIndex + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, galleryImages.length, closeLightbox]);
+
+  // 라이트박스 열릴 때 스크롤 방지
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [lightboxIndex]);
+
   if (galleryImages.length === 0) {
     return (
       <section className="section-preview w-full flex flex-col items-center justify-center" style={containerStyle}>
@@ -33,6 +98,8 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
       </section>
     );
   }
+
+  const currentImage = lightboxIndex !== null ? galleryImages[lightboxIndex] : null;
 
   return (
     <section className="section-preview w-full py-16 px-8" style={containerStyle}>
@@ -43,8 +110,12 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
         <p className="text-lg text-center opacity-80 mb-12 max-w-2xl mx-auto">{section.description}</p>
       )}
       <div className={`max-w-6xl mx-auto ${gridClasses}`} style={gapStyle}>
-        {galleryImages.map((image) => (
-          <div key={image.id} className="group relative overflow-hidden rounded-lg">
+        {galleryImages.map((image, index) => (
+          <div
+            key={image.id}
+            className={`group relative overflow-hidden rounded-lg ${enableLightbox ? 'cursor-pointer' : ''}`}
+            onClick={() => handleImageClick(index)}
+          >
             {image.url ? (
               <img
                 src={image.url}
@@ -62,9 +133,75 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = memo(({ section }) => {
                 <p className="text-sm text-white">{image.caption}</p>
               </div>
             )}
+            {/* 라이트박스 활성화 시 호버 오버레이 */}
+            {enableLightbox && image.url && (
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium">
+                  클릭하여 확대
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      {/* 라이트박스 오버레이 */}
+      {lightboxIndex !== null && currentImage && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* 닫기 버튼 */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="닫기"
+          >
+            <X size={32} />
+          </button>
+
+          {/* 이전 버튼 */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={goToPrevious}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-10"
+              aria-label="이전 이미지"
+            >
+              <ChevronLeft size={40} />
+            </button>
+          )}
+
+          {/* 이미지 */}
+          <div
+            className="max-w-[90vw] max-h-[85vh] flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={currentImage.url}
+              alt={currentImage.caption || ''}
+              className="max-w-full max-h-[80vh] object-contain"
+            />
+            {showCaptions && currentImage.caption && (
+              <p className="mt-4 text-white text-center text-lg">{currentImage.caption}</p>
+            )}
+            {/* 이미지 카운터 */}
+            <p className="mt-2 text-white/50 text-sm">
+              {lightboxIndex + 1} / {galleryImages.length}
+            </p>
+          </div>
+
+          {/* 다음 버튼 */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={goToNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-10"
+              aria-label="다음 이미지"
+            >
+              <ChevronRight size={40} />
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 });

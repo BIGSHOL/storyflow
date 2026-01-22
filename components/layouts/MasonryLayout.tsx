@@ -1,6 +1,9 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import { Section } from '../../types';
 import ImageOff from 'lucide-react/dist/esm/icons/image-off';
+import X from 'lucide-react/dist/esm/icons/x';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 
 interface MasonryLayoutProps {
   section: Section;
@@ -13,8 +16,12 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
   const showCaptions = masonrySettings?.showCaptions ?? true;
   const hoverEffect = masonrySettings?.hoverEffect ?? true;
   const rounded = masonrySettings?.rounded ?? true;
+  const enableLightbox = masonrySettings?.enableLightbox ?? false;
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 라이트박스 상태
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // 반응형 컬럼 수 계산
   const getResponsiveColumns = useCallback(() => {
@@ -78,6 +85,67 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
 
   const columnData = distributeImages();
 
+  // 이미지 클릭 핸들러
+  const handleImageClick = useCallback((imageId: string) => {
+    if (enableLightbox) {
+      const index = masonryImages.findIndex(img => img.id === imageId);
+      if (index !== -1) {
+        setLightboxIndex(index);
+      }
+    }
+  }, [enableLightbox, masonryImages]);
+
+  // 라이트박스 닫기
+  const closeLightbox = useCallback(() => {
+    setLightboxIndex(null);
+  }, []);
+
+  // 이전 이미지
+  const goToPrevious = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex(lightboxIndex === 0 ? masonryImages.length - 1 : lightboxIndex - 1);
+    }
+  }, [lightboxIndex, masonryImages.length]);
+
+  // 다음 이미지
+  const goToNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex(lightboxIndex === masonryImages.length - 1 ? 0 : lightboxIndex + 1);
+    }
+  }, [lightboxIndex, masonryImages.length]);
+
+  // 키보드 네비게이션
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        setLightboxIndex(lightboxIndex === 0 ? masonryImages.length - 1 : lightboxIndex - 1);
+      } else if (e.key === 'ArrowRight') {
+        setLightboxIndex(lightboxIndex === masonryImages.length - 1 ? 0 : lightboxIndex + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, masonryImages.length, closeLightbox]);
+
+  // 라이트박스 열릴 때 스크롤 방지
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [lightboxIndex]);
+
   if (masonryImages.length === 0) {
     return (
       <section className="section-preview w-full flex flex-col items-center justify-center" style={containerStyle}>
@@ -86,6 +154,8 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
       </section>
     );
   }
+
+  const currentImage = lightboxIndex !== null ? masonryImages[lightboxIndex] : null;
 
   return (
     <section className="section-preview w-full py-16 px-8" style={containerStyle}>
@@ -128,7 +198,8 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
                 key={image.id}
                 className={`group relative overflow-hidden ${rounded ? 'rounded-lg' : ''} ${
                   hoverEffect ? 'transition-transform duration-300 hover:scale-[1.02]' : ''
-                }`}
+                } ${enableLightbox ? 'cursor-pointer' : ''}`}
+                onClick={() => handleImageClick(image.id)}
               >
                 {image.url ? (
                   <>
@@ -143,7 +214,7 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
                       }`}
                       loading="lazy"
                     />
-                    {image.link && (
+                    {!enableLightbox && image.link && (
                       <a
                         href={image.link}
                         target="_blank"
@@ -165,11 +236,77 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = memo(({ section }) => {
                     <p className="text-sm text-white">{image.caption}</p>
                   </div>
                 )}
+                {/* 라이트박스 활성화 시 호버 오버레이 */}
+                {enableLightbox && image.url && (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium">
+                      클릭하여 확대
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         ))}
       </div>
+
+      {/* 라이트박스 오버레이 */}
+      {lightboxIndex !== null && currentImage && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* 닫기 버튼 */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="닫기"
+          >
+            <X size={32} />
+          </button>
+
+          {/* 이전 버튼 */}
+          {masonryImages.length > 1 && (
+            <button
+              onClick={goToPrevious}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-10"
+              aria-label="이전 이미지"
+            >
+              <ChevronLeft size={40} />
+            </button>
+          )}
+
+          {/* 이미지 */}
+          <div
+            className="max-w-[90vw] max-h-[85vh] flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={currentImage.url}
+              alt={currentImage.caption || ''}
+              className="max-w-full max-h-[80vh] object-contain"
+            />
+            {showCaptions && currentImage.caption && (
+              <p className="mt-4 text-white text-center text-lg">{currentImage.caption}</p>
+            )}
+            {/* 이미지 카운터 */}
+            <p className="mt-2 text-white/50 text-sm">
+              {lightboxIndex + 1} / {masonryImages.length}
+            </p>
+          </div>
+
+          {/* 다음 버튼 */}
+          {masonryImages.length > 1 && (
+            <button
+              onClick={goToNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors z-10"
+              aria-label="다음 이미지"
+            >
+              <ChevronRight size={40} />
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 });
