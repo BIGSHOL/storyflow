@@ -157,6 +157,9 @@ function App() {
   // 협업자 다이얼로그 상태
   const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
 
+  // 비로그인 경고 팝업 상태
+  const [showLoginWarningModal, setShowLoginWarningModal] = useState(false);
+
   // 프로젝트 드롭다운 상태
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const projectDropdownRef = useRef<HTMLDivElement>(null);
@@ -218,6 +221,16 @@ function App() {
       }
     }
   }, [isAuthenticated, authLoading, sortedProjects, currentProject, setCurrentProject]);
+
+  // 비로그인 시 경고 팝업 표시 (3초 후)
+  useEffect(() => {
+    if (!isAuthenticated && !authLoading) {
+      const timer = setTimeout(() => {
+        setShowLoginWarningModal(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, authLoading]);
 
   // 로그인 후 익명 localStorage 데이터 마이그레이션 확인
   useEffect(() => {
@@ -1808,6 +1821,63 @@ function App() {
             isOwner={currentProject.user_id === userId}
           />
         </Suspense>
+      )}
+
+      {/* 비로그인 경고 팝업 */}
+      {showLoginWarningModal && !isAuthenticated && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
+          <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-fade-in">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🚨</div>
+              <h2 className="text-2xl font-bold text-white mb-2">잠깐!</h2>
+              <h3 className="text-lg font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
+            </div>
+
+            <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-6">
+              <ul className="space-y-2 text-sm text-red-100">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-0.5">✗</span>
+                  <span>브라우저를 닫으면 <strong>모든 작업이 삭제</strong>됩니다</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-0.5">✗</span>
+                  <span>새로고침해도 <strong>복구할 수 없어요</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-0.5">✗</span>
+                  <span>이미지가 많으면 <strong>저장이 안 될 수 있어요</strong></span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 mb-6">
+              <p className="text-sm text-green-100 font-medium mb-2">✨ 로그인하면</p>
+              <ul className="space-y-1 text-sm text-green-200">
+                <li>• 클라우드에 안전하게 저장</li>
+                <li>• 어디서든 작업 이어하기</li>
+                <li>• 100MB 미디어 저장 공간</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setShowLoginWarningModal(false);
+                  signIn();
+                }}
+                className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors text-lg"
+              >
+                Google로 로그인하기
+              </button>
+              <button
+                onClick={() => setShowLoginWarningModal(false)}
+                className="w-full py-2 text-gray-400 hover:text-white text-sm transition-colors"
+              >
+                나중에 할게요 (작업 삭제 위험 감수)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
