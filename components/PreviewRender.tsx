@@ -53,7 +53,7 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
     : 'w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white';
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} data-preview-container>
       {sections.length === 0 && emptyStateElement}
 
       {sections.map((section, index) => (

@@ -1,5 +1,7 @@
 import { Section, LayoutType } from '../types';
 import { GOOGLE_FONTS_URL } from '../data/constants';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // 이미지 URL을 Base64로 변환 (blob, http, https 모두 지원)
 const imageToBase64 = async (imageUrl: string): Promise<string> => {
@@ -728,4 +730,208 @@ export const exportToHTML = async (
 ): Promise<void> => {
   const html = await generateHTML(sections, title, onProgress);
   downloadHTML(html, `${title || 'my-story'}.html`);
+};
+
+// ========== PDF 및 이미지 내보내기 ==========
+
+// PDF로 내보내기
+export const exportToPDF = async (
+  element: HTMLElement,
+  filename: string = 'storyflow-page.pdf',
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  try {
+    onProgress?.(10);
+
+    // html2canvas로 요소를 캡처
+    const canvas = await html2canvas(element, {
+      scale: 2, // 고해상도
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#000000',
+      logging: false,
+    });
+
+    onProgress?.(60);
+
+    // 캔버스 크기 계산
+    const imgWidth = 210; // A4 너비 (mm)
+    const pageHeight = 297; // A4 높이 (mm)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+    onProgress?.(80);
+
+    // jsPDF로 PDF 생성
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let position = 0;
+
+    // 첫 페이지
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // 여러 페이지로 분할
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    onProgress?.(90);
+
+    // PDF 다운로드
+    pdf.save(filename);
+
+    onProgress?.(100);
+  } catch (error) {
+    console.error('PDF 내보내기 실패:', error);
+    throw new Error('PDF 생성에 실패했습니다.');
+  }
+};
+
+// 전체 페이지를 이미지로 내보내기
+export const exportToImage = async (
+  element: HTMLElement,
+  filename: string = 'storyflow-page.png',
+  format: 'png' | 'jpeg' = 'png',
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  try {
+    onProgress?.(20);
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: format === 'jpeg' ? '#000000' : null,
+      logging: false,
+    });
+
+    onProgress?.(80);
+
+    // 캔버스를 Blob으로 변환 후 다운로드
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        throw new Error('이미지 생성에 실패했습니다.');
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      onProgress?.(100);
+    }, `image/${format}`, format === 'jpeg' ? 0.95 : 1.0);
+  } catch (error) {
+    console.error('이미지 내보내기 실패:', error);
+    throw new Error('이미지 생성에 실패했습니다.');
+  }
+};
+
+// 각 섹션을 개별 이미지로 내보내기
+export const exportSectionsAsImages = async (
+  sectionElements: HTMLElement[],
+  baseFilename: string = 'section',
+  format: 'png' | 'jpeg' = 'png',
+  onProgress?: (progress: number, sectionIndex: number) => void
+): Promise<void> => {
+  try {
+    for (let i = 0; i < sectionElements.length; i++) {
+      const element = sectionElements[i];
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: format === 'jpeg' ? '#000000' : null,
+        logging: false,
+      });
+
+      const filename = `${baseFilename}-${i + 1}.${format}`;
+
+      await new Promise<void>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error(`섹션 ${i + 1} 이미지 생성 실패`);
+            resolve();
+            return;
+          }
+
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          resolve();
+        }, `image/${format}`, format === 'jpeg' ? 0.95 : 1.0);
+      });
+
+      const progress = Math.round(((i + 1) / sectionElements.length) * 100);
+      onProgress?.(progress, i);
+
+      // 다운로드 간 짧은 딜레이 (브라우저가 여러 다운로드를 처리할 시간)
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+  } catch (error) {
+    console.error('섹션 이미지 내보내기 실패:', error);
+    throw new Error('섹션 이미지 생성에 실패했습니다.');
+  }
+};
+
+// 썸네일 이미지 생성 (미리보기용)
+export const generateThumbnail = async (
+  element: HTMLElement,
+  maxWidth: number = 400,
+  maxHeight: number = 300
+): Promise<string> => {
+  try {
+    const canvas = await html2canvas(element, {
+      scale: 1,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#000000',
+      logging: false,
+      width: Math.min(element.scrollWidth, 1920),
+      height: Math.min(element.scrollHeight, 1080),
+    });
+
+    // 썸네일 크기 계산 (비율 유지)
+    const aspectRatio = canvas.width / canvas.height;
+    let thumbWidth = maxWidth;
+    let thumbHeight = maxHeight;
+
+    if (aspectRatio > maxWidth / maxHeight) {
+      thumbHeight = thumbWidth / aspectRatio;
+    } else {
+      thumbWidth = thumbHeight * aspectRatio;
+    }
+
+    // 리사이즈된 캔버스 생성
+    const thumbCanvas = document.createElement('canvas');
+    thumbCanvas.width = thumbWidth;
+    thumbCanvas.height = thumbHeight;
+    const ctx = thumbCanvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('캔버스 컨텍스트를 가져올 수 없습니다.');
+    }
+
+    ctx.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
+
+    return thumbCanvas.toDataURL('image/jpeg', 0.8);
+  } catch (error) {
+    console.error('썸네일 생성 실패:', error);
+    return '';
+  }
 };

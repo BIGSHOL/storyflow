@@ -21,7 +21,8 @@ import Plus from 'lucide-react/dist/esm/icons/plus';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
-import { exportToHTML, hasBlobUrls } from './services/exportService';
+import FileImage from 'lucide-react/dist/esm/icons/file-image';
+import { exportToHTML, exportToPDF, exportToImage, hasBlobUrls } from './services/exportService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject, hasAnonymousSavedProject, loadAnonymousProject, clearAnonymousSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
@@ -154,6 +155,10 @@ function App() {
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const projectDropdownRef = useRef<HTMLDivElement>(null);
 
+  // 내보내기 드롭다운 상태
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const exportDropdownRef = useRef<HTMLDivElement>(null);
+
   // 프로젝트 개수 제한
   const MAX_PROJECTS = 3;
 
@@ -162,6 +167,9 @@ function App() {
     const handleClickOutside = (event: MouseEvent) => {
       if (projectDropdownRef.current && !projectDropdownRef.current.contains(event.target as Node)) {
         setShowProjectDropdown(false);
+      }
+      if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target as Node)) {
+        setShowExportDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -326,15 +334,29 @@ function App() {
       '브라우저에 저장된 데이터를 완전히 삭제할까요?\n\n삭제하면 복구할 수 없어요.'
     );
     if (confirmDelete) {
-      // localStorage 데이터 삭제
+      // localStorage 데이터 삭제 (자동저장 타이머도 취소됨)
       if (!isAuthenticated) {
         clearAnonymousSavedProject();
       } else {
+        // 동적 import 대신 이미 import된 함수 사용
         import('./services/storageService').then(({ clearSavedProject }) => {
           clearSavedProject(userId);
+          // 삭제 완료 후 메모리 초기화
+          setSections([]);
+          historyRef.current = [[]];
+          historyIndexRef.current = 0;
+          setCanUndo(false);
+          setCanRedo(false);
         });
       }
-      setSections([]); // 메모리의 sections도 초기화하여 자동 저장 방지
+      // 비인증 사용자는 즉시 초기화
+      if (!isAuthenticated) {
+        setSections([]);
+        historyRef.current = [[]];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
+      }
       setShowRecoveryModal(false);
       setPendingRecoveryData(null);
     }
@@ -413,8 +435,14 @@ function App() {
       '로컬에 저장된 데이터를 삭제하시겠어요?\n\n삭제하면 복구할 수 없어요.'
     );
     if (confirmDiscard) {
+      // localStorage 삭제 (자동저장 타이머도 취소됨)
       clearAnonymousSavedProject();
-      setSections([]); // 메모리의 sections도 초기화하여 자동 저장 방지
+      // 메모리 초기화
+      setSections([]);
+      historyRef.current = [[]];
+      historyIndexRef.current = 0;
+      setCanUndo(false);
+      setCanRedo(false);
     }
     setShowMigrationModal(false);
     setPendingMigrationData(null);
@@ -649,6 +677,7 @@ function App() {
     }
 
     setIsExporting(true);
+    setShowExportDropdown(false);
     try {
       await exportToHTML(sections, 'my-story');
       alert('HTML 파일이 다운로드되었어요!');
@@ -659,6 +688,135 @@ function App() {
       setIsExporting(false);
     }
   }, [sections]);
+
+  // PDF로 내보내기
+  const handleExportPDF = useCallback(async () => {
+    if (sections.length === 0) {
+      alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    setIsExporting(true);
+    setShowExportDropdown(false);
+    try {
+      const previewElement = document.querySelector('[data-preview-container]') as HTMLElement;
+      if (!previewElement) {
+        throw new Error('프리뷰 요소를 찾을 수 없습니다.');
+      }
+
+      await exportToPDF(previewElement, `${currentProject?.title || 'my-story'}.pdf`);
+      alert('PDF 파일이 다운로드되었어요!');
+    } catch (error) {
+      console.error('PDF 내보내기 실패:', error);
+      alert('PDF 내보내기에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [sections, currentProject]);
+
+  // 이미지로 내보내기 (PNG)
+  const handleExportImage = useCallback(async () => {
+    if (sections.length === 0) {
+      alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    setIsExporting(true);
+    setShowExportDropdown(false);
+    try {
+      const previewElement = document.querySelector('[data-preview-container]') as HTMLElement;
+      if (!previewElement) {
+        throw new Error('프리뷰 요소를 찾을 수 없습니다.');
+      }
+
+      await exportToImage(previewElement, `${currentProject?.title || 'my-story'}.png`, 'png');
+      alert('이미지 파일이 다운로드되었어요!');
+    } catch (error) {
+      console.error('이미지 내보내기 실패:', error);
+      alert('이미지 내보내기에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [sections, currentProject]);
+
+  // 섹션별 이미지로 내보내기
+  const handleExportSectionImages = useCallback(async () => {
+    if (sections.length === 0) {
+      alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    setIsExporting(true);
+    setShowExportDropdown(false);
+    try {
+      const previewContainer = document.querySelector('[data-preview-container]') as HTMLElement;
+      if (!previewContainer) {
+        throw new Error('프리뷰 요소를 찾을 수 없습니다.');
+      }
+
+      const sectionElements = Array.from(previewContainer.querySelectorAll('section')) as HTMLElement[];
+      if (sectionElements.length === 0) {
+        throw new Error('섹션을 찾을 수 없습니다.');
+      }
+
+      const { exportSectionsAsImages } = await import('./services/exportService');
+      await exportSectionsAsImages(sectionElements, currentProject?.title || 'section', 'png');
+      alert(`${sectionElements.length}개의 이미지가 다운로드되었어요!`);
+    } catch (error) {
+      console.error('섹션 이미지 내보내기 실패:', error);
+      alert('섹션 이미지 내보내기에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [sections, currentProject]);
+
+  // 썸네일 다운로드
+  const handleExportThumbnail = useCallback(async () => {
+    if (sections.length === 0) {
+      alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    setIsExporting(true);
+    setShowExportDropdown(false);
+    try {
+      const previewContainer = document.querySelector('[data-preview-container]') as HTMLElement;
+      if (!previewContainer) {
+        throw new Error('프리뷰 요소를 찾을 수 없습니다.');
+      }
+
+      const firstSection = previewContainer.querySelector('section') as HTMLElement;
+      if (!firstSection) {
+        throw new Error('첫 번째 섹션을 찾을 수 없습니다.');
+      }
+
+      const { generateThumbnail } = await import('./services/exportService');
+      const thumbnailData = await generateThumbnail(firstSection, 1200, 630); // OG 이미지 표준 사이즈
+
+      if (!thumbnailData) {
+        throw new Error('썸네일 생성에 실패했습니다.');
+      }
+
+      // 썸네일 다운로드
+      const response = await fetch(thumbnailData);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentProject?.title || 'thumbnail'}-og.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert('썸네일이 다운로드되었어요!');
+    } catch (error) {
+      console.error('썸네일 다운로드 실패:', error);
+      alert('썸네일 다운로드에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [sections, currentProject]);
 
   // 프로젝트 이름 변경 핸들러 (모바일용 - 공통 함수 재사용)
   const handleRenameProjectMobile = renameProjectById;
@@ -704,6 +862,8 @@ function App() {
           projects={projects}
           onSave={handleSave}
           onExport={handleExport}
+          onExportPDF={handleExportPDF}
+          onExportImage={handleExportImage}
           onCreateProject={handleCreateNewProject}
           onSwitchProject={handleSwitchProject}
           onRenameProject={handleRenameProjectMobile}
@@ -962,13 +1122,54 @@ function App() {
                   </button>
                 </>
               )}
-              <button
-                onClick={handleExport}
-                disabled={isExporting}
-                className="bg-white text-black px-2 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors flex items-center gap-1 whitespace-nowrap disabled:opacity-50"
-              >
-                <Download size={12} /> 내보내기
-              </button>
+              <div className="relative" ref={exportDropdownRef}>
+                <button
+                  onClick={() => setShowExportDropdown(!showExportDropdown)}
+                  disabled={isExporting}
+                  className="bg-white text-black px-2 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors flex items-center gap-1 whitespace-nowrap disabled:opacity-50"
+                >
+                  <Download size={12} /> 내보내기 <ChevronDown size={10} />
+                </button>
+                {showExportDropdown && (
+                  <div className="absolute right-0 mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] overflow-hidden">
+                    <button
+                      onClick={handleExport}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      <FileText size={14} />
+                      <span>HTML 파일</span>
+                    </button>
+                    <button
+                      onClick={handleExportPDF}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      <Download size={14} />
+                      <span>PDF 파일</span>
+                    </button>
+                    <button
+                      onClick={handleExportImage}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      <FileImage size={14} />
+                      <span>이미지 (PNG)</span>
+                    </button>
+                    <button
+                      onClick={handleExportSectionImages}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      <FileImage size={14} />
+                      <span>섹션별 이미지</span>
+                    </button>
+                    <button
+                      onClick={handleExportThumbnail}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      <FileImage size={14} />
+                      <span>썸네일 (OG)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </nav>
@@ -1274,13 +1475,40 @@ function App() {
                 </button>
               </>
             )}
-            <button
-              onClick={handleExport}
-              disabled={isExporting}
-              className="bg-white text-black px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 whitespace-nowrap disabled:opacity-50"
-            >
-              <Download size={14} /> {isExporting ? '준비 중...' : '내보내기'}
-            </button>
+            <div className="relative" ref={exportDropdownRef}>
+              <button
+                onClick={() => setShowExportDropdown(!showExportDropdown)}
+                disabled={isExporting}
+                className="bg-white text-black px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 whitespace-nowrap disabled:opacity-50"
+              >
+                <Download size={14} /> {isExporting ? '준비 중...' : '내보내기'} <ChevronDown size={12} />
+              </button>
+              {showExportDropdown && (
+                <div className="absolute right-0 mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] overflow-hidden">
+                  <button
+                    onClick={handleExport}
+                    className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <FileText size={14} />
+                    <span>HTML 파일</span>
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <Download size={14} />
+                    <span>PDF 파일</span>
+                  </button>
+                  <button
+                    onClick={handleExportImage}
+                    className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <FileImage size={14} />
+                    <span>이미지 (PNG)</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

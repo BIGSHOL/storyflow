@@ -16,6 +16,7 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import Users from 'lucide-react/dist/esm/icons/users';
+import ImageIcon from 'lucide-react/dist/esm/icons/image';
 import Undo2 from 'lucide-react/dist/esm/icons/undo-2';
 import Redo2 from 'lucide-react/dist/esm/icons/redo-2';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
@@ -56,6 +57,8 @@ interface MobileLayoutProps {
   projects: Project[];
   onSave: () => void;
   onExport: () => void;
+  onExportPDF: () => void;
+  onExportImage: () => void;
   onCreateProject: () => void;
   onSwitchProject: (project: Project) => void;
   onRenameProject: (id: string) => void;
@@ -82,6 +85,8 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   projects,
   onSave,
   onExport,
+  onExportPDF,
+  onExportImage,
   onCreateProject,
   onSwitchProject,
   onRenameProject,
@@ -101,6 +106,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   const [showProjects, setShowProjects] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
+  const [showExportSheet, setShowExportSheet] = useState(false);
 
   // rerender-functional-setstate: 안정적인 콜백을 위해 함수형 setState 사용
   const openMenu = useCallback(() => setShowMenu(true), []);
@@ -121,6 +127,8 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
     setShowProjects(true);
     setShowMenu(false);
   }, []);
+  const openExportSheet = useCallback(() => setShowExportSheet(true), []);
+  const closeExportSheet = useCallback(() => setShowExportSheet(false), []);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
@@ -214,7 +222,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           <span className="text-xs mt-0.5">{isSaving ? '저장중...' : '저장'}</span>
         </button>
         <button
-          onClick={onExport}
+          onClick={openExportSheet}
           disabled={isExporting}
           className="flex-1 flex flex-col items-center justify-center py-2 text-gray-500 disabled:opacity-50"
         >
@@ -386,6 +394,63 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           />
         </Suspense>
       ) : null}
+
+      {/* 내보내기 액션 시트 */}
+      {showExportSheet && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end" onClick={closeExportSheet}>
+          <div className="w-full bg-gray-800 rounded-t-2xl p-4 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-4">내보내기 형식 선택</h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  onExport();
+                  closeExportSheet();
+                }}
+                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-3"
+              >
+                <FileText size={20} />
+                <div className="text-left">
+                  <div className="font-medium">HTML 파일</div>
+                  <div className="text-xs text-gray-400">단일 HTML 파일로 내보내기</div>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  onExportPDF();
+                  closeExportSheet();
+                }}
+                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-3"
+              >
+                <Download size={20} />
+                <div className="text-left">
+                  <div className="font-medium">PDF 파일</div>
+                  <div className="text-xs text-gray-400">PDF 문서로 내보내기</div>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  onExportImage();
+                  closeExportSheet();
+                }}
+                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-3"
+              >
+                <ImageIcon size={20} />
+                <div className="text-left">
+                  <div className="font-medium">이미지 (PNG)</div>
+                  <div className="text-xs text-gray-400">PNG 이미지로 내보내기</div>
+                </div>
+              </button>
+            </div>
+            <button
+              onClick={closeExportSheet}
+              className="w-full mt-4 px-4 py-3 bg-gray-900 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* rendering-hoist-jsx: 호이스트된 스타일 사용 */}
       <style>{mobileStyles}</style>

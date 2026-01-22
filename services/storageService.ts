@@ -182,6 +182,11 @@ export const hasSavedProject = (userId: string | null = null): boolean => {
 
 // 저장 데이터 삭제
 export const clearSavedProject = (userId: string | null = null): void => {
+  // 진행 중인 자동저장 취소
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = null;
+  }
   localStorage.removeItem(getStorageKey(userId));
   localStorage.removeItem(getAutoSaveKey(userId));
 };
