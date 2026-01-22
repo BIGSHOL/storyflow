@@ -5,7 +5,8 @@ const BUCKET_NAME = 'media';
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
-const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
+const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/flac'];
+const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES, ...ALLOWED_AUDIO_TYPES];
 
 // 사용자별 저장 용량 제한 (100MB)
 export const STORAGE_QUOTA = 100 * 1024 * 1024; // 100MB
@@ -82,7 +83,7 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
   if (!ALLOWED_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: '이미지 또는 비디오 파일만 업로드할 수 있어요 (PNG, JPG, GIF, WebP, MP4, WebM)',
+      error: '이미지, 비디오, 오디오 파일만 업로드할 수 있어요 (PNG, JPG, GIF, WebP, MP4, WebM, MP3, WAV, OGG)',
     };
   }
 

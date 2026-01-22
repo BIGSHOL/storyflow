@@ -1622,8 +1622,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       // 로그인 시 Supabase에 업로드
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const url = await uploadMedia(file, 'audio');
-        updateAudioTrack(sectionId, trackId, { url });
+        const { data, error } = await uploadMedia(file);
+        if (error) throw error;
+        if (data) {
+          updateAudioTrack(sectionId, trackId, { url: data.public_url });
+        }
       } else {
         // 비로그인 시 blob URL 사용 + 경고 표시
         const url = URL.createObjectURL(file);
