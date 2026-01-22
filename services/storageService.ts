@@ -31,6 +31,11 @@ const blobUrlToBase64 = async (blobUrl: string): Promise<string> => {
 // Base64를 Blob URL로 변환
 const base64ToBlobUrl = (base64: string): string => {
   try {
+    // Base64 형식이 아닌 경우 (일반 URL 경로) 그대로 반환
+    if (!base64.startsWith('data:')) {
+      return base64;
+    }
+
     const byteString = atob(base64.split(',')[1]);
     const mimeType = base64.match(/data:([^;]+);/)?.[1] || 'image/png';
     const ab = new ArrayBuffer(byteString.length);
@@ -41,8 +46,8 @@ const base64ToBlobUrl = (base64: string): string => {
     const blob = new Blob([ab], { type: mimeType });
     return URL.createObjectURL(blob);
   } catch {
-    console.error('Base64 to Blob 변환 실패');
-    return '';
+    console.error('Base64 to Blob 변환 실패:', base64.substring(0, 50));
+    return base64; // 실패 시에도 원본 반환 시도
   }
 };
 
@@ -187,7 +192,7 @@ export const loadAutoSave = (userId: string | null = null): Section[] | null => 
 export const hasSavedProject = (userId: string | null = null): boolean => {
   const storage = getStorage(userId);
   return storage.getItem(getStorageKey(userId)) !== null ||
-         storage.getItem(getAutoSaveKey(userId)) !== null;
+    storage.getItem(getAutoSaveKey(userId)) !== null;
 };
 
 // 저장 데이터 삭제
@@ -219,7 +224,7 @@ export const getLastSaveTime = (userId: string | null = null): string | null => 
 export const hasAnonymousSavedProject = (): boolean => {
   // 익명 사용자는 sessionStorage를 사용
   return sessionStorage.getItem(getStorageKey(null)) !== null ||
-         sessionStorage.getItem(getAutoSaveKey(null)) !== null;
+    sessionStorage.getItem(getAutoSaveKey(null)) !== null;
 };
 
 // 익명 사용자의 프로젝트 데이터 불러오기
