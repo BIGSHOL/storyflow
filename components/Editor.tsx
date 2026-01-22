@@ -622,17 +622,12 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
   }, []);
 
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'title' | 'description') => {
-    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
-    if (!isComposingRef.current) {
-      updateSection(id, { [field]: e.target.value });
-    }
+    // 항상 업데이트 (controlled input에서는 업데이트 안 하면 입력 자체가 안 됨)
+    updateSection(id, { [field]: e.target.value });
   }, []);
 
   const handleCtaTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, id: string, field: 'text' | 'link') => {
-    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
-    if (!isComposingRef.current) {
-      updateCtaButton(id, { [field]: e.target.value });
-    }
+    updateCtaButton(id, { [field]: e.target.value });
   }, []);
 
   const handleCtaCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement>, id: string, field: 'text' | 'link') => {
@@ -644,10 +639,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
 
   // 범용 텍스트 입력 핸들러 (템플릿 export 등)
   const handleGenericTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, setter: (value: string) => void) => {
-    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
-    if (!isComposingRef.current) {
-      setter(e.target.value);
-    }
+    setter(e.target.value);
   }, []);
 
   const handleGenericCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>, setter: (value: string) => void) => {
@@ -659,10 +651,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
 
   // Quote 필드 핸들러
   const handleQuoteFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'quoteText' | 'quoteAuthor') => {
-    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
-    if (!isComposingRef.current) {
-      updateSection(id, { [field]: e.target.value });
-    }
+    updateSection(id, { [field]: e.target.value });
   }, []);
 
   const handleQuoteFieldCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'quoteText' | 'quoteAuthor') => {
