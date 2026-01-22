@@ -14,6 +14,7 @@ export enum LayoutType {
   VIDEO_HERO = 'video_hero',
   CAROUSEL = 'carousel',
   MASONRY = 'masonry',
+  GUESTBOOK = 'guestbook',
 }
 
 export type TextAlignment = 'left' | 'center' | 'right';
@@ -156,6 +157,25 @@ export interface MasonrySettings {
   rounded: boolean;
 }
 
+// Guestbook (방명록)
+export interface GuestbookEntry {
+  id: string;
+  name: string;
+  message: string;
+  timestamp: string;
+  avatar?: string; // 프로필 이미지 URL (선택)
+}
+
+export interface GuestbookSettings {
+  maxEntries: number; // 최대 표시 개수
+  showTimestamp: boolean; // 작성 시간 표시 여부
+  requireName: boolean; // 이름 필수 여부
+  allowAnonymous: boolean; // 익명 허용 여부
+  sortOrder: 'newest' | 'oldest'; // 정렬 순서
+  cardStyle: 'default' | 'minimal' | 'bordered'; // 카드 스타일
+  columns: 1 | 2 | 3; // 컬럼 수
+}
+
 // ========== Section 인터페이스 ==========
 
 export interface Section {
@@ -239,6 +259,10 @@ export interface Section {
   // Masonry 레이아웃
   masonryImages?: MasonryImage[];
   masonrySettings?: MasonrySettings;
+
+  // Guestbook 레이아웃
+  guestbookEntries?: GuestbookEntry[];
+  guestbookSettings?: GuestbookSettings;
 }
 
 export interface ProjectState {

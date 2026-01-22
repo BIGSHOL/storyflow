@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -41,6 +41,7 @@ import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Store from 'lucide-react/dist/esm/icons/store';
 import User from 'lucide-react/dist/esm/icons/user';
 import Eye from 'lucide-react/dist/esm/icons/eye';
+import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
@@ -64,6 +65,7 @@ const getLayoutName = (layout: LayoutType): string => {
     [LayoutType.VIDEO_HERO]: '비디오 배경',
     [LayoutType.CAROUSEL]: '이미지 슬라이더',
     [LayoutType.MASONRY]: 'Masonry',
+    [LayoutType.GUESTBOOK]: '방명록',
   };
   return layoutNames[layout] || layout;
 };
@@ -123,6 +125,7 @@ const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; gr
   { value: LayoutType.STATS, name: '통계', description: '숫자 강조', group: 'advanced' },
   { value: LayoutType.VIDEO_HERO, name: '비디오 Hero', description: '비디오 배경', group: 'advanced' },
   { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
+  { value: LayoutType.GUESTBOOK, name: '방명록', description: '댓글 섹션', group: 'advanced' },
 ];
 
 // 레이아웃 선택 컴포넌트 (memo로 최적화)
@@ -1501,6 +1504,53 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       updateMasonryImage(sectionId, imageId, { url });
     }
   }, [sections, updateMasonryImage, showGuestWarning]);
+
+  // ========== Guestbook 관련 함수 ==========
+
+  // Guestbook 엔트리 추가
+  const addGuestbookEntry = useCallback((sectionId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentEntries = section?.guestbookEntries || [];
+    const newEntry: GuestbookEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: '방문자',
+      message: '메시지를 입력하세요',
+      timestamp: new Date().toISOString(),
+    };
+    updateSection(sectionId, { guestbookEntries: [...currentEntries, newEntry] });
+  }, [updateSection]);
+
+  // Guestbook 엔트리 업데이트
+  const updateGuestbookEntry = useCallback((sectionId: string, entryId: string, updates: Partial<GuestbookEntry>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentEntries = section?.guestbookEntries || [];
+    const updatedEntries = currentEntries.map((entry: GuestbookEntry) =>
+      entry.id === entryId ? { ...entry, ...updates } : entry
+    );
+    updateSection(sectionId, { guestbookEntries: updatedEntries });
+  }, [updateSection]);
+
+  // Guestbook 엔트리 삭제
+  const removeGuestbookEntry = useCallback((sectionId: string, entryId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentEntries = section?.guestbookEntries || [];
+    updateSection(sectionId, { guestbookEntries: currentEntries.filter((entry: GuestbookEntry) => entry.id !== entryId) });
+  }, [updateSection]);
+
+  // Guestbook 설정 업데이트
+  const updateGuestbookSettings = useCallback((sectionId: string, updates: Partial<GuestbookSettings>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentSettings = section?.guestbookSettings || {
+      maxEntries: 10,
+      showTimestamp: true,
+      requireName: false,
+      allowAnonymous: true,
+      sortOrder: 'newest' as const,
+      cardStyle: 'default' as const,
+      columns: 1 as const,
+    };
+    updateSection(sectionId, { guestbookSettings: { ...currentSettings, ...updates } });
+  }, [updateSection]);
 
   // Gallery 이미지 파일 업로드
   const handleGalleryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
@@ -3577,6 +3627,152 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     </AccordionSection>
                   )}
 
+                  {/* Guestbook 레이아웃 편집 */}
+                  {section.layout === LayoutType.GUESTBOOK && (
+                    <AccordionSection
+                      title="방명록 설정"
+                      icon={<MessageCircle size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'guestbook')}
+                      onToggle={() => toggleAccordion(section.id, 'guestbook')}
+                    >
+                      <div className="space-y-4">
+                        {/* 컬럼 수 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">컬럼 수</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {([1, 2, 3] as const).map(cols => (
+                              <button
+                                key={cols}
+                                onClick={() => updateGuestbookSettings(section.id, { columns: cols })}
+                                className={`py-2 rounded text-xs font-medium ${(section.guestbookSettings?.columns || 1) === cols
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                  }`}
+                              >
+                                {cols}열
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 최대 표시 개수 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>최대 표시 개수</span>
+                            <span className="text-white">{section.guestbookSettings?.maxEntries || 10}개</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="5"
+                            max="50"
+                            step="5"
+                            value={section.guestbookSettings?.maxEntries || 10}
+                            onChange={(e) => updateGuestbookSettings(section.id, { maxEntries: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+
+                        {/* 카드 스타일 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">카드 스타일</label>
+                          <select
+                            value={section.guestbookSettings?.cardStyle || 'default'}
+                            onChange={(e) => updateGuestbookSettings(section.id, { cardStyle: e.target.value as 'default' | 'minimal' | 'bordered' })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                          >
+                            <option value="default">기본</option>
+                            <option value="minimal">미니멀</option>
+                            <option value="bordered">테두리</option>
+                          </select>
+                        </div>
+
+                        {/* 정렬 순서 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">정렬 순서</label>
+                          <select
+                            value={section.guestbookSettings?.sortOrder || 'newest'}
+                            onChange={(e) => updateGuestbookSettings(section.id, { sortOrder: e.target.value as 'newest' | 'oldest' })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                          >
+                            <option value="newest">최신순</option>
+                            <option value="oldest">오래된순</option>
+                          </select>
+                        </div>
+
+                        {/* 옵션 토글 */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">작성 시간 표시</label>
+                            <button
+                              onClick={() => updateGuestbookSettings(section.id, { showTimestamp: !(section.guestbookSettings?.showTimestamp ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.guestbookSettings?.showTimestamp ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.guestbookSettings?.showTimestamp ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">이름 필수</label>
+                            <button
+                              onClick={() => updateGuestbookSettings(section.id, { requireName: !(section.guestbookSettings?.requireName ?? false) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.guestbookSettings?.requireName ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.guestbookSettings?.requireName ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">익명 허용</label>
+                            <button
+                              onClick={() => updateGuestbookSettings(section.id, { allowAnonymous: !(section.guestbookSettings?.allowAnonymous ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.guestbookSettings?.allowAnonymous ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.guestbookSettings?.allowAnonymous ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 샘플 엔트리 목록 */}
+                        <div className="space-y-2 pt-2 border-t border-gray-700">
+                          <label className="text-xs text-gray-400">샘플 메시지 ({section.guestbookEntries?.length || 0}개)</label>
+                          {(section.guestbookEntries || []).map((entry: GuestbookEntry, idx: number) => (
+                            <div key={entry.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
+                                <div className="flex-1 space-y-2">
+                                  <input
+                                    type="text"
+                                    value={entry.name}
+                                    onChange={(e) => updateGuestbookEntry(section.id, entry.id, { name: e.target.value })}
+                                    placeholder="이름"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                  <textarea
+                                    value={entry.message}
+                                    onChange={(e) => updateGuestbookEntry(section.id, entry.id, { message: e.target.value })}
+                                    placeholder="메시지"
+                                    rows={2}
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
+                                  />
+                                </div>
+                                <button onClick={() => removeGuestbookEntry(section.id, entry.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addGuestbookEntry(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 샘플 메시지 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
                   {/* 미디어 업로드 (기존 레이아웃용) */}
                   {section.layout !== LayoutType.SIMPLE_TEXT &&
                     section.layout !== LayoutType.GALLERY &&
@@ -3585,7 +3781,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     section.layout !== LayoutType.STATS &&
                     section.layout !== LayoutType.VIDEO_HERO &&
                     section.layout !== LayoutType.CAROUSEL &&
-                    section.layout !== LayoutType.MASONRY && (
+                    section.layout !== LayoutType.MASONRY &&
+                    section.layout !== LayoutType.GUESTBOOK && (
                       <AccordionSection
                         title="미디어"
                         icon={<ImageIcon size={12} />}

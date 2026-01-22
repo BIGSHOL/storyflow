@@ -13,6 +13,7 @@ const StatsLayout = lazy(() => import('./layouts/StatsLayout'));
 const VideoHeroLayout = lazy(() => import('./layouts/VideoHeroLayout'));
 const CarouselLayout = lazy(() => import('./layouts/CarouselLayout'));
 const MasonryLayout = lazy(() => import('./layouts/MasonryLayout'));
+const GuestbookLayout = lazy(() => import('./layouts/GuestbookLayout'));
 
 interface PreviewRenderProps {
   sections: Section[];
@@ -535,6 +536,29 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <Suspense fallback={suspenseFallback}>
           <MasonryLayout section={section} />
+        </Suspense>
+      );
+
+    case LayoutType.GUESTBOOK:
+      return (
+        <Suspense fallback={suspenseFallback}>
+          <GuestbookLayout
+            title={section.title}
+            description={section.description}
+            entries={section.guestbookEntries || []}
+            settings={section.guestbookSettings || {
+              maxEntries: 10,
+              showTimestamp: true,
+              requireName: false,
+              allowAnonymous: true,
+              sortOrder: 'newest',
+              cardStyle: 'default',
+              columns: 1,
+            }}
+            backgroundColor={section.backgroundColor}
+            textColor={section.textColor}
+            isPreview={true}
+          />
         </Suspense>
       );
 
