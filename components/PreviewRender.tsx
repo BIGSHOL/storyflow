@@ -5,6 +5,8 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ImageOff from 'lucide-react/dist/esm/icons/image-off';
 import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
 import VolumeX from 'lucide-react/dist/esm/icons/volume-x';
+import Play from 'lucide-react/dist/esm/icons/play';
+import Pause from 'lucide-react/dist/esm/icons/pause';
 
 // Lazy import with retry (배포 후 캐시 무효화 문제 해결)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -158,6 +160,29 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
   const [mediaError, setMediaError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isVideoMuted, setIsVideoMuted] = useState(section.videoMuted ?? true);
+
+  // 비디오 재생/일시정지 토글
+  const toggleVideoPlay = useCallback(() => {
+    if (videoRef.current) {
+      if (isVideoPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsVideoPlaying(!isVideoPlaying);
+    }
+  }, [isVideoPlaying]);
+
+  // 비디오 음소거 토글
+  const toggleVideoMute = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isVideoMuted;
+      setIsVideoMuted(!isVideoMuted);
+    }
+  }, [isVideoMuted]);
 
   // 미디어 비율 계산 (useMemo로 캐싱)
   const { mediaRatio, textRatio } = useMemo(() => ({
@@ -375,16 +400,46 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     }
     if (section.mediaType === 'video') {
       return (
-        <video
-          src={section.mediaUrl}
-          className="w-full h-full object-cover"
-          style={imageFilterStyle}
-          autoPlay
-          muted={section.videoMuted ?? true}
-          loop
-          playsInline
-          onError={handleMediaError}
-        />
+        <div className="relative w-full h-full">
+          <video
+            ref={videoRef}
+            src={section.mediaUrl}
+            className="w-full h-full object-cover"
+            style={imageFilterStyle}
+            autoPlay
+            muted={isVideoMuted}
+            loop
+            playsInline
+            onError={handleMediaError}
+          />
+          {/* 비디오 컨트롤 버튼 (좌측 하단) */}
+          {section.showVideoControls && (
+            <div className="absolute bottom-4 left-4 flex gap-2 z-20">
+              <button
+                onClick={toggleVideoPlay}
+                className="p-2 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full border border-white/20 transition-all"
+                title={isVideoPlaying ? '일시정지' : '재생'}
+              >
+                {isVideoPlaying ? (
+                  <Pause size={18} className="text-white" />
+                ) : (
+                  <Play size={18} className="text-white" />
+                )}
+              </button>
+              <button
+                onClick={toggleVideoMute}
+                className="p-2 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full border border-white/20 transition-all"
+                title={isVideoMuted ? '음소거 해제' : '음소거'}
+              >
+                {isVideoMuted ? (
+                  <VolumeX size={18} className="text-white" />
+                ) : (
+                  <Volume2 size={18} className="text-white" />
+                )}
+              </button>
+            </div>
+          )}
+        </div>
       );
     }
     return (

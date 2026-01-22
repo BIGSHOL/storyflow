@@ -205,6 +205,7 @@ export interface Section {
   mediaUrl?: string;
   mediaType: 'image' | 'video' | 'none';
   videoMuted?: boolean; // 동영상 음소거 여부 (기본: true)
+  showVideoControls?: boolean; // 동영상 컨트롤 버튼 표시 여부 (기본: false)
   imageAlt?: string; // 접근성: 이미지 대체 텍스트
   backgroundColor?: string;
   textColor?: string;
@@ -295,6 +296,7 @@ export interface BackgroundMusic {
   url: string;
   volume: number; // 0-100
   loop: boolean;
+  muteVideoOnPlay?: boolean; // BGM 재생 시 비디오 음소거
 }
 
 export interface ProjectState {

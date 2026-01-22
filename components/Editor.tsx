@@ -42,6 +42,7 @@ import Store from 'lucide-react/dist/esm/icons/store';
 import User from 'lucide-react/dist/esm/icons/user';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
+import Info from 'lucide-react/dist/esm/icons/info';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
@@ -1855,6 +1856,14 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
             >
               <X size={20} />
             </button>
+          </div>
+
+          {/* 티어 시스템 안내 배너 */}
+          <div className="mx-4 mt-3 mb-2 p-3 bg-blue-900/30 border border-blue-700/50 rounded-lg flex items-start gap-2">
+            <Info size={16} className="text-blue-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-300">
+              현재 모든 템플릿이 무료로 제공됩니다. 추후 일부 프리미엄 템플릿은 Pro/Business 플랜에서만 이용 가능해질 예정입니다.
+            </p>
           </div>
 
           {/* 상단 탭 */}
@@ -4183,6 +4192,22 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   </label>
                                   <p className="text-[10px] text-gray-500 mt-1 ml-6">
                                     체크 해제 시 동영상 소리가 재생됩니다
+                                  </p>
+
+                                  {/* 비디오 컨트롤 표시 옵션 */}
+                                  <label className="flex items-center gap-2 cursor-pointer group mt-3">
+                                    <input
+                                      type="checkbox"
+                                      checked={section.showVideoControls ?? false}
+                                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateSection(section.id, { showVideoControls: e.target.checked })}
+                                      className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
+                                    />
+                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                      재생 컨트롤 표시
+                                    </span>
+                                  </label>
+                                  <p className="text-[10px] text-gray-500 mt-1 ml-6">
+                                    좌측 하단에 재생/일시정지, 음소거 버튼 표시
                                   </p>
                                 </div>
                               )}
