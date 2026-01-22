@@ -1,5 +1,4 @@
-import { Section, LayoutType } from '../types';
-import { Template, TemplateCategoryId } from '../data/templates';
+import { Section, LayoutType, Template, TemplateCategoryId } from '../types';
 
 // 마켓플레이스 템플릿 인터페이스 (사용자 공유 템플릿)
 export interface MarketplaceTemplate extends Template {

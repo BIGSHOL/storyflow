@@ -6,6 +6,11 @@ const getStorageKey = (userId: string | null) =>
 const getAutoSaveKey = (userId: string | null) =>
   `storyflow_autosave_${userId || 'anonymous'}`;
 
+// 스토리지 선택: 로그인 사용자는 localStorage, 비로그인 사용자는 sessionStorage
+const getStorage = (userId: string | null): Storage => {
+  return userId ? localStorage : sessionStorage;
+};
+
 // Blob URL을 Base64로 변환
 const blobUrlToBase64 = async (blobUrl: string): Promise<string> => {
   try {
@@ -76,7 +81,8 @@ export const saveProject = async (sections: Section[], userId: string | null = n
       sections: storedSections,
     };
 
-    localStorage.setItem(getStorageKey(userId), JSON.stringify(project));
+    const storage = getStorage(userId);
+    storage.setItem(getStorageKey(userId), JSON.stringify(project));
     return true;
   } catch (error) {
     console.error('프로젝트 저장 실패:', error);
@@ -87,7 +93,8 @@ export const saveProject = async (sections: Section[], userId: string | null = n
 // 프로젝트 불러오기
 export const loadProject = (userId: string | null = null): Section[] | null => {
   try {
-    const data = localStorage.getItem(getStorageKey(userId));
+    const storage = getStorage(userId);
+    const data = storage.getItem(getStorageKey(userId));
     if (!data) return null;
 
     const project: StoredProject = JSON.parse(data);
@@ -141,7 +148,8 @@ export const autoSave = (sections: Section[], userId: string | null = null): voi
         sections: storedSections,
       };
 
-      localStorage.setItem(getAutoSaveKey(userId), JSON.stringify(project));
+      const storage = getStorage(userId);
+      storage.setItem(getAutoSaveKey(userId), JSON.stringify(project));
     } catch (error) {
       console.error('자동 저장 실패:', error);
     }
@@ -151,7 +159,8 @@ export const autoSave = (sections: Section[], userId: string | null = null): voi
 // 자동 저장 데이터 불러오기
 export const loadAutoSave = (userId: string | null = null): Section[] | null => {
   try {
-    const data = localStorage.getItem(getAutoSaveKey(userId));
+    const storage = getStorage(userId);
+    const data = storage.getItem(getAutoSaveKey(userId));
     if (!data) return null;
 
     const project: StoredProject = JSON.parse(data);
@@ -176,8 +185,9 @@ export const loadAutoSave = (userId: string | null = null): Section[] | null => 
 
 // 저장된 프로젝트가 있는지 확인
 export const hasSavedProject = (userId: string | null = null): boolean => {
-  return localStorage.getItem(getStorageKey(userId)) !== null ||
-         localStorage.getItem(getAutoSaveKey(userId)) !== null;
+  const storage = getStorage(userId);
+  return storage.getItem(getStorageKey(userId)) !== null ||
+         storage.getItem(getAutoSaveKey(userId)) !== null;
 };
 
 // 저장 데이터 삭제
@@ -187,14 +197,16 @@ export const clearSavedProject = (userId: string | null = null): void => {
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = null;
   }
-  localStorage.removeItem(getStorageKey(userId));
-  localStorage.removeItem(getAutoSaveKey(userId));
+  const storage = getStorage(userId);
+  storage.removeItem(getStorageKey(userId));
+  storage.removeItem(getAutoSaveKey(userId));
 };
 
 // 마지막 저장 시간 가져오기
 export const getLastSaveTime = (userId: string | null = null): string | null => {
   try {
-    const data = localStorage.getItem(getStorageKey(userId)) || localStorage.getItem(getAutoSaveKey(userId));
+    const storage = getStorage(userId);
+    const data = storage.getItem(getStorageKey(userId)) || storage.getItem(getAutoSaveKey(userId));
     if (!data) return null;
     const project: StoredProject = JSON.parse(data);
     return project.savedAt;
@@ -205,8 +217,9 @@ export const getLastSaveTime = (userId: string | null = null): string | null => 
 
 // 익명 사용자의 저장된 프로젝트가 있는지 확인 (로그인 후 마이그레이션용)
 export const hasAnonymousSavedProject = (): boolean => {
-  return localStorage.getItem(getStorageKey(null)) !== null ||
-         localStorage.getItem(getAutoSaveKey(null)) !== null;
+  // 익명 사용자는 sessionStorage를 사용
+  return sessionStorage.getItem(getStorageKey(null)) !== null ||
+         sessionStorage.getItem(getAutoSaveKey(null)) !== null;
 };
 
 // 익명 사용자의 프로젝트 데이터 불러오기

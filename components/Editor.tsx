@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings, BackgroundMusic } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings, BackgroundMusic, Template, TemplateCategoryId } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -34,7 +34,7 @@ import Video from 'lucide-react/dist/esm/icons/video';
 import Link from 'lucide-react/dist/esm/icons/link';
 import Upload from 'lucide-react/dist/esm/icons/upload';
 import Search from 'lucide-react/dist/esm/icons/search';
-import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
+import { TEMPLATES, applyTemplate, TEMPLATE_CATEGORIES } from '../data/templates';
 import { MarketplaceTemplate, exportAsTemplate, downloadTemplateAsJson, loadTemplateFromJson, applyMarketplaceTemplate, getAllCommunityTemplates, registerToCommunity, getMyTemplates, removeFromMyTemplates, isRegisteredToCommunity, searchAllCommunityTemplates } from '../services/marketplaceService';
 import Download from 'lucide-react/dist/esm/icons/download';
 import Share2 from 'lucide-react/dist/esm/icons/share-2';
@@ -212,11 +212,10 @@ const LayoutSelector = memo<{
                         setIsExpanded(false);
                         setSearchQuery('');
                       }}
-                      className={`p-2 rounded text-left transition-colors ${
-                        currentLayout === layout.value
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      }`}
+                      className={`p-2 rounded text-left transition-colors ${currentLayout === layout.value
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
                     >
                       <p className="text-xs font-medium">{layout.name}</p>
                       <p className="text-[10px] opacity-70">{layout.description}</p>
@@ -237,11 +236,10 @@ const LayoutSelector = memo<{
                         setIsExpanded(false);
                         setSearchQuery('');
                       }}
-                      className={`p-2 rounded text-left transition-colors ${
-                        currentLayout === layout.value
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      }`}
+                      className={`p-2 rounded text-left transition-colors ${currentLayout === layout.value
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
                     >
                       <p className="text-xs font-medium">{layout.name}</p>
                       <p className="text-[10px] opacity-70">{layout.description}</p>
@@ -369,11 +367,10 @@ const FontSelector = memo<{
                         setIsExpanded(false);
                         setSearchQuery('');
                       }}
-                      className={`w-full px-3 py-2 rounded text-left transition-colors ${
-                        currentFont === font.value
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      }`}
+                      className={`w-full px-3 py-2 rounded text-left transition-colors ${currentFont === font.value
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
                       style={{ fontFamily: font.value }}
                     >
                       <span className="text-sm">{font.name}</span>
@@ -492,11 +489,10 @@ const StyledDropdown = memo<{
                 setIsExpanded(false);
                 setSearchQuery('');
               }}
-              className={`w-full px-3 py-2 rounded text-left transition-colors ${
-                value === option.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              } ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
+              className={`w-full px-3 py-2 rounded text-left transition-colors ${value === option.value
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                } ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
             >
               <span>{option.name}</span>
               {option.description && (
@@ -1956,7 +1952,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         t.name.toLowerCase().includes(searchLower) ||
                         t.description.toLowerCase().includes(searchLower);
                       return matchesCategory && matchesSearch;
-                    });
+                    }).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
                     if (filteredTemplates.length === 0) {
                       return (
@@ -2007,7 +2003,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
               {marketplaceTab === 'community' && (
                 <div className="space-y-3">
                   {(() => {
-                    const filteredTemplates = searchAllCommunityTemplates(templateSearchQuery, selectedCategory === 'all' ? undefined : selectedCategory);
+                    const filteredTemplates = searchAllCommunityTemplates(templateSearchQuery, selectedCategory === 'all' ? undefined : selectedCategory)
+                      .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
                     if (filteredTemplates.length === 0) {
                       return (
@@ -2230,8 +2227,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
               {marketplaceTab === 'export'
                 ? '이미지는 보안을 위해 포함되지 않습니다'
                 : marketplaceTab === 'myTemplates'
-                ? '내가 등록한 템플릿을 관리합니다'
-                : '템플릿을 선택하면 현재 내용이 대체됩니다'}
+                  ? '내가 등록한 템플릿을 관리합니다'
+                  : '템플릿을 선택하면 현재 내용이 대체됩니다'}
             </p>
           </div>
         </div>
@@ -4139,6 +4136,26 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                                   />
                                   <p className="text-[10px] text-gray-500 mt-1">
                                     시각 장애인 사용자를 위해 이미지를 설명해주세요
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* 동영상 음소거 옵션 */}
+                              {section.mediaType === 'video' && (
+                                <div className="mt-3">
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                    <input
+                                      type="checkbox"
+                                      checked={section.videoMuted ?? true}
+                                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateSection(section.id, { videoMuted: e.target.checked })}
+                                      className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
+                                    />
+                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                      동영상 음소거
+                                    </span>
+                                  </label>
+                                  <p className="text-[10px] text-gray-500 mt-1 ml-6">
+                                    체크 해제 시 동영상 소리가 재생됩니다
                                   </p>
                                 </div>
                               )}

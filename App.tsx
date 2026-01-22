@@ -896,6 +896,15 @@ function App() {
   if (isMobile) {
     return (
       <>
+        {/* 비로그인 경고 배너 - 모바일 */}
+        {!isAuthenticated && !authLoading && (
+          <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-2.5 text-center z-[100]">
+            <p className="text-xs text-yellow-200">
+              ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다
+            </p>
+          </div>
+        )}
+
         <MobileLayout
           sections={sections}
           setSections={handleSetSections}
@@ -1008,6 +1017,15 @@ function App() {
   if (deviceType === 'tablet') {
     return (
       <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
+        {/* 비로그인 경고 배너 - 태블릿 */}
+        {!isAuthenticated && !authLoading && (
+          <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-2.5 text-center z-[100]">
+            <p className="text-sm text-yellow-200">
+              ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다
+            </p>
+          </div>
+        )}
+
         {/* Top Navigation Bar - 태블릿용 컴팩트 2행 */}
         <nav className="border-b border-gray-800 bg-gray-900 z-50">
           {/* 1행: 로고 + 프로젝트 + 유저메뉴 */}
@@ -1338,6 +1356,15 @@ function App() {
   // 데스크탑 레이아웃 (고정 크기 + 가로 스크롤)
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
+      {/* 비로그인 경고 배너 - 데스크탑 */}
+      {!isAuthenticated && !authLoading && (
+        <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-3 text-center z-[100]">
+          <p className="text-sm text-yellow-200">
+            ⚠️ 로그인하지 않으면 브라우저를 닫을 때 작업이 사라집니다. 작업을 계속하려면 로그인하세요.
+          </p>
+        </div>
+      )}
+
       {/* Top Navigation Bar - 고정 크기, 1400px 미만에서 가로 스크롤 */}
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">

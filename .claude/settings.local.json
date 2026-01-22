@@ -8,7 +8,8 @@
       "Bash(ping:*)",
       "WebFetch(domain:storyflow-gilt.vercel.app)",
       "Bash(node:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Read(//d/**)"
     ]
   }
 }

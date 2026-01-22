@@ -357,7 +357,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           className="w-full h-full object-cover"
           style={imageFilterStyle}
           autoPlay
-          muted
+          muted={section.videoMuted ?? true}
           loop
           playsInline
           onError={handleMediaError}
@@ -381,7 +381,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     backgroundColor: section.backgroundColor || '#000000',
     color: section.textColor || '#ffffff',
     fontFamily: section.fontFamily || 'system-ui, -apple-system, sans-serif',
-    minHeight: section.sectionHeight || '100vh',
+    minHeight: section.sectionHeight === 'auto' ? '100vh' : (section.sectionHeight || '100vh'),
     height: section.sectionHeight === 'auto' ? 'auto' : section.sectionHeight,
   }), [section.backgroundColor, section.textColor, section.fontFamily, section.sectionHeight]);
 

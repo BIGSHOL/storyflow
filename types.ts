@@ -204,6 +204,7 @@ export interface Section {
   description: string;
   mediaUrl?: string;
   mediaType: 'image' | 'video' | 'none';
+  videoMuted?: boolean; // 동영상 음소거 여부 (기본: true)
   imageAlt?: string; // 접근성: 이미지 대체 텍스트
   backgroundColor?: string;
   textColor?: string;
@@ -300,4 +301,21 @@ export interface ProjectState {
   title: string;
   sections: Section[];
   bgm?: BackgroundMusic; // 배경음악 (선택)
+}
+
+// 템플릿 카테고리 타입
+export type TemplateCategoryId = 'business' | 'creative' | 'event' | 'personal';
+
+export interface TemplateCategory {
+  id: TemplateCategoryId;
+  name: string;
+  description: string;
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  category: TemplateCategoryId;
+  sections: Omit<Section, 'id'>[];
 }
