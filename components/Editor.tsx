@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, memo, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
 import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
@@ -40,10 +40,12 @@ import Download from 'lucide-react/dist/esm/icons/download';
 import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Store from 'lucide-react/dist/esm/icons/store';
 import User from 'lucide-react/dist/esm/icons/user';
+import Eye from 'lucide-react/dist/esm/icons/eye';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
 import { uploadMedia } from '../services/mediaService';
+import PreviewRender from './PreviewRender';
 import { supabase } from '../services/supabaseClient';
 
 // 레이아웃 타입을 한글로 변환
@@ -570,6 +572,10 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const [exportTemplateCategory, setExportTemplateCategory] = useState<TemplateCategoryId>('personal');
   const [exportTemplateTags, setExportTemplateTags] = useState('');
 
+  // 템플릿 미리보기 상태
+  const [previewTemplate, setPreviewTemplate] = useState<MarketplaceTemplate | null>(null);
+  const [showTemplatePreview, setShowTemplatePreview] = useState(false);
+
   // URL 입력 모드 상태
   const [urlInputMode, setUrlInputMode] = useState<Record<string, boolean>>({});
   const [urlInputValue, setUrlInputValue] = useState<Record<string, string>>({});
@@ -761,6 +767,41 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       refreshMyTemplates();
     }
   }, [refreshMyTemplates]);
+
+  // 기본 템플릿 미리보기 (Template -> MarketplaceTemplate 변환)
+  const handlePreviewBasicTemplate = useCallback((template: Template, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const marketplaceTemplate: MarketplaceTemplate = {
+      ...template,
+      author: 'StoryFlow',
+      downloads: 0,
+      createdAt: new Date().toISOString(),
+      tags: [],
+    };
+    setPreviewTemplate(marketplaceTemplate);
+    setShowTemplatePreview(true);
+  }, []);
+
+  // 템플릿 미리보기 열기
+  const handlePreviewTemplate = useCallback((template: MarketplaceTemplate, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setPreviewTemplate(template);
+    setShowTemplatePreview(true);
+  }, []);
+
+  // 템플릿 미리보기 닫기
+  const closeTemplatePreview = useCallback(() => {
+    setShowTemplatePreview(false);
+    setPreviewTemplate(null);
+  }, []);
+
+  // 미리보기에서 템플릿 적용
+  const applyPreviewTemplate = useCallback(() => {
+    if (previewTemplate) {
+      handleApplyMarketplaceTemplate(previewTemplate);
+      closeTemplatePreview();
+    }
+  }, [previewTemplate, handleApplyMarketplaceTemplate, closeTemplatePreview]);
 
   const updateSection = useCallback((id: string, updates: Partial<Section>) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
@@ -1748,21 +1789,35 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     }
 
                     return filteredTemplates.map(template => (
-                      <button
+                      <div
                         key={template.id}
-                        onClick={() => handleApplyTemplate(template)}
-                        className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
+                        className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-indigo-500 transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <p className="font-medium text-white">{template.name}</p>
                             <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-xs text-gray-400">{template.sections.length}개 섹션</span>
+                            </div>
                           </div>
-                          <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
-                            {template.sections.length}개 섹션
-                          </span>
+                          <div className="flex flex-col gap-1 ml-3">
+                            <button
+                              onClick={(e: React.MouseEvent) => handlePreviewBasicTemplate(template, e)}
+                              className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex items-center gap-1"
+                            >
+                              <Eye size={12} />
+                              미리보기
+                            </button>
+                            <button
+                              onClick={() => handleApplyTemplate(template)}
+                              className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 rounded transition-colors"
+                            >
+                              적용
+                            </button>
+                          </div>
                         </div>
-                      </button>
+                      </div>
                     ));
                   })()}
                 </div>
@@ -1785,10 +1840,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     }
 
                     return filteredTemplates.map(template => (
-                      <button
+                      <div
                         key={template.id}
-                        onClick={() => handleApplyMarketplaceTemplate(template)}
-                        className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
+                        className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-indigo-500 transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -1798,10 +1852,12 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                               <span className="text-xs text-gray-500">by {template.author}</span>
                               <span className="text-xs text-gray-500">•</span>
                               <span className="text-xs text-gray-500">{template.downloads.toLocaleString()} 다운로드</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-400">{template.sections.length}개 섹션</span>
                             </div>
                             {template.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
-                                {template.tags.slice(0, 3).map(tag => (
+                                {template.tags.slice(0, 3).map((tag: string) => (
                                   <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
                                     #{tag}
                                   </span>
@@ -1809,11 +1865,23 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                               </div>
                             )}
                           </div>
-                          <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
-                            {template.sections.length}개 섹션
-                          </span>
+                          <div className="flex flex-col gap-1 ml-3">
+                            <button
+                              onClick={(e: React.MouseEvent) => handlePreviewTemplate(template, e)}
+                              className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex items-center gap-1"
+                            >
+                              <Eye size={12} />
+                              미리보기
+                            </button>
+                            <button
+                              onClick={() => handleApplyMarketplaceTemplate(template)}
+                              className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 rounded transition-colors"
+                            >
+                              적용
+                            </button>
+                          </div>
                         </div>
-                      </button>
+                      </div>
                     ));
                   })()}
                 </div>
@@ -1846,6 +1914,13 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                             </div>
                           </div>
                           <div className="flex flex-col gap-1 ml-3">
+                            <button
+                              onClick={(e: React.MouseEvent) => handlePreviewTemplate(template, e)}
+                              className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex items-center gap-1"
+                            >
+                              <Eye size={12} />
+                              미리보기
+                            </button>
                             <button
                               onClick={() => handleApplyMarketplaceTemplate(template)}
                               className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 rounded transition-colors"
@@ -1982,6 +2057,61 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
         </div>
       )}
 
+      {/* 템플릿 미리보기 모달 */}
+      {showTemplatePreview && previewTemplate && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]" onClick={closeTemplatePreview}>
+          <div className="bg-gray-900 rounded-lg w-[90vw] h-[90vh] flex flex-col" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            {/* 헤더 */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+              <div>
+                <h3 className="font-medium text-white">{previewTemplate.name}</h3>
+                <p className="text-xs text-gray-400 mt-0.5">{previewTemplate.description}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={applyPreviewTemplate}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition-colors"
+                >
+                  이 템플릿 사용
+                </button>
+                <button
+                  onClick={closeTemplatePreview}
+                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* 미리보기 영역 */}
+            <div className="flex-1 overflow-auto bg-black">
+              <Suspense fallback={<div className="flex items-center justify-center h-full text-gray-500">로딩 중...</div>}>
+                <PreviewRender
+                  sections={applyMarketplaceTemplate(previewTemplate)}
+                  viewMode="desktop"
+                  isFullscreen={false}
+                />
+              </Suspense>
+            </div>
+
+            {/* 푸터 정보 */}
+            <div className="p-3 border-t border-gray-700 bg-gray-800/50 flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center gap-4">
+                <span>작성자: {previewTemplate.author}</span>
+                <span>•</span>
+                <span>{previewTemplate.sections.length}개 섹션</span>
+                <span>•</span>
+                <span>{previewTemplate.downloads.toLocaleString()} 다운로드</span>
+              </div>
+              <div className="flex gap-1">
+                {previewTemplate.tags.slice(0, 3).map((tag: string) => (
+                  <span key={tag} className="bg-gray-700 px-2 py-0.5 rounded">#{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Section List */}
       <div className="flex-1 relative overflow-hidden">
