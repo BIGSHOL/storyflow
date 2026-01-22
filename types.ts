@@ -288,7 +288,16 @@ export interface Section {
   audioSettings?: AudioSettings;
 }
 
+// 배경음악 설정
+export interface BackgroundMusic {
+  enabled: boolean;
+  url: string;
+  volume: number; // 0-100
+  loop: boolean;
+}
+
 export interface ProjectState {
   title: string;
   sections: Section[];
+  bgm?: BackgroundMusic; // 배경음악 (선택)
 }

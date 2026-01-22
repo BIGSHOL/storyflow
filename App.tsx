@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, lazy, Suspense, useMemo, startTransition } from 'react';
-import { Section } from './types';
+import { Section, BackgroundMusic } from './types';
 import Editor from './components/Editor';
 import PreviewRender from './components/PreviewRender';
 // lucide-react 직접 import (번들 최적화)
@@ -119,6 +119,12 @@ function App() {
   const deviceType = useDeviceType();
 
   const [sections, setSections] = useState<Section[]>([]);
+  const [bgm, setBgm] = useState<BackgroundMusic>({
+    enabled: false,
+    url: '',
+    volume: 50,
+    loop: true,
+  });
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('editor');
   const [devicePreview, setDevicePreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -1007,7 +1013,7 @@ function App() {
           {/* 1행: 로고 + 프로젝트 + 유저메뉴 */}
           <div className="h-11 flex items-center justify-between px-3">
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-sm">S</div>
+              <img src="/logo.png" alt="StoryFlow" className="w-7 h-7 rounded-lg" />
               <span className="font-serif font-bold text-white tracking-wide text-sm">StoryFlow</span>
 
               {/* 프로젝트 선택 드롭다운 */}
@@ -1219,7 +1225,7 @@ function App() {
           {viewMode === 'editor' ? (
             <>
               <div className="w-72 flex-shrink-0 h-full z-10 shadow-xl">
-                <Editor sections={sections} setSections={handleSetSections} />
+                <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
               </div>
               <div className="flex-1 bg-gray-950 flex items-center justify-center overflow-hidden relative">
                 <div className={`transition-all duration-500 overflow-hidden bg-black ${devicePreview === 'mobile'
@@ -1229,14 +1235,14 @@ function App() {
                     : 'w-full h-full'
                   }`}>
                   <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">
-                    <PreviewRender sections={sections} />
+                    <PreviewRender sections={sections} bgm={bgm} />
                   </div>
                 </div>
               </div>
             </>
           ) : (
             <div className="w-full h-full overflow-y-auto scroll-smooth">
-              <PreviewRender sections={sections} isPreviewMode={true} />
+              <PreviewRender sections={sections} isPreviewMode={true} bgm={bgm} />
               <button
                 onClick={() => setViewMode('editor')}
                 className="fixed bottom-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-full hover:bg-white/20 transition-all z-50 flex items-center gap-2"
@@ -1336,7 +1342,7 @@ function App() {
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">S</div>
+            <img src="/logo.png" alt="StoryFlow" className="w-8 h-8 rounded-lg" />
             <span className="font-serif font-bold text-white tracking-wide">StoryFlow</span>
           </div>
 
@@ -1564,7 +1570,7 @@ function App() {
           <>
             {/* Editor Sidebar - 고정 크기 */}
             <div className="w-96 flex-shrink-0 h-full z-10 shadow-xl">
-              <Editor sections={sections} setSections={handleSetSections} />
+              <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
             </div>
 
             {/* Live Canvas */}
@@ -1576,7 +1582,7 @@ function App() {
                   : 'w-full h-full'
                 }`}>
                 <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">
-                  <PreviewRender sections={sections} />
+                  <PreviewRender sections={sections} bgm={bgm} />
                 </div>
               </div>
             </div>
@@ -1584,7 +1590,7 @@ function App() {
         ) : (
           /* Full Screen Preview Mode */
           <div className="w-full h-full overflow-y-auto scroll-smooth">
-            <PreviewRender sections={sections} isPreviewMode={true} />
+            <PreviewRender sections={sections} isPreviewMode={true} bgm={bgm} />
 
             <button
               onClick={() => setViewMode('editor')}

@@ -1,8 +1,10 @@
 import React, { memo, useState, useEffect, useRef, lazy, Suspense, useCallback, useMemo } from 'react';
-import { Section, LayoutType } from '../types';
+import { Section, LayoutType, BackgroundMusic } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ImageOff from 'lucide-react/dist/esm/icons/image-off';
+import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
+import VolumeX from 'lucide-react/dist/esm/icons/volume-x';
 
 // 신규 레이아웃 컴포넌트 (lazy loading으로 번들 최적화)
 const GalleryLayout = lazy(() => import('./layouts/GalleryLayout'));
@@ -19,6 +21,7 @@ const AudioLayout = lazy(() => import('./layouts/AudioLayout'));
 interface PreviewRenderProps {
   sections: Section[];
   isPreviewMode?: boolean;
+  bgm?: BackgroundMusic;
 }
 
 // 정적 JSX 호이스팅 (렌더링 최적화)
@@ -40,7 +43,35 @@ const suspenseFallback = (
 // 현재 연도 호이스팅 (매 렌더마다 계산 방지)
 const currentYear = new Date().getFullYear();
 
-const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewMode = false }) => {
+const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewMode = false, bgm }) => {
+  // BGM 상태
+  const [isMuted, setIsMuted] = useState(false);
+  const bgmRef = useRef<HTMLAudioElement>(null);
+
+  // BGM 볼륨 설정
+  useEffect(() => {
+    if (bgmRef.current && bgm) {
+      bgmRef.current.volume = bgm.volume / 100;
+    }
+  }, [bgm?.volume]);
+
+  // BGM 자동 재생 (사용자 인터랙션 후)
+  useEffect(() => {
+    if (bgm?.enabled && bgm.url && bgmRef.current) {
+      bgmRef.current.play().catch(e => {
+        console.log('BGM auto-play prevented:', e);
+      });
+    }
+  }, [bgm?.enabled, bgm?.url]);
+
+  // BGM 음소거 토글
+  const toggleBgmMute = useCallback(() => {
+    if (bgmRef.current) {
+      bgmRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  }, [isMuted]);
+
   // 스크롤 핸들러 - 첫 번째 섹션의 화살표 버튼 클릭 시 (useCallback으로 메모이제이션)
   const handleScrollDown = useCallback(() => {
     const secondSection = document.querySelector('.section-preview:nth-child(2)');
@@ -74,6 +105,27 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
         <div className="h-[30vh] flex items-center justify-center bg-black text-gray-400 text-sm border-t border-gray-900">
           <p>© {currentYear} StoryFlow Created</p>
         </div>
+      )}
+
+      {/* 배경음악 컨트롤 (우측 하단) */}
+      {bgm?.enabled && bgm.url && (
+        <>
+          <button
+            onClick={toggleBgmMute}
+            className="fixed bottom-6 right-6 z-50 p-3 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm rounded-full border border-gray-600 transition-all"
+            title={isMuted ? '음소거 해제' : '음소거'}
+          >
+            {isMuted ? <VolumeX size={20} className="text-gray-300" /> : <Volume2 size={20} className="text-white" />}
+          </button>
+
+          <audio
+            ref={bgmRef}
+            src={bgm.url}
+            loop={bgm.loop}
+            autoPlay={false}
+            preload="auto"
+          />
+        </>
       )}
     </div>
   );

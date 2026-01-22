@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings, BackgroundMusic } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -74,6 +74,8 @@ const getLayoutName = (layout: LayoutType): string => {
 interface EditorProps {
   sections: Section[];
   setSections: React.Dispatch<React.SetStateAction<Section[]>>;
+  bgm?: BackgroundMusic;
+  setBgm?: React.Dispatch<React.SetStateAction<BackgroundMusic>>;
 }
 
 // 파일 크기 제한 (50MB)
@@ -112,19 +114,19 @@ const AccordionSection = memo<{
 // 레이아웃 정보 데이터
 const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; group: 'basic' | 'advanced' }[] = [
   // 기본 레이아웃
-  { value: LayoutType.HERO, name: 'Hero', description: '전체화면 배경', group: 'basic' },
+  { value: LayoutType.HERO, name: '히어로', description: '전체화면 배경', group: 'basic' },
   { value: LayoutType.SPLIT_LEFT, name: '이미지 왼쪽', description: '좌우 분할', group: 'basic' },
   { value: LayoutType.SPLIT_RIGHT, name: '이미지 오른쪽', description: '좌우 분할', group: 'basic' },
   { value: LayoutType.FULL_IMAGE_TEXT_OVERLAY, name: '이미지 배경', description: '텍스트 오버레이', group: 'basic' },
   { value: LayoutType.SIMPLE_TEXT, name: '중앙 텍스트', description: '텍스트만', group: 'basic' },
   // 신규 레이아웃
   { value: LayoutType.GALLERY, name: '갤러리', description: '이미지 그리드', group: 'advanced' },
-  { value: LayoutType.MASONRY, name: 'Masonry', description: 'Pinterest 스타일', group: 'advanced' },
+  { value: LayoutType.MASONRY, name: '메이슨리', description: 'Pinterest 스타일', group: 'advanced' },
   { value: LayoutType.TIMELINE, name: '타임라인', description: '시간순 스토리', group: 'advanced' },
   { value: LayoutType.CARDS, name: '카드', description: '카드형 나열', group: 'advanced' },
   { value: LayoutType.QUOTE, name: '인용문', description: '인용문 강조', group: 'advanced' },
   { value: LayoutType.STATS, name: '통계', description: '숫자 강조', group: 'advanced' },
-  { value: LayoutType.VIDEO_HERO, name: '비디오 Hero', description: '비디오 배경', group: 'advanced' },
+  { value: LayoutType.VIDEO_HERO, name: '비디오 히어로', description: '비디오 배경', group: 'advanced' },
   { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
   { value: LayoutType.GUESTBOOK, name: '방명록', description: '댓글 섹션', group: 'advanced' },
   { value: LayoutType.AUDIO, name: '오디오', description: '음악 플레이어', group: 'advanced' },
@@ -546,7 +548,7 @@ const preventDragProps = {
   draggable: false,
 };
 
-const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
+const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) => {
   // sections를 ref로 유지하여 콜백 재생성 방지 (rerender-functional-setstate)
   const sectionsRef = useRef(sections);
   useEffect(() => { sectionsRef.current = sections; }, [sections]);
@@ -1639,6 +1641,46 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
       updateAudioTrack(sectionId, trackId, { url });
     }
   }, [updateAudioTrack, showGuestWarning]);
+
+  // BGM 파일 업로드 핸들러
+  const handleBgmUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !setBgm) return;
+
+    // 오디오 파일 검증
+    if (!file.type.startsWith('audio/')) {
+      alert('오디오 파일만 업로드할 수 있어요 (MP3, WAV, OGG 등)');
+      return;
+    }
+
+    // 파일 크기 검증 (50MB)
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      alert('파일 크기가 너무 커요. 50MB 이하로 줄여주세요');
+      return;
+    }
+
+    try {
+      // 로그인 시 Supabase에 업로드
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await uploadMedia(file);
+        if (error) throw error;
+        if (data) {
+          setBgm(prev => ({ ...prev, url: data.public_url }));
+        }
+      } else {
+        // 비로그인 시 blob URL 사용 + 경고 표시
+        const url = URL.createObjectURL(file);
+        setBgm(prev => ({ ...prev, url }));
+        showGuestWarning('로그인하지 않으면 공유 링크에서 배경음악이 재생되지 않아요.');
+      }
+    } catch (error) {
+      console.error('BGM 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      setBgm(prev => ({ ...prev, url }));
+    }
+  }, [setBgm, showGuestWarning]);
 
   // Gallery 이미지 파일 업로드
   const handleGalleryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
@@ -4195,6 +4237,78 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           >
             <Plus size={16} /> 섹션 추가하기
           </button>
+
+          {/* 배경음악(BGM) 설정 */}
+          {bgm && setBgm && (
+            <div className="mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                  <Video size={14} /> 배경음악 (BGM)
+                </h3>
+                <button
+                  onClick={() => setBgm(prev => ({ ...prev, enabled: !prev.enabled }))}
+                  className={`w-10 h-5 rounded-full transition-colors ${bgm.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${bgm.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+
+              {bgm.enabled && (
+                <div className="space-y-3">
+                  {/* URL 입력 + 업로드 */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={bgm.url}
+                      onChange={(e) => setBgm(prev => ({ ...prev, url: e.target.value }))}
+                      placeholder="오디오 URL"
+                      className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                    />
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleBgmUpload}
+                        className="hidden"
+                      />
+                      <div className="px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs text-white">
+                        업로드
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* 볼륨 */}
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 flex justify-between">
+                      <span>볼륨</span>
+                      <span className="text-white">{bgm.volume}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={bgm.volume}
+                      onChange={(e) => setBgm(prev => ({ ...prev, volume: parseInt(e.target.value) }))}
+                      className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      {...preventDragProps}
+                    />
+                  </div>
+
+                  {/* 반복 재생 */}
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-gray-400">반복 재생</label>
+                    <button
+                      onClick={() => setBgm(prev => ({ ...prev, loop: !prev.loop }))}
+                      className={`w-10 h-5 rounded-full transition-colors ${bgm.loop ? 'bg-blue-500' : 'bg-gray-600'}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${bgm.loop ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 하단 페이드 그라데이션 */}
