@@ -47,6 +47,7 @@ import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_H
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
 import { uploadMedia } from '../services/mediaService';
 import PreviewRender from './PreviewRender';
+import KoreanInput from './KoreanInput';
 import { supabase } from '../services/supabaseClient';
 
 // 레이아웃 타입을 한글로 변환
@@ -2461,16 +2462,16 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                     onToggle={() => toggleAccordion(section.id, 'text')}
                   >
                     <div className="space-y-4">
-                      <input
-                        type="text"
+                      <KoreanInput
                         value={section.title}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTextChange(e, section.id, 'title')}
+                        onChange={(value) => updateSection(section.id, { title: value })}
                         className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold text-white"
                         placeholder="제목"
                       />
-                      <textarea
+                      <KoreanInput
+                        type="textarea"
                         value={section.description}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleTextChange(e, section.id, 'description')}
+                        onChange={(value) => updateSection(section.id, { description: value })}
                         rows={4}
                         className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none text-white"
                         placeholder="내용"
