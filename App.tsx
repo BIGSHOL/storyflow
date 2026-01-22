@@ -23,7 +23,7 @@ import FileText from 'lucide-react/dist/esm/icons/file-text';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import FileImage from 'lucide-react/dist/esm/icons/file-image';
 import { exportToHTML, exportToPDF, exportToImage, hasBlobUrls } from './services/exportService';
-import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject, hasAnonymousSavedProject, loadAnonymousProject, clearAnonymousSavedProject } from './services/storageService';
+import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject, hasAnonymousSavedProject, loadAnonymousProject, clearAnonymousSavedProject, clearSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
 import { useAuth } from './hooks/useAuth';
@@ -345,29 +345,18 @@ function App() {
       '브라우저에 저장된 데이터를 완전히 삭제할까요?\n\n삭제하면 복구할 수 없어요.'
     );
     if (confirmDelete) {
-      // localStorage 데이터 삭제 (자동저장 타이머도 취소됨)
-      if (!isAuthenticated) {
-        clearAnonymousSavedProject();
+      // localStorage/sessionStorage 데이터 삭제 (자동저장 타이머도 취소됨)
+      if (isAuthenticated) {
+        clearSavedProject(userId);
       } else {
-        // 동적 import 대신 이미 import된 함수 사용
-        import('./services/storageService').then(({ clearSavedProject }) => {
-          clearSavedProject(userId);
-          // 삭제 완료 후 메모리 초기화
-          setSections([]);
-          historyRef.current = [[]];
-          historyIndexRef.current = 0;
-          setCanUndo(false);
-          setCanRedo(false);
-        });
+        clearAnonymousSavedProject();
       }
-      // 비인증 사용자는 즉시 초기화
-      if (!isAuthenticated) {
-        setSections([]);
-        historyRef.current = [[]];
-        historyIndexRef.current = 0;
-        setCanUndo(false);
-        setCanRedo(false);
-      }
+      // 메모리 초기화
+      setSections([]);
+      historyRef.current = [[]];
+      historyIndexRef.current = 0;
+      setCanUndo(false);
+      setCanRedo(false);
       setShowRecoveryModal(false);
       setPendingRecoveryData(null);
     }
