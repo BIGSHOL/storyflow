@@ -7,7 +7,7 @@ import Eye from 'lucide-react/dist/esm/icons/eye';
 import Edit3 from 'lucide-react/dist/esm/icons/edit-3';
 import Download from 'lucide-react/dist/esm/icons/download';
 import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
-import Tablet from 'lucide-react/dist/esm/icons/tablet';
+import Laptop from 'lucide-react/dist/esm/icons/laptop';
 import Monitor from 'lucide-react/dist/esm/icons/monitor';
 import Save from 'lucide-react/dist/esm/icons/save';
 import FolderOpen from 'lucide-react/dist/esm/icons/folder-open';
@@ -334,6 +334,7 @@ function App() {
           clearSavedProject(userId);
         });
       }
+      setSections([]); // 메모리의 sections도 초기화하여 자동 저장 방지
       setShowRecoveryModal(false);
       setPendingRecoveryData(null);
     }
@@ -413,6 +414,7 @@ function App() {
     );
     if (confirmDiscard) {
       clearAnonymousSavedProject();
+      setSections([]); // 메모리의 sections도 초기화하여 자동 저장 방지
     }
     setShowMigrationModal(false);
     setPendingMigrationData(null);
@@ -914,7 +916,7 @@ function App() {
                       className={`p-1 rounded ${devicePreview === 'tablet' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
                       title="태블릿"
                     >
-                      <Tablet size={14} />
+                      <Laptop size={14} />
                     </button>
                     <button
                       onClick={() => setDevicePreview('mobile')}
@@ -1209,7 +1211,7 @@ function App() {
                     className={`p-1.5 rounded ${devicePreview === 'tablet' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
                     title="태블릿 프리뷰"
                   >
-                    <Tablet size={16} />
+                    <Laptop size={16} />
                   </button>
                   <button
                     onClick={() => setDevicePreview('mobile')}
