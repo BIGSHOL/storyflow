@@ -76,37 +76,37 @@ StoryFlow 템플릿에 필요한 이미지 파일 목록입니다.
 - [✅] `business/saas-integration.jpg` - 통합 시스템
 
 ### 8. 스타트업 피칭 (startup-pitch)
-- [임시] `business/startup-presentation.jpg` - 프레젠테이션 장면
+- [✅] `business/startup-presentation.jpg` - 프레젠테이션 장면
 
 ### 9. 앱 출시 랜딩 (app-landing)
-- [임시] `business/app-smartphone.jpg` - 스마트폰
-- [임시] `business/app-signup.jpg` - 가입 화면
-- [임시] `business/app-security.jpg` - 보안 이미지
-- [임시] `business/app-cloud.jpg` - 클라우드
+- [✅] `business/app-smartphone.jpg` - 스마트폰
+- [✅] `business/app-signup.jpg` - 가입 화면
+- [✅] `business/app-security.jpg` - 보안 이미지
+- [✅] `business/app-cloud.jpg` - 클라우드
 
 ### 10. 온라인 스토어 (online-store)
-- [임시] `business/store-summer.jpg` - 여름 패션
-- [임시] `business/store-dress.jpg` - 드레스
-- [임시] `business/store-shirt.jpg` - 셔츠
-- [임시] `business/store-shoes.jpg` - 신발
-- [임시] `business/store-bag.jpg` - 가방
+- [✅] `business/store-summer.jpg` - 여름 패션
+- [✅] `business/store-dress.jpg` - 드레스
+- [✅] `business/store-shirt.jpg` - 셔츠
+- [✅] `business/store-shoes.jpg` - 신발
+- [✅] `business/store-bag.jpg` - 가방
 
 ### 11. 호텔/리조트 (hotel-resort)
 - [임시] `business/hotel-luxury.jpg` - 럭셔리 호텔 ✅
-- [임시] `business/hotel-room.jpg` - 호텔룸
-- [임시] `business/hotel-suite.jpg` - 스위트룸
-- [임시] `business/hotel-pool.jpg` - 수영장
+- [✅] `business/hotel-room.jpg` - 호텔룸
+- [✅] `business/hotel-suite.jpg` - 스위트룸
+- [✅] `business/hotel-pool.jpg` - 수영장
 
 ### 12. 병원/클리닉 (hospital)
-- [임시] `business/hospital-hero.jpg` - 병원 건물
-- [임시] `business/hospital-doctor.jpg` - 의사
+- [✅] `business/hospital-hero.jpg` - 병원 건물
+- [✅] `business/hospital-doctor.jpg` - 의사
 
 ### 13. 헬스장/피트니스 (gym)
 - [임시] `business/gym-hero.jpg` - 헬스장 ✅
 
 ### 14. 학원/교육기관 (academy)
-- [임시] `business/academy-classroom.jpg` - 교실
-- [임시] `business/academy-book.jpg` - 책
+- [✅] `business/academy-classroom.jpg` - 교실
+- [✅] `business/academy-book.jpg` - 책
 - [임시] `business/academy-study.jpg` - 공부하는 모습
 - [임시] `business/academy-lecture.jpg` - 강의
 

@@ -400,7 +400,7 @@ export const businessTemplates: Template[] = [
                 title: '문제점과 해결책',
                 description: '우리는 시장의 문제를 이렇게 해결합니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/presentation?lock=25',
+                mediaUrl: '/images/templates/business/startup-presentation.png',
                 textColor: '#ffffff',
                 backgroundColor: '#111827',
                 textAlignment: 'center'
@@ -448,7 +448,7 @@ export const businessTemplates: Template[] = [
                 title: '내 손안의 모든 것',
                 description: '지금 바로 다운로드하여 새로운 세상을 경험하세요.',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/1000/smartphone?lock=26',
+                mediaUrl: '/images/templates/business/app-smartphone.png',
                 textColor: '#ffffff',
                 backgroundColor: '#4f46e5',
                 textAlignment: 'left',
@@ -471,9 +471,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#4338ca',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: '간편한 가입', description: '3초면 시작할 수 있습니다', imageUrl: 'https://loremflickr.com/400/300/signup?lock=27' },
-                    { id: '2', title: '강력한 보안', description: '안전하게 데이터를 보호합니다', imageUrl: 'https://loremflickr.com/400/300/security?lock=28' },
-                    { id: '3', title: '클라우드 동기화', description: '어디서나 이어서 사용하세요', imageUrl: 'https://loremflickr.com/400/300/cloud?lock=29' }
+                    { id: '1', title: '간편한 가입', description: '3초면 시작할 수 있습니다', imageUrl: '/images/templates/business/app-signup.png' },
+                    { id: '2', title: '강력한 보안', description: '안전하게 데이터를 보호합니다', imageUrl: '/images/templates/business/app-security.png' },
+                    { id: '3', title: '클라우드 동기화', description: '어디서나 이어서 사용하세요', imageUrl: '/images/templates/business/app-cloud.png' }
                 ]
             }
         ]
@@ -489,7 +489,7 @@ export const businessTemplates: Template[] = [
                 title: 'SUMMER SALE',
                 description: '최대 50% 할인, 여름 시즌 오프',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/summer,fashion?lock=30',
+                mediaUrl: '/images/templates/business/store-summer.png',
                 textColor: '#000000',
                 backgroundColor: '#fde047',
                 textAlignment: 'center',
@@ -505,10 +505,10 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#ffffff',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/800/dress?lock=31', caption: '상품 A' },
-                    { id: '2', url: 'https://loremflickr.com/600/800/shirt?lock=32', caption: '상품 B' },
-                    { id: '3', url: 'https://loremflickr.com/600/800/shoes?lock=33', caption: '상품 C' },
-                    { id: '4', url: 'https://loremflickr.com/600/800/bag?lock=34', caption: '상품 D' }
+                    { id: '1', url: '/images/templates/business/store-dress.png', caption: '상품 A' },
+                    { id: '2', url: '/images/templates/business/store-shirt.png', caption: '상품 B' },
+                    { id: '3', url: '/images/templates/business/store-shoes.png', caption: '상품 C' },
+                    { id: '4', url: '/images/templates/business/store-bag.png', caption: '상품 D' }
                 ],
                 gallerySettings: { columns: 2, gap: 10, showCaptions: true }
             }
@@ -541,9 +541,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#075985',
                 textAlignment: 'center',
                 carouselImages: [
-                    { id: '1', url: 'https://loremflickr.com/1000/600/hotelroom?lock=36', title: '디럭스 룸' },
-                    { id: '2', url: 'https://loremflickr.com/1000/600/suite?lock=37', title: '스위트 룸' },
-                    { id: '3', url: 'https://loremflickr.com/1000/600/swimmingpool?lock=38', title: '인피니티 풀' }
+                    { id: '1', url: '/images/templates/business/hotel-room.png', title: '디럭스 룸' },
+                    { id: '2', url: '/images/templates/business/hotel-suite.png', title: '스위트 룸' },
+                    { id: '3', url: '/images/templates/business/hotel-pool.png', title: '인피니티 풀' }
                 ]
             }
         ]
@@ -559,7 +559,7 @@ export const businessTemplates: Template[] = [
                 title: '여러분의 건강 지킴이',
                 description: '정직하고 바른 진료를 약속합니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/hospital?lock=39',
+                mediaUrl: '/images/templates/business/hospital-hero.png',
                 textColor: '#ffffff',
                 backgroundColor: '#059669',
                 textAlignment: 'center'
@@ -569,7 +569,7 @@ export const businessTemplates: Template[] = [
                 title: '진료 과목',
                 description: '내과 / 소아과 / 이비인후과\n건강검진 센터 운영\n\n평일 야간 진료 시행',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/doctor?lock=40',
+                mediaUrl: '/images/templates/business/hospital-doctor.png',
                 textColor: '#ffffff',
                 backgroundColor: '#047857',
                 textAlignment: 'left'
@@ -630,7 +630,7 @@ export const businessTemplates: Template[] = [
                 title: '꿈을 향한 도전',
                 description: '체계적인 커리큘럼으로 합격까지',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/classroom?lock=42',
+                mediaUrl: '/images/templates/business/academy-classroom.png',
                 textColor: '#000000',
                 backgroundColor: '#fbbf24',
                 textAlignment: 'center'
@@ -645,7 +645,7 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#f59e0b',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: '입문반', description: '기초부터 탄탄하게', imageUrl: 'https://loremflickr.com/400/300/book?lock=43' },
+                    { id: '1', title: '입문반', description: '기초부터 탄탄하게', imageUrl: '/images/templates/business/academy-book.png' },
                     { id: '2', title: '심화반', description: '실전 문제 풀이', imageUrl: 'https://loremflickr.com/400/300/study?lock=44' },
                     { id: '3', title: '특강', description: '방학 집중 과정', imageUrl: 'https://loremflickr.com/400/300/lecture?lock=45' }
                 ]
