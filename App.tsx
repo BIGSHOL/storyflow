@@ -550,7 +550,14 @@ function App() {
       }
     } catch (err) {
       console.error('Save error:', err);
-      alert('저장에 실패했어요. 다시 시도해주세요.');
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      // 용량 초과 에러인 경우
+      if (errorMessage.includes('용량') || errorMessage.includes('quota') || errorMessage.includes('storage')) {
+        alert('❌ 저장 공간이 부족해요!\n\n내 정보에서 저장 공간을 확인하고,\n불필요한 미디어를 삭제해주세요.');
+      } else {
+        alert(`저장에 실패했어요.\n\n${errorMessage}\n\n다시 시도해주세요.`);
+      }
     } finally {
       setIsSaving(false);
     }
