@@ -11,6 +11,7 @@ const CardsLayout = lazy(() => import('./layouts/CardsLayout'));
 const QuoteLayout = lazy(() => import('./layouts/QuoteLayout'));
 const StatsLayout = lazy(() => import('./layouts/StatsLayout'));
 const VideoHeroLayout = lazy(() => import('./layouts/VideoHeroLayout'));
+const CarouselLayout = lazy(() => import('./layouts/CarouselLayout'));
 
 interface PreviewRenderProps {
   sections: Section[];
@@ -518,6 +519,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <Suspense fallback={suspenseFallback}>
           <VideoHeroLayout section={section} />
+        </Suspense>
+      );
+
+    case LayoutType.CAROUSEL:
+      return (
+        <Suspense fallback={suspenseFallback}>
+          <CarouselLayout section={section} />
         </Suspense>
       );
 

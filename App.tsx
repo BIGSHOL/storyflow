@@ -1359,10 +1359,10 @@ function App() {
                       </div>
                     ) : (
                       projects.map((project) => (
-                        <button
+                        <div
                           key={project.id}
                           onClick={() => handleSwitchProject(project)}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${currentProject?.id === project.id
+                          className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors cursor-pointer ${currentProject?.id === project.id
                             ? 'bg-indigo-600/20 text-indigo-300'
                             : 'text-gray-300 hover:bg-gray-700'
                             }`}
@@ -1384,7 +1384,7 @@ function App() {
                               <Trash2 size={14} />
                             </button>
                           </div>
-                        </button>
+                        </div>
                       ))
                     )}
                   </div>

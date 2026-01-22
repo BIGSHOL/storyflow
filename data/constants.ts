@@ -1,24 +1,129 @@
 // Google Fonts 목록
 export const GOOGLE_FONTS = [
-  { name: '기본 (System)', value: 'system-ui, -apple-system, sans-serif' },
-  { name: 'Noto Sans KR', value: "'Noto Sans KR', sans-serif" },
-  { name: 'Noto Serif KR', value: "'Noto Serif KR', serif" },
-  { name: 'Pretendard', value: "'Pretendard', sans-serif" },
-  { name: 'Gowun Dodum', value: "'Gowun Dodum', sans-serif" },
-  { name: 'Gowun Batang', value: "'Gowun Batang', serif" },
-  { name: 'IBM Plex Sans KR', value: "'IBM Plex Sans KR', sans-serif" },
-  { name: 'Nanum Gothic', value: "'Nanum Gothic', sans-serif" },
-  { name: 'Nanum Myeongjo', value: "'Nanum Myeongjo', serif" },
-  { name: 'Nanum Pen Script', value: "'Nanum Pen Script', cursive" },
-  { name: 'Black Han Sans', value: "'Black Han Sans', sans-serif" },
-  { name: 'Do Hyeon', value: "'Do Hyeon', sans-serif" },
-  { name: 'Jua', value: "'Jua', sans-serif" },
-  { name: 'Gaegu', value: "'Gaegu', cursive" },
-  { name: 'Poor Story', value: "'Poor Story', cursive" },
+  // 시스템 폰트
+  { name: '기본 시스템 폰트', value: 'system-ui, -apple-system, sans-serif', category: 'system' },
+
+  // 한글 - 고딕체 (산세리프)
+  { name: '노토 산스', value: "'Noto Sans KR', sans-serif", category: 'korean-sans' },
+  { name: '프리텐다드', value: "'Pretendard', sans-serif", category: 'korean-sans' },
+  { name: '스포카 한 산스', value: "'Spoqa Han Sans Neo', sans-serif", category: 'korean-sans' },
+  { name: 'IBM 플렉스 산스', value: "'IBM Plex Sans KR', sans-serif", category: 'korean-sans' },
+  { name: '나눔고딕', value: "'Nanum Gothic', sans-serif", category: 'korean-sans' },
+  { name: '고운돋움', value: "'Gowun Dodum', sans-serif", category: 'korean-sans' },
+  { name: '고딕 A1', value: "'Gothic A1', sans-serif", category: 'korean-sans' },
+  { name: '함렛', value: "'Hahmlet', serif", category: 'korean-sans' },
+
+  // 한글 - 명조체 (세리프)
+  { name: '노토 세리프', value: "'Noto Serif KR', serif", category: 'korean-serif' },
+  { name: '나눔명조', value: "'Nanum Myeongjo', serif", category: 'korean-serif' },
+  { name: '고운바탕', value: "'Gowun Batang', serif", category: 'korean-serif' },
+  { name: '마루부리', value: "'Maruburi', serif", category: 'korean-serif' },
+
+  // 한글 - 디스플레이/타이틀
+  { name: '검은고딕', value: "'Black Han Sans', sans-serif", category: 'korean-display' },
+  { name: '도현', value: "'Do Hyeon', sans-serif", category: 'korean-display' },
+  { name: '주아', value: "'Jua', sans-serif", category: 'korean-display' },
+  { name: '해바라기', value: "'Sunflower', sans-serif", category: 'korean-display' },
+  { name: '싱글데이', value: "'Single Day', cursive", category: 'korean-display' },
+  { name: '독도', value: "'Dokdo', cursive", category: 'korean-display' },
+  { name: '동해독도', value: "'East Sea Dokdo', cursive", category: 'korean-display' },
+  { name: '감자꽃', value: "'Gamja Flower', cursive", category: 'korean-display' },
+  { name: '하이멜로디', value: "'Hi Melody', cursive", category: 'korean-display' },
+
+  // 한글 - 손글씨/필기체
+  { name: '나눔손글씨 펜', value: "'Nanum Pen Script', cursive", category: 'korean-handwriting' },
+  { name: '개구', value: "'Gaegu', cursive", category: 'korean-handwriting' },
+  { name: '푸어스토리', value: "'Poor Story', cursive", category: 'korean-handwriting' },
+  { name: '스타일리쉬', value: "'Stylish', sans-serif", category: 'korean-handwriting' },
+  { name: '귀여운 폰트', value: "'Cute Font', cursive", category: 'korean-handwriting' },
+  { name: '구기', value: "'Gugi', sans-serif", category: 'korean-handwriting' },
+  { name: '송명', value: "'Song Myung', serif", category: 'korean-handwriting' },
+
+  // 영문 - 고딕 (산세리프)
+  { name: 'Inter', value: "'Inter', sans-serif", category: 'english-sans' },
+  { name: 'Roboto', value: "'Roboto', sans-serif", category: 'english-sans' },
+  { name: 'Open Sans', value: "'Open Sans', sans-serif", category: 'english-sans' },
+  { name: 'Montserrat', value: "'Montserrat', sans-serif", category: 'english-sans' },
+  { name: 'Poppins', value: "'Poppins', sans-serif", category: 'english-sans' },
+  { name: 'Lato', value: "'Lato', sans-serif", category: 'english-sans' },
+  { name: 'Raleway', value: "'Raleway', sans-serif", category: 'english-sans' },
+  { name: 'Oswald', value: "'Oswald', sans-serif", category: 'english-sans' },
+
+  // 영문 - 세리프
+  { name: 'Playfair Display', value: "'Playfair Display', serif", category: 'english-serif' },
+  { name: 'Merriweather', value: "'Merriweather', serif", category: 'english-serif' },
+  { name: 'Lora', value: "'Lora', serif", category: 'english-serif' },
+  { name: 'Crimson Text', value: "'Crimson Text', serif", category: 'english-serif' },
+  { name: 'Libre Baskerville', value: "'Libre Baskerville', serif", category: 'english-serif' },
+
+  // 영문 - 디스플레이/아트
+  { name: 'Bebas Neue', value: "'Bebas Neue', sans-serif", category: 'english-display' },
+  { name: 'Anton', value: "'Anton', sans-serif", category: 'english-display' },
+  { name: 'Abril Fatface', value: "'Abril Fatface', serif", category: 'english-display' },
+  { name: 'Righteous', value: "'Righteous', sans-serif", category: 'english-display' },
+  { name: 'Staatliches', value: "'Staatliches', sans-serif", category: 'english-display' },
+
+  // 모노스페이스 (코드/타자기)
+  { name: 'JetBrains Mono', value: "'JetBrains Mono', monospace", category: 'monospace' },
+  { name: 'Fira Code', value: "'Fira Code', monospace", category: 'monospace' },
+  { name: 'Source Code Pro', value: "'Source Code Pro', monospace", category: 'monospace' },
 ];
 
-// Google Fonts URL
-export const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&family=Gowun+Dodum&family=Gowun+Batang&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Nanum+Pen+Script&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu&family=Poor+Story&family=Pretendard:wght@400;500;600;700&display=swap';
+// Google Fonts URL (모든 폰트 포함)
+export const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?' +
+  // 한글 폰트
+  'family=Noto+Sans+KR:wght@300;400;500;700&' +
+  'family=Noto+Serif+KR:wght@400;700&' +
+  'family=Pretendard:wght@400;500;600;700&' +
+  'family=Spoqa+Han+Sans+Neo:wght@400;500;700&' +
+  'family=IBM+Plex+Sans+KR:wght@400;500;700&' +
+  'family=Nanum+Gothic:wght@400;700&' +
+  'family=Nanum+Myeongjo:wght@400;700&' +
+  'family=Nanum+Pen+Script&' +
+  'family=Gowun+Dodum&' +
+  'family=Gowun+Batang&' +
+  'family=Gothic+A1:wght@400;500;700&' +
+  'family=Hahmlet:wght@400;500;700&' +
+  'family=Maruburi:wght@400;700&' +
+  'family=Black+Han+Sans&' +
+  'family=Do+Hyeon&' +
+  'family=Jua&' +
+  'family=Sunflower:wght@300;500;700&' +
+  'family=Single+Day&' +
+  'family=Dokdo&' +
+  'family=East+Sea+Dokdo&' +
+  'family=Gamja+Flower&' +
+  'family=Hi+Melody&' +
+  'family=Gaegu:wght@300;400;700&' +
+  'family=Poor+Story&' +
+  'family=Stylish&' +
+  'family=Cute+Font&' +
+  'family=Gugi&' +
+  'family=Song+Myung&' +
+  // 영문 폰트
+  'family=Inter:wght@400;500;600;700&' +
+  'family=Roboto:wght@400;500;700&' +
+  'family=Open+Sans:wght@400;600;700&' +
+  'family=Montserrat:wght@400;500;600;700&' +
+  'family=Poppins:wght@400;500;600;700&' +
+  'family=Lato:wght@400;700&' +
+  'family=Raleway:wght@400;500;600;700&' +
+  'family=Oswald:wght@400;500;700&' +
+  'family=Playfair+Display:wght@400;500;700&' +
+  'family=Merriweather:wght@400;700&' +
+  'family=Lora:wght@400;500;700&' +
+  'family=Crimson+Text:wght@400;600;700&' +
+  'family=Libre+Baskerville:wght@400;700&' +
+  'family=Bebas+Neue&' +
+  'family=Anton&' +
+  'family=Abril+Fatface&' +
+  'family=Righteous&' +
+  'family=Staatliches&' +
+  // 모노스페이스
+  'family=JetBrains+Mono:wght@400;500;700&' +
+  'family=Fira+Code:wght@400;500;700&' +
+  'family=Source+Code+Pro:wght@400;500;700&' +
+  'display=swap';
 
 // 이미지 필터 프리셋
 export const IMAGE_FILTERS = [

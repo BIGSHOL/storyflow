@@ -12,6 +12,7 @@ export enum LayoutType {
   QUOTE = 'quote',
   STATS = 'stats',
   VIDEO_HERO = 'video_hero',
+  CAROUSEL = 'carousel',
 }
 
 export type TextAlignment = 'left' | 'center' | 'right';
@@ -117,6 +118,26 @@ export interface VideoHeroSettings {
   fallbackImageUrl?: string;
 }
 
+/** Carousel 레이아웃 - 이미지 슬라이더 */
+export interface CarouselImage {
+  id: string;
+  url: string;
+  title?: string;
+  description?: string;
+  link?: string;
+}
+
+export interface CarouselSettings {
+  autoPlay: boolean;
+  autoPlayInterval: number; // 밀리초 (기본 5000)
+  showArrows: boolean;
+  showDots: boolean;
+  transition: 'slide' | 'fade';
+  transitionDuration: number; // 밀리초 (기본 500)
+  pauseOnHover: boolean;
+  loop: boolean;
+}
+
 // ========== Section 인터페이스 ==========
 
 export interface Section {
@@ -192,6 +213,10 @@ export interface Section {
   // Video Hero 레이아웃
   videoUrl?: string;
   videoHeroSettings?: VideoHeroSettings;
+
+  // Carousel 레이아웃
+  carouselImages?: CarouselImage[];
+  carouselSettings?: CarouselSettings;
 }
 
 export interface ProjectState {

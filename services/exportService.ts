@@ -621,6 +621,88 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
       </div>
     </section>`;
 
+    case LayoutType.CAROUSEL:
+      const carouselImages = section.carouselImages || [];
+      const carouselSettings = section.carouselSettings || {
+        autoPlay: true,
+        autoPlayInterval: 5000,
+        showArrows: true,
+        showDots: true,
+        transition: 'slide',
+        transitionDuration: 500,
+        pauseOnHover: true,
+        loop: true
+      };
+      const carouselId = `carousel-${section.id}`;
+
+      if (carouselImages.length === 0) {
+        return `
+    <section class="section carousel" style="background-color: ${bgColor}; color: ${textColor}; min-height: ${sectionHeight}; display: flex; align-items: center; justify-content: center;">
+      <div style="text-align: center; opacity: 0.5;">
+        <p style="font-size: 1.2rem;">캐러셀에 이미지를 추가하세요</p>
+      </div>
+    </section>`;
+      }
+
+      const carouselSlidesHTML = carouselImages.map((img, idx) => `
+        <div class="carousel-slide" data-index="${idx}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; ${carouselSettings.transition === 'fade'
+          ? `opacity: ${idx === 0 ? 1 : 0}; transition: opacity ${carouselSettings.transitionDuration}ms ease-in-out;`
+          : `transform: translateX(${idx * 100}%); transition: transform ${carouselSettings.transitionDuration}ms ease-in-out;`
+        }">
+          ${img.url ? `<img src="${img.url}" alt="${img.title || `슬라이드 ${idx + 1}`}" style="width: 100%; height: 100%; object-fit: cover;" />` : '<div style="width: 100%; height: 100%; background: #333;"></div>'}
+          <div style="position: absolute; inset: 0; background-color: ${bgColor}; opacity: ${overlayOpacity};"></div>
+        </div>
+      `).join('');
+
+      const carouselTextHTML = carouselImages.map((img, idx) => `
+        <div class="carousel-text" data-index="${idx}" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 10; opacity: ${idx === 0 ? 1 : 0}; transition: opacity ${carouselSettings.transitionDuration}ms ease-in-out; pointer-events: none;">
+          ${img.title ? `<h2 style="${titleStyle}; text-align: center;">${img.title}</h2>` : ''}
+          ${img.description ? `<p style="${descStyle}; text-align: center; max-width: 600px; margin-top: 1rem;">${img.description}</p>` : ''}
+          ${img.link ? `<a href="${img.link}" target="_blank" rel="noopener noreferrer" style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #fff; color: #000; border-radius: 9999px; text-decoration: none; font-weight: 500; pointer-events: auto;">자세히 보기</a>` : ''}
+        </div>
+      `).join('');
+
+      const arrowsHTML = carouselSettings.showArrows && carouselImages.length > 1 ? `
+        <button class="carousel-arrow carousel-prev" onclick="carouselPrev('${carouselId}')" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); z-index: 20; padding: 0.75rem; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%; cursor: pointer; transition: background 0.3s;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="carousel-arrow carousel-next" onclick="carouselNext('${carouselId}')" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); z-index: 20; padding: 0.75rem; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%; cursor: pointer; transition: background 0.3s;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      ` : '';
+
+      const dotsHTML = carouselSettings.showDots && carouselImages.length > 1 ? `
+        <div class="carousel-dots" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 0.5rem;">
+          ${carouselImages.map((_, idx) => `
+            <button onclick="carouselGoTo('${carouselId}', ${idx})" style="width: 0.75rem; height: 0.75rem; border-radius: 50%; border: none; cursor: pointer; transition: all 0.3s; background: ${idx === 0 ? '#fff' : 'rgba(255,255,255,0.5)'}; transform: ${idx === 0 ? 'scale(1.1)' : 'scale(1)'};" data-dot="${idx}"></button>
+          `).join('')}
+        </div>
+      ` : '';
+
+      return `
+    <section id="${carouselId}" class="section carousel" style="position: relative; background-color: ${bgColor}; color: ${textColor}; min-height: ${sectionHeight}; height: ${sectionHeight === 'auto' ? 'auto' : sectionHeight}; overflow: hidden;"
+      data-autoplay="${carouselSettings.autoPlay}"
+      data-interval="${carouselSettings.autoPlayInterval}"
+      data-transition="${carouselSettings.transition}"
+      data-duration="${carouselSettings.transitionDuration}"
+      data-pause-on-hover="${carouselSettings.pauseOnHover}"
+      data-loop="${carouselSettings.loop}"
+      data-total="${carouselImages.length}"
+      data-current="0"
+      ${carouselSettings.pauseOnHover ? 'onmouseenter="carouselPause(this.id)" onmouseleave="carouselResume(this.id)"' : ''}>
+      <div class="carousel-slides" style="position: relative; width: 100%; height: 100%; min-height: ${sectionHeight};">
+        ${carouselSlidesHTML}
+        ${carouselTextHTML}
+      </div>
+      ${arrowsHTML}
+      ${dotsHTML}
+      ${section.title && carouselImages.every(img => !img.title) ? `
+      <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10; pointer-events: none;">
+        <h2 style="${titleStyle}; text-align: center;">${section.title}</h2>
+      </div>
+      ` : ''}
+    </section>`;
+
     default:
       return '';
   }
@@ -643,7 +725,42 @@ export const generateHTML = async (
     if (section.mediaUrl && section.mediaType !== 'none') {
       mediaBase64 = await imageToBase64(section.mediaUrl);
     }
-    sectionsWithBase64.push({ section, mediaBase64 });
+
+    // 갤러리 이미지 Base64 변환
+    let updatedSection = { ...section };
+    if (section.galleryImages && section.galleryImages.length > 0) {
+      const galleryWithBase64 = await Promise.all(
+        section.galleryImages.map(async (img) => ({
+          ...img,
+          url: img.url ? await imageToBase64(img.url) : '',
+        }))
+      );
+      updatedSection = { ...updatedSection, galleryImages: galleryWithBase64 };
+    }
+
+    // 카드 이미지 Base64 변환
+    if (section.cards && section.cards.length > 0) {
+      const cardsWithBase64 = await Promise.all(
+        section.cards.map(async (card) => ({
+          ...card,
+          imageUrl: card.imageUrl ? await imageToBase64(card.imageUrl) : undefined,
+        }))
+      );
+      updatedSection = { ...updatedSection, cards: cardsWithBase64 };
+    }
+
+    // 캐러셀 이미지 Base64 변환
+    if (section.carouselImages && section.carouselImages.length > 0) {
+      const carouselWithBase64 = await Promise.all(
+        section.carouselImages.map(async (img) => ({
+          ...img,
+          url: img.url ? await imageToBase64(img.url) : '',
+        }))
+      );
+      updatedSection = { ...updatedSection, carouselImages: carouselWithBase64 };
+    }
+
+    sectionsWithBase64.push({ section: updatedSection, mediaBase64 });
     currentStep++;
     onProgress?.(Math.round((currentStep / totalSteps) * 100));
   }
@@ -721,6 +838,87 @@ ${sectionsHTML}
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
       observer.observe(el);
     });
+
+    // Carousel Functions
+    const carouselIntervals = {};
+
+    function updateCarousel(carouselId, newIndex) {
+      const carousel = document.getElementById(carouselId);
+      if (!carousel) return;
+
+      const total = parseInt(carousel.dataset.total);
+      const transition = carousel.dataset.transition;
+      const current = parseInt(carousel.dataset.current);
+
+      // Handle loop
+      if (newIndex < 0) newIndex = carousel.dataset.loop === 'true' ? total - 1 : 0;
+      if (newIndex >= total) newIndex = carousel.dataset.loop === 'true' ? 0 : total - 1;
+
+      carousel.dataset.current = newIndex;
+
+      // Update slides
+      const slides = carousel.querySelectorAll('.carousel-slide');
+      const texts = carousel.querySelectorAll('.carousel-text');
+
+      slides.forEach((slide, idx) => {
+        if (transition === 'fade') {
+          slide.style.opacity = idx === newIndex ? '1' : '0';
+        } else {
+          slide.style.transform = 'translateX(' + ((idx - newIndex) * 100) + '%)';
+        }
+      });
+
+      texts.forEach((text, idx) => {
+        text.style.opacity = idx === newIndex ? '1' : '0';
+      });
+
+      // Update dots
+      const dots = carousel.querySelectorAll('.carousel-dots button');
+      dots.forEach((dot, idx) => {
+        dot.style.background = idx === newIndex ? '#fff' : 'rgba(255,255,255,0.5)';
+        dot.style.transform = idx === newIndex ? 'scale(1.1)' : 'scale(1)';
+      });
+    }
+
+    function carouselNext(carouselId) {
+      const carousel = document.getElementById(carouselId);
+      if (!carousel) return;
+      const current = parseInt(carousel.dataset.current);
+      updateCarousel(carouselId, current + 1);
+    }
+
+    function carouselPrev(carouselId) {
+      const carousel = document.getElementById(carouselId);
+      if (!carousel) return;
+      const current = parseInt(carousel.dataset.current);
+      updateCarousel(carouselId, current - 1);
+    }
+
+    function carouselGoTo(carouselId, index) {
+      updateCarousel(carouselId, index);
+    }
+
+    function carouselPause(carouselId) {
+      if (carouselIntervals[carouselId]) {
+        clearInterval(carouselIntervals[carouselId]);
+        carouselIntervals[carouselId] = null;
+      }
+    }
+
+    function carouselResume(carouselId) {
+      const carousel = document.getElementById(carouselId);
+      if (!carousel || carousel.dataset.autoplay !== 'true') return;
+      const interval = parseInt(carousel.dataset.interval);
+      carouselIntervals[carouselId] = setInterval(() => carouselNext(carouselId), interval);
+    }
+
+    // Initialize all carousels
+    document.querySelectorAll('.section.carousel').forEach(carousel => {
+      if (carousel.dataset.autoplay === 'true') {
+        const interval = parseInt(carousel.dataset.interval);
+        carouselIntervals[carousel.id] = setInterval(() => carouselNext(carousel.id), interval);
+      }
+    });
   </script>
 </body>
 </html>`;
@@ -752,6 +950,9 @@ export const hasBlobUrls = (sections: Section[]): boolean => {
     // Card 이미지 체크
     if (section.cards?.some(card => card.imageUrl?.startsWith('blob:'))) return true;
 
+    // Carousel 이미지 체크
+    if (section.carouselImages?.some(img => img.url?.startsWith('blob:'))) return true;
+
     return false;
   });
 };
@@ -765,8 +966,56 @@ export const exportToHTML = async (
   const html = await generateHTML(sections, title, onProgress);
   downloadHTML(html, `${title || 'my-story'}.html`);
 };
-
 // ========== PDF 및 이미지 내보내기 ==========
+
+// html2canvas에서 oklch 색상 오류를 방지하기 위한 onclone 콜백
+const removeOklchStyles = (clonedDoc: Document): void => {
+  // 클론된 문서의 모든 스타일시트에서 oklch 관련 규칙 제거
+  try {
+    const styleSheets = clonedDoc.styleSheets;
+    for (let i = 0; i < styleSheets.length; i++) {
+      try {
+        const sheet = styleSheets[i];
+        const rules = sheet.cssRules || sheet.rules;
+        if (!rules) continue;
+
+        // 역순으로 순회하여 규칙 삭제
+        for (let j = rules.length - 1; j >= 0; j--) {
+          const rule = rules[j];
+          if (rule.cssText && rule.cssText.includes('oklch')) {
+            sheet.deleteRule(j);
+          }
+        }
+      } catch {
+        // CORS 제한으로 접근 불가한 스타일시트 무시
+        continue;
+      }
+    }
+  } catch {
+    // 스타일시트 접근 오류 무시
+  }
+
+  // 모든 요소의 인라인 스타일에서 oklch 제거
+  const allElements = clonedDoc.querySelectorAll('*');
+  allElements.forEach(el => {
+    if (el instanceof HTMLElement && el.style.cssText.includes('oklch')) {
+      // oklch가 포함된 스타일 속성 제거
+      el.style.cssText = el.style.cssText.replace(/[^;]*oklch[^;]*/gi, '');
+    }
+  });
+};
+
+// html2canvas 공통 옵션
+const getHtml2CanvasOptions = (backgroundColor: string | null = '#000000') => ({
+  scale: 2,
+  useCORS: true,
+  allowTaint: true,
+  backgroundColor,
+  logging: false,
+  onclone: (clonedDoc: Document, _element: HTMLElement) => {
+    removeOklchStyles(clonedDoc);
+  }
+});
 
 // PDF로 내보내기
 export const exportToPDF = async (
@@ -777,14 +1026,8 @@ export const exportToPDF = async (
   try {
     onProgress?.(10);
 
-    // html2canvas로 요소를 캡처
-    const canvas = await html2canvas(element, {
-      scale: 2, // 고해상도
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#000000',
-      logging: false,
-    });
+    // html2canvas로 요소를 캡처 (oklch 색상 제거 포함)
+    const canvas = await html2canvas(element, getHtml2CanvasOptions('#000000'));
 
     onProgress?.(60);
 
@@ -836,13 +1079,8 @@ export const exportToImage = async (
   try {
     onProgress?.(20);
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: format === 'jpeg' ? '#000000' : null,
-      logging: false,
-    });
+    // html2canvas로 요소를 캡처 (oklch 색상 제거 포함)
+    const canvas = await html2canvas(element, getHtml2CanvasOptions(format === 'jpeg' ? '#000000' : null));
 
     onProgress?.(80);
 
@@ -880,13 +1118,8 @@ export const exportSectionsAsImages = async (
     for (let i = 0; i < sectionElements.length; i++) {
       const element = sectionElements[i];
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: format === 'jpeg' ? '#000000' : null,
-        logging: false,
-      });
+      // html2canvas로 요소를 캡처 (oklch 색상 제거 포함)
+      const canvas = await html2canvas(element, getHtml2CanvasOptions(format === 'jpeg' ? '#000000' : null));
 
       const filename = `${baseFilename}-${i + 1}.${format}`;
 

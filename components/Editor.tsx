@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -33,6 +33,7 @@ import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
 import Video from 'lucide-react/dist/esm/icons/video';
 import Link from 'lucide-react/dist/esm/icons/link';
 import Upload from 'lucide-react/dist/esm/icons/upload';
+import Search from 'lucide-react/dist/esm/icons/search';
 import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
@@ -54,6 +55,7 @@ const getLayoutName = (layout: LayoutType): string => {
     [LayoutType.QUOTE]: '인용문',
     [LayoutType.STATS]: '통계',
     [LayoutType.VIDEO_HERO]: '비디오 배경',
+    [LayoutType.CAROUSEL]: '이미지 슬라이더',
   };
   return layoutNames[layout] || layout;
 };
@@ -95,6 +97,411 @@ const AccordionSection: React.FC<{
     {isOpen && <div className="pb-4 space-y-4">{children}</div>}
   </div>
 );
+
+// 레이아웃 정보 데이터
+const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; group: 'basic' | 'advanced' }[] = [
+  // 기본 레이아웃
+  { value: LayoutType.HERO, name: 'Hero', description: '전체화면 배경', group: 'basic' },
+  { value: LayoutType.SPLIT_LEFT, name: '이미지 왼쪽', description: '좌우 분할', group: 'basic' },
+  { value: LayoutType.SPLIT_RIGHT, name: '이미지 오른쪽', description: '좌우 분할', group: 'basic' },
+  { value: LayoutType.FULL_IMAGE_TEXT_OVERLAY, name: '이미지 배경', description: '텍스트 오버레이', group: 'basic' },
+  { value: LayoutType.SIMPLE_TEXT, name: '중앙 텍스트', description: '텍스트만', group: 'basic' },
+  // 신규 레이아웃
+  { value: LayoutType.GALLERY, name: '갤러리', description: '이미지 그리드', group: 'advanced' },
+  { value: LayoutType.TIMELINE, name: '타임라인', description: '시간순 스토리', group: 'advanced' },
+  { value: LayoutType.CARDS, name: '카드', description: '카드형 나열', group: 'advanced' },
+  { value: LayoutType.QUOTE, name: '인용문', description: '인용문 강조', group: 'advanced' },
+  { value: LayoutType.STATS, name: '통계', description: '숫자 강조', group: 'advanced' },
+  { value: LayoutType.VIDEO_HERO, name: '비디오 Hero', description: '비디오 배경', group: 'advanced' },
+  { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
+];
+
+// 레이아웃 선택 컴포넌트
+const LayoutSelector: React.FC<{
+  currentLayout: LayoutType;
+  onSelect: (layout: LayoutType) => void;
+}> = ({ currentLayout, onSelect }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const currentLayoutInfo = LAYOUT_OPTIONS.find(l => l.value === currentLayout);
+  const searchLower = searchQuery.toLowerCase();
+
+  const filteredLayouts = LAYOUT_OPTIONS.filter(layout =>
+    !searchQuery ||
+    layout.name.toLowerCase().includes(searchLower) ||
+    layout.description.toLowerCase().includes(searchLower)
+  );
+
+  const basicLayouts = filteredLayouts.filter(l => l.group === 'basic');
+  const advancedLayouts = filteredLayouts.filter(l => l.group === 'advanced');
+
+  if (!isExpanded) {
+    return (
+      <button
+        onClick={() => setIsExpanded(true)}
+        className="w-full flex items-center justify-between bg-gray-900 border border-gray-700 rounded px-3 py-2 hover:border-gray-600 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Layout size={14} className="text-gray-400" />
+          <span className="text-white">{currentLayoutInfo?.name || '레이아웃 선택'}</span>
+          <span className="text-xs text-gray-500">{currentLayoutInfo?.description}</span>
+        </div>
+        <ChevronDown size={14} className="text-gray-400" />
+      </button>
+    );
+  }
+
+  return (
+    <div className="bg-gray-900 border border-gray-700 rounded overflow-hidden">
+      {/* 검색 입력 */}
+      <div className="relative border-b border-gray-700">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="레이아웃 검색..."
+          className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
+          autoFocus
+        />
+        <button
+          onClick={() => {
+            setIsExpanded(false);
+            setSearchQuery('');
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white"
+        >
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* 레이아웃 목록 */}
+      <div className="max-h-64 overflow-y-auto p-2 space-y-2">
+        {filteredLayouts.length === 0 ? (
+          <div className="text-center py-4 text-gray-500 text-xs">
+            검색 결과가 없습니다
+          </div>
+        ) : (
+          <>
+            {basicLayouts.length > 0 && (
+              <div>
+                <p className="text-[10px] text-gray-500 px-2 py-1 uppercase tracking-wider">기본</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {basicLayouts.map(layout => (
+                    <button
+                      key={layout.value}
+                      onClick={() => {
+                        onSelect(layout.value);
+                        setIsExpanded(false);
+                        setSearchQuery('');
+                      }}
+                      className={`p-2 rounded text-left transition-colors ${
+                        currentLayout === layout.value
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      <p className="text-xs font-medium">{layout.name}</p>
+                      <p className="text-[10px] opacity-70">{layout.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {advancedLayouts.length > 0 && (
+              <div>
+                <p className="text-[10px] text-gray-500 px-2 py-1 uppercase tracking-wider">고급</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {advancedLayouts.map(layout => (
+                    <button
+                      key={layout.value}
+                      onClick={() => {
+                        onSelect(layout.value);
+                        setIsExpanded(false);
+                        setSearchQuery('');
+                      }}
+                      className={`p-2 rounded text-left transition-colors ${
+                        currentLayout === layout.value
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      <p className="text-xs font-medium">{layout.name}</p>
+                      <p className="text-[10px] opacity-70">{layout.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// 폰트 카테고리 정보
+const FONT_CATEGORIES: { id: string; label: string }[] = [
+  { id: 'system', label: '시스템' },
+  { id: 'korean-sans', label: '한글 - 고딕' },
+  { id: 'korean-serif', label: '한글 - 명조' },
+  { id: 'korean-display', label: '한글 - 타이틀' },
+  { id: 'korean-handwriting', label: '한글 - 손글씨' },
+  { id: 'english-sans', label: '영문 - 고딕' },
+  { id: 'english-serif', label: '영문 - 세리프' },
+  { id: 'english-display', label: '영문 - 디스플레이' },
+  { id: 'monospace', label: '모노스페이스' },
+];
+
+// 폰트 선택 컴포넌트 (미리보기 지원)
+const FontSelector: React.FC<{
+  currentFont: string;
+  onSelect: (font: string) => void;
+}> = ({ currentFont, onSelect }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentFontInfo = GOOGLE_FONTS.find(f => f.value === currentFont);
+  const searchLower = searchQuery.toLowerCase();
+
+  const filteredFonts = GOOGLE_FONTS.filter(font =>
+    !searchQuery ||
+    font.name.toLowerCase().includes(searchLower) ||
+    font.category.toLowerCase().includes(searchLower)
+  );
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+        setSearchQuery('');
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
+
+  if (!isExpanded) {
+    return (
+      <button
+        onClick={() => setIsExpanded(true)}
+        className="w-full flex items-center justify-between bg-gray-900 border border-gray-700 rounded px-3 py-2 hover:border-gray-600 transition-colors"
+      >
+        <span
+          className="text-white truncate"
+          style={{ fontFamily: currentFont }}
+        >
+          {currentFontInfo?.name || '폰트 선택'}
+        </span>
+        <ChevronDown size={14} className="text-gray-400 flex-shrink-0 ml-2" />
+      </button>
+    );
+  }
+
+  return (
+    <div ref={dropdownRef} className="bg-gray-900 border border-gray-700 rounded overflow-hidden">
+      {/* 검색 입력 */}
+      <div className="relative border-b border-gray-700">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="폰트 검색..."
+          className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
+          autoFocus
+        />
+        <button
+          onClick={() => {
+            setIsExpanded(false);
+            setSearchQuery('');
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white"
+        >
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* 폰트 목록 */}
+      <div className="max-h-72 overflow-y-auto p-2 space-y-3">
+        {filteredFonts.length === 0 ? (
+          <div className="text-center py-4 text-gray-500 text-xs">
+            검색 결과가 없습니다
+          </div>
+        ) : (
+          FONT_CATEGORIES.map(category => {
+            const categoryFonts = filteredFonts.filter(f => f.category === category.id);
+            if (categoryFonts.length === 0) return null;
+
+            return (
+              <div key={category.id}>
+                <p className="text-[10px] text-gray-500 px-2 py-1 uppercase tracking-wider">{category.label}</p>
+                <div className="space-y-0.5">
+                  {categoryFonts.map(font => (
+                    <button
+                      key={font.value}
+                      onClick={() => {
+                        onSelect(font.value);
+                        setIsExpanded(false);
+                        setSearchQuery('');
+                      }}
+                      className={`w-full px-3 py-2 rounded text-left transition-colors ${
+                        currentFont === font.value
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                      style={{ fontFamily: font.value }}
+                    >
+                      <span className="text-sm">{font.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
+
+// 범용 스타일 드롭다운 컴포넌트
+interface DropdownOption {
+  name: string;
+  value: string;
+  description?: string;
+}
+
+const StyledDropdown: React.FC<{
+  options: readonly DropdownOption[] | DropdownOption[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  size?: 'sm' | 'md';
+}> = ({ options, value, onChange, placeholder = '선택', size = 'md' }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentOption = options.find(o => o.value === value);
+  const searchLower = searchQuery.toLowerCase();
+
+  const filteredOptions = options.filter(option =>
+    !searchQuery ||
+    option.name.toLowerCase().includes(searchLower) ||
+    (option.description && option.description.toLowerCase().includes(searchLower))
+  );
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+        setSearchQuery('');
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
+
+  const sizeClasses = size === 'sm'
+    ? 'px-2 py-1.5 text-xs'
+    : 'px-3 py-2 text-sm';
+
+  if (!isExpanded) {
+    return (
+      <button
+        onClick={() => setIsExpanded(true)}
+        className={`w-full flex items-center justify-between bg-gray-900 border border-gray-700 rounded hover:border-gray-600 transition-colors ${sizeClasses}`}
+      >
+        <span className="text-white truncate">
+          {currentOption?.name || placeholder}
+        </span>
+        <ChevronDown size={size === 'sm' ? 12 : 14} className="text-gray-400 flex-shrink-0 ml-2" />
+      </button>
+    );
+  }
+
+  return (
+    <div ref={dropdownRef} className="bg-gray-900 border border-gray-700 rounded overflow-hidden">
+      {/* 검색 입력 (옵션이 5개 이상일 때만) */}
+      {options.length >= 5 && (
+        <div className="relative border-b border-gray-700">
+          <Search size={size === 'sm' ? 12 : 14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="검색..."
+            className={`w-full bg-transparent pl-9 pr-8 py-2 text-white placeholder-gray-500 focus:outline-none ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
+            autoFocus
+          />
+          <button
+            onClick={() => {
+              setIsExpanded(false);
+              setSearchQuery('');
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white"
+          >
+            <X size={size === 'sm' ? 12 : 14} />
+          </button>
+        </div>
+      )}
+
+      {/* 옵션 목록 */}
+      <div className="max-h-48 overflow-y-auto p-1.5 space-y-0.5">
+        {filteredOptions.length === 0 ? (
+          <div className="text-center py-3 text-gray-500 text-xs">
+            검색 결과가 없습니다
+          </div>
+        ) : (
+          filteredOptions.map(option => (
+            <button
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsExpanded(false);
+                setSearchQuery('');
+              }}
+              className={`w-full px-3 py-2 rounded text-left transition-colors ${
+                value === option.value
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              } ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
+            >
+              <span>{option.name}</span>
+              {option.description && (
+                <span className="ml-2 opacity-60 text-xs">{option.description}</span>
+              )}
+            </button>
+          ))
+        )}
+        {/* 옵션이 5개 미만일 때 닫기 버튼 */}
+        {options.length < 5 && (
+          <button
+            onClick={() => setIsExpanded(false)}
+            className="w-full mt-1 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-300"
+          >
+            닫기
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Range input에서 부모의 드래그 이벤트가 시작되는 것을 방지
 // 슬라이더 조작 시 부모 요소가 드래그되는 것을 방지하기 위해 모든 관련 이벤트를 중단
@@ -144,6 +551,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const [showTemplates, setShowTemplates] = useState(false);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategoryId | 'all'>('all');
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   const [guestWarning, setGuestWarning] = useState<string | null>(null);
 
   // URL 입력 모드 상태
@@ -759,6 +1167,90 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     updateSection(sectionId, { videoHeroSettings: { ...currentSettings, ...updates } });
   }, [updateSection]);
 
+  // Carousel 이미지 추가
+  const addCarouselImage = useCallback((sectionId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.carouselImages || [];
+    const newImage: CarouselImage = {
+      id: Math.random().toString(36).substr(2, 9),
+      url: '',
+      title: '',
+      description: '',
+      link: '',
+    };
+    updateSection(sectionId, { carouselImages: [...currentImages, newImage] });
+  }, [updateSection]);
+
+  // Carousel 이미지 업데이트
+  const updateCarouselImage = useCallback((sectionId: string, imageId: string, updates: Partial<CarouselImage>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.carouselImages || [];
+    const updatedImages = currentImages.map(img =>
+      img.id === imageId ? { ...img, ...updates } : img
+    );
+    updateSection(sectionId, { carouselImages: updatedImages });
+  }, [updateSection]);
+
+  // Carousel 이미지 삭제
+  const removeCarouselImage = useCallback((sectionId: string, imageId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.carouselImages || [];
+    const image = currentImages.find(img => img.id === imageId);
+    if (image?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(image.url);
+    }
+    updateSection(sectionId, { carouselImages: currentImages.filter(img => img.id !== imageId) });
+  }, [updateSection]);
+
+  // Carousel 설정 업데이트
+  const updateCarouselSettings = useCallback((sectionId: string, updates: Partial<CarouselSettings>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentSettings = section?.carouselSettings || {
+      autoPlay: true,
+      autoPlayInterval: 5000,
+      showArrows: true,
+      showDots: true,
+      transition: 'slide' as const,
+      transitionDuration: 500,
+      pauseOnHover: true,
+      loop: true
+    };
+    updateSection(sectionId, { carouselSettings: { ...currentSettings, ...updates } });
+  }, [updateSection]);
+
+  // Carousel 이미지 파일 업로드
+  const handleCarouselImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const image = section?.carouselImages?.find(img => img.id === imageId);
+    if (image?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(image.url);
+    }
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data, error } = await uploadMedia(file);
+        if (!error && data?.public_url) {
+          updateCarouselImage(sectionId, imageId, { url: data.public_url });
+          return;
+        }
+      }
+
+      // 비로그인 시 blob URL 사용 + 경고 표시
+      const url = URL.createObjectURL(file);
+      updateCarouselImage(sectionId, imageId, { url });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요.');
+    } catch (error) {
+      console.error('Carousel 이미지 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateCarouselImage(sectionId, imageId, { url });
+    }
+  }, [sections, updateCarouselImage, showGuestWarning]);
+
   // Gallery 이미지 파일 업로드
   const handleGalleryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
     const file = e.target.files?.[0];
@@ -921,6 +1413,28 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
             </button>
           </div>
 
+          {/* 검색 입력 */}
+          <div className="px-4 py-3 border-b border-gray-700 flex-shrink-0">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={templateSearchQuery}
+                onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                placeholder="템플릿 검색..."
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
+              />
+              {templateSearchQuery && (
+                <button
+                  onClick={() => setTemplateSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* 카테고리 탭 */}
           <div className="flex flex-wrap gap-2 p-3 border-b border-gray-700 flex-shrink-0">
             <button
@@ -953,9 +1467,27 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
 
             <div className="h-full overflow-y-auto p-4">
               <div className="space-y-3">
-                {TEMPLATES
-                  .filter(t => selectedCategory === 'all' || t.category === selectedCategory)
-                  .map(template => (
+                {(() => {
+                  const searchLower = templateSearchQuery.toLowerCase();
+                  const filteredTemplates = TEMPLATES.filter(t => {
+                    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+                    const matchesSearch = !templateSearchQuery ||
+                      t.name.toLowerCase().includes(searchLower) ||
+                      t.description.toLowerCase().includes(searchLower);
+                    return matchesCategory && matchesSearch;
+                  });
+
+                  if (filteredTemplates.length === 0) {
+                    return (
+                      <div className="text-center py-8 text-gray-500">
+                        <Search size={32} className="mx-auto mb-3 opacity-50" />
+                        <p className="text-sm">검색 결과가 없습니다</p>
+                        <p className="text-xs mt-1">다른 검색어를 입력해보세요</p>
+                      </div>
+                    );
+                  }
+
+                  return filteredTemplates.map(template => (
                     <button
                       key={template.id}
                       onClick={() => handleApplyTemplate(template)}
@@ -971,7 +1503,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                         </span>
                       </div>
                     </button>
-                  ))}
+                  ));
+                })()}
               </div>
             </div>
 
@@ -1046,41 +1579,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     <div className="space-y-4">
                       <div>
                         <label className="text-xs text-gray-400 mb-2 block">레이아웃 타입</label>
-                        <select
-                          value={section.layout}
-                          onChange={(e) => updateSection(section.id, { layout: e.target.value as LayoutType })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                        >
-                          <optgroup label="기본 레이아웃">
-                            <option value={LayoutType.HERO}>Hero (전체화면)</option>
-                            <option value={LayoutType.SPLIT_LEFT}>이미지 왼쪽 (분할)</option>
-                            <option value={LayoutType.SPLIT_RIGHT}>이미지 오른쪽 (분할)</option>
-                            <option value={LayoutType.FULL_IMAGE_TEXT_OVERLAY}>이미지 배경 + 텍스트</option>
-                            <option value={LayoutType.SIMPLE_TEXT}>중앙 텍스트</option>
-                          </optgroup>
-                          <optgroup label="신규 레이아웃">
-                            <option value={LayoutType.GALLERY}>갤러리 (이미지 그리드)</option>
-                            <option value={LayoutType.TIMELINE}>타임라인 (시간순)</option>
-                            <option value={LayoutType.CARDS}>카드 (그리드)</option>
-                            <option value={LayoutType.QUOTE}>인용문</option>
-                            <option value={LayoutType.STATS}>통계 (숫자 강조)</option>
-                            <option value={LayoutType.VIDEO_HERO}>비디오 Hero</option>
-                          </optgroup>
-                        </select>
+                        {/* 레이아웃 검색 및 선택 */}
+                        <LayoutSelector
+                          currentLayout={section.layout}
+                          onSelect={(layout) => updateSection(section.id, { layout })}
+                        />
                       </div>
 
                       {/* 섹션 높이 */}
                       <div>
                         <label className="text-xs text-gray-400 mb-2 block">섹션 높이</label>
-                        <select
+                        <StyledDropdown
+                          options={SECTION_HEIGHTS}
                           value={section.sectionHeight || '100vh'}
-                          onChange={(e) => updateSection(section.id, { sectionHeight: e.target.value as SectionHeight })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                        >
-                          {SECTION_HEIGHTS.map(h => (
-                            <option key={h.value} value={h.value}>{h.name}</option>
-                          ))}
-                        </select>
+                          onChange={(v) => updateSection(section.id, { sectionHeight: v as SectionHeight })}
+                        />
                       </div>
 
                       {/* Split Ratio (Split layouts only) */}
@@ -1193,18 +1706,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     <div className="space-y-4">
                       {/* 폰트 선택 */}
                       <div>
-                        <label className="text-xs text-gray-400 mb-2 block">폰트</label>
-                        <select
-                          value={section.fontFamily || DEFAULT_SECTION_VALUES.fontFamily}
-                          onChange={(e) => updateSection(section.id, { fontFamily: e.target.value })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                        >
-                          {GOOGLE_FONTS.map(font => (
-                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                              {font.name}
-                            </option>
-                          ))}
-                        </select>
+                        <label className="text-xs text-gray-400 mb-2 block">폰트 ({GOOGLE_FONTS.length}개)</label>
+                        <FontSelector
+                          currentFont={section.fontFamily || DEFAULT_SECTION_VALUES.fontFamily}
+                          onSelect={(font) => updateSection(section.id, { fontFamily: font })}
+                        />
                       </div>
 
                       {/* 제목 폰트 크기 */}
@@ -1414,10 +1920,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                       {/* 타이포그래피 프리셋 */}
                       <div>
                         <label className="text-xs text-gray-400 mb-2 block">타이포그래피</label>
-                        <select
+                        <StyledDropdown
+                          options={TYPOGRAPHY_PRESETS.map((p: TypographyPreset) => ({
+                            name: p.name,
+                            value: p.fontFamily,
+                            description: p.description
+                          }))}
                           value={section.fontFamily || "'Noto Sans KR', sans-serif"}
-                          onChange={(e) => {
-                            const preset = TYPOGRAPHY_PRESETS.find((t: TypographyPreset) => t.fontFamily === e.target.value);
+                          onChange={(v) => {
+                            const preset = TYPOGRAPHY_PRESETS.find((t: TypographyPreset) => t.fontFamily === v);
                             if (preset) {
                               updateSection(section.id, {
                                 fontFamily: preset.fontFamily,
@@ -1426,15 +1937,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                               });
                             }
                           }}
-                          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-sm text-white"
-                          {...preventDragProps}
-                        >
-                          {TYPOGRAPHY_PRESETS.map((preset: TypographyPreset) => (
-                            <option key={preset.id} value={preset.fontFamily}>
-                              {preset.name} - {preset.description}
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </div>
 
                       <div>
@@ -1485,15 +1988,12 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                             </div>
                             <div>
                               <label className="text-xs text-gray-500 mb-1 block">방향</label>
-                              <select
+                              <StyledDropdown
+                                options={GRADIENT_DIRECTIONS}
                                 value={section.gradientOverlay?.direction || 'to-bottom'}
-                                onChange={(e) => updateGradientOverlay(section.id, { direction: e.target.value as GradientOverlay['direction'] })}
-                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                              >
-                                {GRADIENT_DIRECTIONS.map(d => (
-                                  <option key={d.value} value={d.value}>{d.name}</option>
-                                ))}
-                              </select>
+                                onChange={(v) => updateGradientOverlay(section.id, { direction: v as GradientOverlay['direction'] })}
+                                size="sm"
+                              />
                             </div>
                             <div>
                               <label className="text-xs text-gray-500 mb-1 flex justify-between">
@@ -1528,15 +2028,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                       <div className="space-y-4">
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">필터 타입</label>
-                          <select
+                          <StyledDropdown
+                            options={IMAGE_FILTERS}
                             value={section.imageFilter || 'none'}
-                            onChange={(e) => updateSection(section.id, { imageFilter: e.target.value as ImageFilter })}
-                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                          >
-                            {IMAGE_FILTERS.map(f => (
-                              <option key={f.value} value={f.value}>{f.name}</option>
-                            ))}
-                          </select>
+                            onChange={(v) => updateSection(section.id, { imageFilter: v as ImageFilter })}
+                          />
                         </div>
 
                         {section.imageFilter && section.imageFilter !== 'none' && (
@@ -1624,15 +2120,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     <div className="space-y-4">
                       <div>
                         <label className="text-xs text-gray-400 mb-2 block">애니메이션 타입</label>
-                        <select
+                        <StyledDropdown
+                          options={ANIMATIONS}
                           value={section.animation || 'fade-in'}
-                          onChange={(e) => updateSection(section.id, { animation: e.target.value as AnimationType })}
-                          className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none"
-                        >
-                          {ANIMATIONS.map(a => (
-                            <option key={a.value} value={a.value}>{a.name}</option>
-                          ))}
-                        </select>
+                          onChange={(v) => updateSection(section.id, { animation: v as AnimationType })}
+                        />
                       </div>
 
                       {section.animation && section.animation !== 'none' && (
@@ -1716,27 +2208,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                           <div className="grid grid-cols-2 gap-2">
                             <div>
                               <label className="text-xs text-gray-500 mb-1 block">스타일</label>
-                              <select
+                              <StyledDropdown
+                                options={BUTTON_STYLES}
                                 value={section.ctaButton?.style || 'solid'}
-                                onChange={(e) => updateCtaButton(section.id, { style: e.target.value as CTAButton['style'] })}
-                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                              >
-                                {BUTTON_STYLES.map(s => (
-                                  <option key={s.value} value={s.value}>{s.name}</option>
-                                ))}
-                              </select>
+                                onChange={(v) => updateCtaButton(section.id, { style: v as CTAButton['style'] })}
+                                size="sm"
+                              />
                             </div>
                             <div>
                               <label className="text-xs text-gray-500 mb-1 block">크기</label>
-                              <select
+                              <StyledDropdown
+                                options={BUTTON_SIZES}
                                 value={section.ctaButton?.size || 'medium'}
-                                onChange={(e) => updateCtaButton(section.id, { size: e.target.value as CTAButton['size'] })}
-                                className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs focus:border-blue-500 outline-none"
-                              >
-                                {BUTTON_SIZES.map(s => (
-                                  <option key={s.value} value={s.value}>{s.name}</option>
-                                ))}
-                              </select>
+                                onChange={(v) => updateCtaButton(section.id, { size: v as CTAButton['size'] })}
+                                size="sm"
+                              />
                             </div>
                           </div>
                           <div>
@@ -1853,15 +2339,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                       <div className="space-y-4">
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">정렬</label>
-                          <select
+                          <StyledDropdown
+                            options={[
+                              { name: '좌우 번갈아', value: 'alternate' },
+                              { name: '왼쪽 정렬', value: 'left' },
+                              { name: '오른쪽 정렬', value: 'right' }
+                            ]}
                             value={section.timelineAlignment || 'alternate'}
-                            onChange={(e) => updateSection(section.id, { timelineAlignment: e.target.value as TimelineAlignment })}
-                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
-                          >
-                            <option value="alternate">좌우 번갈아</option>
-                            <option value="left">왼쪽 정렬</option>
-                            <option value="right">오른쪽 정렬</option>
-                          </select>
+                            onChange={(v) => updateSection(section.id, { timelineAlignment: v as TimelineAlignment })}
+                          />
                         </div>
 
                         {/* 이벤트 목록 */}
@@ -2028,15 +2514,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                         </div>
                         <div>
                           <label className="text-xs text-gray-400 mb-2 block">인용 부호 스타일</label>
-                          <select
+                          <StyledDropdown
+                            options={[
+                              { name: '큰따옴표 ("")', value: 'double' },
+                              { name: "작은따옴표 ('')", value: 'single' },
+                              { name: '없음', value: 'none' }
+                            ]}
                             value={section.quoteSettings?.quoteStyle || 'double'}
-                            onChange={(e) => updateQuoteSettings(section.id, { quoteStyle: e.target.value as 'double' | 'single' | 'none' })}
-                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
-                          >
-                            <option value="double">큰따옴표 ("")</option>
-                            <option value="single">작은따옴표 ('')</option>
-                            <option value="none">없음</option>
-                          </select>
+                            onChange={(v) => updateQuoteSettings(section.id, { quoteStyle: v as 'double' | 'single' | 'none' })}
+                          />
                         </div>
                       </div>
                     </AccordionSection>
@@ -2180,13 +2666,194 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     </AccordionSection>
                   )}
 
+                  {/* Carousel 레이아웃 편집 */}
+                  {section.layout === LayoutType.CAROUSEL && (
+                    <AccordionSection
+                      title="캐러셀 설정"
+                      icon={<Layers size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'carousel')}
+                      onToggle={() => toggleAccordion(section.id, 'carousel')}
+                    >
+                      <div className="space-y-4">
+                        {/* 자동 재생 설정 */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">자동 재생</label>
+                            <button
+                              onClick={() => updateCarouselSettings(section.id, { autoPlay: !(section.carouselSettings?.autoPlay ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.carouselSettings?.autoPlay ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.carouselSettings?.autoPlay ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          {(section.carouselSettings?.autoPlay ?? true) && (
+                            <div>
+                              <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                                <span>재생 간격</span>
+                                <span className="text-white">{((section.carouselSettings?.autoPlayInterval || 5000) / 1000).toFixed(1)}초</span>
+                              </label>
+                              <input
+                                type="range"
+                                min="1000"
+                                max="10000"
+                                step="500"
+                                value={section.carouselSettings?.autoPlayInterval || 5000}
+                                onChange={(e) => updateCarouselSettings(section.id, { autoPlayInterval: parseInt(e.target.value) })}
+                                className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                {...preventDragProps}
+                              />
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">호버 시 일시정지</label>
+                            <button
+                              onClick={() => updateCarouselSettings(section.id, { pauseOnHover: !(section.carouselSettings?.pauseOnHover ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.carouselSettings?.pauseOnHover ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.carouselSettings?.pauseOnHover ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">반복 재생</label>
+                            <button
+                              onClick={() => updateCarouselSettings(section.id, { loop: !(section.carouselSettings?.loop ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.carouselSettings?.loop ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.carouselSettings?.loop ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 네비게이션 설정 */}
+                        <div className="space-y-3 pt-2 border-t border-gray-700">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">화살표 표시</label>
+                            <button
+                              onClick={() => updateCarouselSettings(section.id, { showArrows: !(section.carouselSettings?.showArrows ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.carouselSettings?.showArrows ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.carouselSettings?.showArrows ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">점 인디케이터</label>
+                            <button
+                              onClick={() => updateCarouselSettings(section.id, { showDots: !(section.carouselSettings?.showDots ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.carouselSettings?.showDots ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.carouselSettings?.showDots ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 트랜지션 설정 */}
+                        <div className="space-y-3 pt-2 border-t border-gray-700">
+                          <div>
+                            <label className="text-xs text-gray-400 mb-2 block">전환 효과</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {['slide', 'fade'].map(trans => (
+                                <button
+                                  key={trans}
+                                  onClick={() => updateCarouselSettings(section.id, { transition: trans as 'slide' | 'fade' })}
+                                  className={`py-2 rounded text-xs font-medium ${(section.carouselSettings?.transition || 'slide') === trans
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    }`}
+                                >
+                                  {trans === 'slide' ? '슬라이드' : '페이드'}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                              <span>전환 속도</span>
+                              <span className="text-white">{section.carouselSettings?.transitionDuration || 500}ms</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="200"
+                              max="1500"
+                              step="100"
+                              value={section.carouselSettings?.transitionDuration || 500}
+                              onChange={(e) => updateCarouselSettings(section.id, { transitionDuration: parseInt(e.target.value) })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+                        </div>
+
+                        {/* 이미지 목록 */}
+                        <div className="space-y-2 pt-2 border-t border-gray-700">
+                          <label className="text-xs text-gray-400">슬라이드 이미지 ({section.carouselImages?.length || 0}개)</label>
+                          {(section.carouselImages || []).map((image, idx) => (
+                            <div key={image.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
+                                {image.url ? (
+                                  <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
+                                ) : (
+                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
+                                    <Plus size={16} className="text-gray-400" />
+                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCarouselImageUpload(e, section.id, image.id)} />
+                                  </label>
+                                )}
+                                <div className="flex-1 space-y-1">
+                                  <input
+                                    type="text"
+                                    value={image.title || ''}
+                                    onChange={(e) => updateCarouselImage(section.id, image.id, { title: e.target.value })}
+                                    placeholder="제목 (선택)"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                </div>
+                                <button onClick={() => removeCarouselImage(section.id, image.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                              <textarea
+                                value={image.description || ''}
+                                onChange={(e) => updateCarouselImage(section.id, image.id, { description: e.target.value })}
+                                placeholder="설명 (선택)"
+                                rows={2}
+                                className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs resize-none"
+                              />
+                              <div className="flex items-center gap-2">
+                                <Link size={12} className="text-gray-500" />
+                                <input
+                                  type="text"
+                                  value={image.link || ''}
+                                  onChange={(e) => updateCarouselImage(section.id, image.id, { link: e.target.value })}
+                                  placeholder="링크 URL (선택)"
+                                  className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addCarouselImage(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 슬라이드 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
                   {/* 미디어 업로드 (기존 레이아웃용) */}
                   {section.layout !== LayoutType.SIMPLE_TEXT &&
                     section.layout !== LayoutType.GALLERY &&
                     section.layout !== LayoutType.TIMELINE &&
                     section.layout !== LayoutType.CARDS &&
                     section.layout !== LayoutType.STATS &&
-                    section.layout !== LayoutType.VIDEO_HERO && (
+                    section.layout !== LayoutType.VIDEO_HERO &&
+                    section.layout !== LayoutType.CAROUSEL && (
                       <AccordionSection
                         title="미디어"
                         icon={<ImageIcon size={12} />}
