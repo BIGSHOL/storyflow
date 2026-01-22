@@ -126,6 +126,7 @@ export interface Section {
   description: string;
   mediaUrl?: string;
   mediaType: 'image' | 'video' | 'none';
+  imageAlt?: string; // 접근성: 이미지 대체 텍스트
   backgroundColor?: string;
   textColor?: string;
   textAlignment?: TextAlignment;

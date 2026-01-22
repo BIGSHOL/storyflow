@@ -307,7 +307,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     return (
       <img
         src={section.mediaUrl}
-        alt={section.title}
+        alt={section.imageAlt || section.title || '섹션 이미지'}
         className="w-full h-full object-cover"
         style={getImageFilterStyle()}
         loading="lazy"

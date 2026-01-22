@@ -696,6 +696,17 @@ function App() {
       return;
     }
 
+    // 동영상 포함 여부 체크
+    const videoSections = sections.filter(s => s.mediaType === 'video');
+    if (videoSections.length > 0) {
+      const proceed = window.confirm(
+        `⚠️ 동영상이 포함된 섹션이 ${videoSections.length}개 있어요.\n\n` +
+        `PDF에서는 동영상이 정적 이미지(첫 프레임)로 표시됩니다.\n` +
+        `계속 진행하시겠어요?`
+      );
+      if (!proceed) return;
+    }
+
     setIsExporting(true);
     setShowExportDropdown(false);
     try {
@@ -721,6 +732,17 @@ function App() {
       return;
     }
 
+    // 동영상 포함 여부 체크
+    const videoSections = sections.filter(s => s.mediaType === 'video');
+    if (videoSections.length > 0) {
+      const proceed = window.confirm(
+        `⚠️ 동영상이 포함된 섹션이 ${videoSections.length}개 있어요.\n\n` +
+        `이미지에서는 동영상이 정적 이미지(첫 프레임)로 표시됩니다.\n` +
+        `계속 진행하시겠어요?`
+      );
+      if (!proceed) return;
+    }
+
     setIsExporting(true);
     setShowExportDropdown(false);
     try {
@@ -744,6 +766,17 @@ function App() {
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
       return;
+    }
+
+    // 동영상 포함 여부 체크
+    const videoSections = sections.filter(s => s.mediaType === 'video');
+    if (videoSections.length > 0) {
+      const proceed = window.confirm(
+        `⚠️ 동영상이 포함된 섹션이 ${videoSections.length}개 있어요.\n\n` +
+        `이미지에서는 동영상이 정적 이미지(첫 프레임)로 표시됩니다.\n` +
+        `계속 진행하시겠어요?`
+      );
+      if (!proceed) return;
     }
 
     setIsExporting(true);
@@ -995,8 +1028,8 @@ function App() {
                               key={project.id}
                               onClick={() => handleSwitchProject(project)}
                               className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${currentProject?.id === project.id
-                                  ? 'bg-indigo-600/20 text-indigo-300'
-                                  : 'text-gray-300 hover:bg-gray-700'
+                                ? 'bg-indigo-600/20 text-indigo-300'
+                                : 'text-gray-300 hover:bg-gray-700'
                                 }`}
                             >
                               <span className="truncate flex-1">{project.title}</span>
@@ -1025,8 +1058,8 @@ function App() {
                           onClick={handleCreateNewProject}
                           disabled={projects.length >= MAX_PROJECTS}
                           className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${projects.length >= MAX_PROJECTS
-                              ? 'text-gray-600 cursor-not-allowed'
-                              : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
+                            ? 'text-gray-600 cursor-not-allowed'
+                            : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
                             }`}
                         >
                           <Plus size={14} />
@@ -1133,7 +1166,7 @@ function App() {
                   <Download size={12} /> 내보내기 <ChevronDown size={10} />
                 </button>
                 {showExportDropdown && (
-                  <div className="absolute right-0 mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] overflow-hidden">
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] overflow-hidden">
                     <button
                       onClick={handleExport}
                       className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
@@ -1185,10 +1218,10 @@ function App() {
               </div>
               <div className="flex-1 bg-gray-950 flex items-center justify-center overflow-hidden relative">
                 <div className={`transition-all duration-500 overflow-hidden bg-black ${devicePreview === 'mobile'
-                    ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
-                    : devicePreview === 'tablet'
-                      ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
-                      : 'w-full h-full'
+                  ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
+                  : devicePreview === 'tablet'
+                    ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
+                    : 'w-full h-full'
                   }`}>
                   <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">
                     <PreviewRender sections={sections} />
@@ -1295,7 +1328,7 @@ function App() {
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
       {/* Top Navigation Bar - 고정 크기, 1400px 미만에서 가로 스크롤 */}
-      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-x-auto">
+      <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">S</div>
@@ -1317,7 +1350,7 @@ function App() {
               </button>
 
               {showProjectDropdown && (
-                <div className="fixed top-14 left-36 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] overflow-hidden">
+                <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] overflow-hidden">
                   {/* 프로젝트 목록 */}
                   <div className="max-h-48 overflow-y-auto">
                     {projects.length === 0 ? (
@@ -1330,8 +1363,8 @@ function App() {
                           key={project.id}
                           onClick={() => handleSwitchProject(project)}
                           className={`w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors ${currentProject?.id === project.id
-                              ? 'bg-indigo-600/20 text-indigo-300'
-                              : 'text-gray-300 hover:bg-gray-700'
+                            ? 'bg-indigo-600/20 text-indigo-300'
+                            : 'text-gray-300 hover:bg-gray-700'
                             }`}
                         >
                           <span className="truncate flex-1">{project.title}</span>
@@ -1362,8 +1395,8 @@ function App() {
                       onClick={handleCreateNewProject}
                       disabled={projects.length >= MAX_PROJECTS}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${projects.length >= MAX_PROJECTS
-                          ? 'text-gray-600 cursor-not-allowed'
-                          : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
+                        ? 'text-gray-600 cursor-not-allowed'
+                        : 'text-indigo-400 hover:bg-gray-700 hover:text-indigo-300'
                         }`}
                     >
                       <Plus size={14} />
@@ -1486,7 +1519,7 @@ function App() {
                 <Download size={14} /> {isExporting ? '준비 중...' : '내보내기'} <ChevronDown size={12} />
               </button>
               {showExportDropdown && (
-                <div className="absolute right-0 mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] overflow-hidden">
+                <div className="absolute right-0 top-full mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] overflow-hidden">
                   <button
                     onClick={handleExport}
                     className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2"
@@ -1532,10 +1565,10 @@ function App() {
             {/* Live Canvas */}
             <div className="flex-1 bg-gray-950 flex items-center justify-center overflow-hidden relative">
               <div className={`transition-all duration-500 overflow-hidden bg-black ${devicePreview === 'mobile'
-                  ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
-                  : devicePreview === 'tablet'
-                    ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
-                    : 'w-full h-full'
+                ? 'w-[375px] h-[812px] rounded-[3rem] border-8 border-gray-800 shadow-2xl'
+                : devicePreview === 'tablet'
+                  ? 'w-[768px] h-[1024px] rounded-[2rem] border-8 border-gray-800 shadow-2xl'
+                  : 'w-full h-full'
                 }`}>
                 <div className="w-full h-full overflow-y-auto no-scrollbar scroll-smooth">
                   <PreviewRender sections={sections} />

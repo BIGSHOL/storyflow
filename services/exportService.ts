@@ -385,10 +385,11 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
   const gradientOverlay = getGradientOverlayStyle(section);
   const ctaButton = getCTAButtonHTML(section);
 
+  const imageAltText = section.imageAlt || section.title || '섹션 이미지';
   const mediaHTML = mediaBase64
     ? section.mediaType === 'video'
-      ? `<video class="bg-media" style="${imageFilter}" src="${mediaBase64}" autoplay muted loop playsinline></video>`
-      : `<img class="bg-media" style="${imageFilter}" src="${mediaBase64}" alt="${section.title}" />`
+      ? `<video class="bg-media" style="${imageFilter}" src="${mediaBase64}" autoplay muted loop playsinline aria-label="${imageAltText}"></video>`
+      : `<img class="bg-media" style="${imageFilter}" src="${mediaBase64}" alt="${imageAltText}" />`
     : '';
 
   const contentStyle = `padding: ${paddingY}px ${paddingX}px; font-family: ${fontFamily}; ${animationStyle}`;
@@ -656,12 +657,45 @@ export const generateHTML = async (
 
   const currentYear = new Date().getFullYear();
 
+  // 소셜 미디어 메타데이터 생성
+  const firstSection = sections[0];
+  const ogTitle = title || firstSection?.title || 'My Story';
+  const ogDescription = firstSection?.description || '스토리플로우로 만든 아름다운 웹페이지';
+  const ogImage = sectionsWithBase64[0]?.mediaBase64 || '';
+  const ogUrl = typeof window !== 'undefined' ? window.location.href : '';
+
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="${ogTitle}">
+  <meta name="description" content="${ogDescription}">
+  <meta name="author" content="StoryFlow">
+  <meta name="generator" content="StoryFlow Creator">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${ogUrl}">
+  <meta property="og:title" content="${ogTitle}">
+  <meta property="og:description" content="${ogDescription}">
+  ${ogImage ? `<meta property="og:image" content="${ogImage}">` : ''}
+  <meta property="og:site_name" content="StoryFlow">
+  <meta property="og:locale" content="ko_KR">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${ogTitle}">
+  <meta name="twitter:description" content="${ogDescription}">
+  ${ogImage ? `<meta name="twitter:image" content="${ogImage}">` : ''}
+
+  <!-- Additional SEO -->
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#000000">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="${GOOGLE_FONTS_URL}" rel="stylesheet">

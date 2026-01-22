@@ -36,6 +36,7 @@ import Upload from 'lucide-react/dist/esm/icons/upload';
 import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
+import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
 import { uploadMedia } from '../services/mediaService';
 import { supabase } from '../services/supabaseClient';
 
@@ -1354,6 +1355,88 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     onToggle={() => toggleAccordion(section.id, 'colors')}
                   >
                     <div className="space-y-4">
+                      {/* 스타일 프리셋 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">스타일 프리셋</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {STYLE_COMBOS.slice(0, 6).map((combo) => {
+                            const settings = getStyleComboSettings(combo.id);
+                            if (!settings) return null;
+                            return (
+                              <button
+                                key={combo.id}
+                                onClick={() => updateSection(section.id, {
+                                  backgroundColor: settings.colors.background,
+                                  textColor: settings.colors.text,
+                                  fontFamily: settings.typography.fontFamily,
+                                  titleFontSize: settings.typography.titleSize,
+                                  descriptionFontSize: settings.typography.descriptionSize,
+                                  overlayOpacity: settings.overlayOpacity,
+                                })}
+                                className="p-2 rounded border border-gray-700 hover:border-blue-500 transition-colors text-left"
+                                style={{ backgroundColor: settings.colors.background }}
+                                {...preventDragProps}
+                              >
+                                <div className="text-xs font-medium truncate" style={{ color: settings.colors.text }}>
+                                  {combo.name}
+                                </div>
+                                <div className="text-[10px] opacity-60 truncate" style={{ color: settings.colors.text }}>
+                                  {combo.description}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 색상 팔레트 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">색상 팔레트</label>
+                        <div className="flex flex-wrap gap-1">
+                          {COLOR_PALETTES.map((palette: ColorPalette) => (
+                            <button
+                              key={palette.id}
+                              onClick={() => updateSection(section.id, {
+                                backgroundColor: palette.colors.background,
+                                textColor: palette.colors.text,
+                              })}
+                              className="w-6 h-6 rounded border border-gray-600 hover:border-blue-500 transition-colors overflow-hidden"
+                              title={palette.name}
+                              {...preventDragProps}
+                            >
+                              <div className="w-full h-1/2" style={{ backgroundColor: palette.colors.background }} />
+                              <div className="w-full h-1/2" style={{ backgroundColor: palette.colors.text }} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 타이포그래피 프리셋 */}
+                      <div>
+                        <label className="text-xs text-gray-400 mb-2 block">타이포그래피</label>
+                        <select
+                          value={section.fontFamily || "'Noto Sans KR', sans-serif"}
+                          onChange={(e) => {
+                            const preset = TYPOGRAPHY_PRESETS.find((t: TypographyPreset) => t.fontFamily === e.target.value);
+                            if (preset) {
+                              updateSection(section.id, {
+                                fontFamily: preset.fontFamily,
+                                titleFontSize: preset.titleSize,
+                                descriptionFontSize: preset.descriptionSize,
+                              });
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-sm text-white"
+                          {...preventDragProps}
+                        >
+                          {TYPOGRAPHY_PRESETS.map((preset: TypographyPreset) => (
+                            <option key={preset.id} value={preset.fontFamily}>
+                              {preset.name} - {preset.description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       <div>
                         <label className="text-xs text-gray-400 mb-2 block">배경 색상</label>
                         <div className="flex items-center gap-2 h-9 bg-gray-900 border border-gray-700 rounded px-2">
@@ -2117,50 +2200,72 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                           onDragLeave={handleDragLeave}
                         >
                           {section.mediaUrl ? (
-                            <div className={`w-full h-32 bg-black rounded border overflow-hidden relative transition-all ${dragOverSectionId === section.id
-                              ? 'border-blue-500 border-2 scale-[1.02]'
-                              : 'border-gray-700'
-                              }`}>
-                              {section.mediaType === 'video' ? (
-                                <video
-                                  src={section.mediaUrl}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLVideoElement).style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <img
-                                  src={section.mediaUrl}
-                                  alt="preview"
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23333" width="100" height="100"/><text fill="%23666" x="50%" y="50%" text-anchor="middle" dy=".3em">이미지 오류</text></svg>';
-                                  }}
-                                />
-                              )}
-                              <div className={`absolute inset-0 flex items-center justify-center transition-opacity gap-2 ${dragOverSectionId === section.id
-                                ? 'bg-blue-500/30 opacity-100'
-                                : 'bg-black/50 opacity-0 group-hover:opacity-100'
+                            <>
+                              <div className={`w-full h-32 bg-black rounded border overflow-hidden relative transition-all ${dragOverSectionId === section.id
+                                ? 'border-blue-500 border-2 scale-[1.02]'
+                                : 'border-gray-700'
                                 }`}>
-                                {dragOverSectionId === section.id ? (
-                                  <span className="text-white font-bold text-sm">여기에 놓으세요</span>
+                                {section.mediaType === 'video' ? (
+                                  <video
+                                    src={section.mediaUrl}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLVideoElement).style.display = 'none';
+                                    }}
+                                  />
                                 ) : (
-                                  <>
-                                    <label className="cursor-pointer bg-white text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-200">
-                                      변경
-                                      <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} />
-                                    </label>
-                                    <button
-                                      onClick={() => handleMediaDelete(section.id)}
-                                      className="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600"
-                                    >
-                                      삭제
-                                    </button>
-                                  </>
+                                  <img
+                                    src={section.mediaUrl}
+                                    alt={section.imageAlt || section.title || 'preview'}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23333" width="100" height="100"/><text fill="%23666" x="50%" y="50%" text-anchor="middle" dy=".3em">이미지 오류</text></svg>';
+                                    }}
+                                  />
                                 )}
+                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity gap-2 ${dragOverSectionId === section.id
+                                  ? 'bg-blue-500/30 opacity-100'
+                                  : 'bg-black/50 opacity-0 group-hover:opacity-100'
+                                  }`}>
+                                  {dragOverSectionId === section.id ? (
+                                    <span className="text-white font-bold text-sm">여기에 놓으세요</span>
+                                  ) : (
+                                    <>
+                                      <label className="cursor-pointer bg-white text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-200">
+                                        변경
+                                        <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e, section.id)} />
+                                      </label>
+                                      <button
+                                        onClick={() => handleMediaDelete(section.id)}
+                                        className="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600"
+                                      >
+                                        삭제
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                              {/* 이미지 대체 텍스트 (접근성) */}
+                              {section.mediaType === 'image' && (
+                                <div className="mt-3">
+                                  <label className="text-xs text-gray-400 mb-1 block flex items-center gap-1">
+                                    <span>대체 텍스트</span>
+                                    <span className="text-[10px] text-blue-400">(접근성)</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={section.imageAlt || ''}
+                                    onChange={(e) => updateSection(section.id, { imageAlt: e.target.value })}
+                                    placeholder="이미지에 대한 설명을 입력하세요"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                                    {...preventDragProps}
+                                  />
+                                  <p className="text-[10px] text-gray-500 mt-1">
+                                    시각 장애인 사용자를 위해 이미지를 설명해주세요
+                                  </p>
+                                </div>
+                              )}
+                            </>
                           ) : (
                             <div className="space-y-2">
                               {/* 업로드/URL 탭 */}
