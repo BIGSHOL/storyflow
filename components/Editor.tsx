@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, memo, useMemo } from 'react';
 import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
@@ -82,14 +82,14 @@ const emptyEditorStateElement = (
   </div>
 );
 
-// 아코디언 섹션 컴포넌트
-const AccordionSection: React.FC<{
+// 아코디언 섹션 컴포넌트 (memo로 최적화)
+const AccordionSection = memo<{
   title: string;
   icon: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
   children: React.ReactNode;
-}> = ({ title, icon, isOpen, onToggle, children }) => (
+}>(({ title, icon, isOpen, onToggle, children }) => (
   <div className="border-t border-gray-700">
     <button
       onClick={onToggle}
@@ -102,7 +102,7 @@ const AccordionSection: React.FC<{
     </button>
     {isOpen && <div className="pb-4 space-y-4">{children}</div>}
   </div>
-);
+));
 
 // 레이아웃 정보 데이터
 const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; group: 'basic' | 'advanced' }[] = [
@@ -123,11 +123,11 @@ const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; gr
   { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
 ];
 
-// 레이아웃 선택 컴포넌트
-const LayoutSelector: React.FC<{
+// 레이아웃 선택 컴포넌트 (memo로 최적화)
+const LayoutSelector = memo<{
   currentLayout: LayoutType;
   onSelect: (layout: LayoutType) => void;
-}> = ({ currentLayout, onSelect }) => {
+}>(({ currentLayout, onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -246,7 +246,7 @@ const LayoutSelector: React.FC<{
       </div>
     </div>
   );
-};
+});
 
 // 폰트 카테고리 정보
 const FONT_CATEGORIES: { id: string; label: string }[] = [
@@ -261,11 +261,11 @@ const FONT_CATEGORIES: { id: string; label: string }[] = [
   { id: 'monospace', label: '모노스페이스' },
 ];
 
-// 폰트 선택 컴포넌트 (미리보기 지원)
-const FontSelector: React.FC<{
+// 폰트 선택 컴포넌트 (미리보기 지원, memo로 최적화)
+const FontSelector = memo<{
   currentFont: string;
   onSelect: (font: string) => void;
-}> = ({ currentFont, onSelect }) => {
+}>(({ currentFont, onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -378,22 +378,22 @@ const FontSelector: React.FC<{
       </div>
     </div>
   );
-};
+});
 
-// 범용 스타일 드롭다운 컴포넌트
+// 범용 스타일 드롭다운 컴포넌트 (memo로 최적화)
 interface DropdownOption {
   name: string;
   value: string;
   description?: string;
 }
 
-const StyledDropdown: React.FC<{
+const StyledDropdown = memo<{
   options: readonly DropdownOption[] | DropdownOption[];
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   size?: 'sm' | 'md';
-}> = ({ options, value, onChange, placeholder = '선택', size = 'md' }) => {
+}>(({ options, value, onChange, placeholder = '선택', size = 'md' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -508,7 +508,7 @@ const StyledDropdown: React.FC<{
       </div>
     </div>
   );
-};
+});
 
 // Range input에서 부모의 드래그 이벤트가 시작되는 것을 방지
 // 슬라이더 조작 시 부모 요소가 드래그되는 것을 방지하기 위해 모든 관련 이벤트를 중단

@@ -1,7 +1,7 @@
 import { Section, LayoutType } from '../types';
 import { GOOGLE_FONTS_URL } from '../data/constants';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+// html2canvas, jsPDF는 동적 import로 번들 크기 최적화 (bundle-dynamic-imports)
+// 사용 시점에만 로드됨
 
 // 이미지 URL을 Base64로 변환 (blob, http, https 모두 지원)
 const imageToBase64 = async (imageUrl: string): Promise<string> => {
@@ -1017,13 +1017,21 @@ const getHtml2CanvasOptions = (backgroundColor: string | null = '#000000') => ({
   }
 });
 
-// PDF로 내보내기
+// PDF로 내보내기 (동적 import로 번들 최적화)
 export const exportToPDF = async (
   element: HTMLElement,
   filename: string = 'storyflow-page.pdf',
   onProgress?: (progress: number) => void
 ): Promise<void> => {
   try {
+    onProgress?.(5);
+
+    // html2canvas와 jsPDF를 동적으로 로드 (bundle-dynamic-imports)
+    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf')
+    ]);
+
     onProgress?.(10);
 
     // html2canvas로 요소를 캡처 (oklch 색상 제거 포함)
@@ -1069,7 +1077,7 @@ export const exportToPDF = async (
   }
 };
 
-// 전체 페이지를 이미지로 내보내기
+// 전체 페이지를 이미지로 내보내기 (동적 import로 번들 최적화)
 export const exportToImage = async (
   element: HTMLElement,
   filename: string = 'storyflow-page.png',
@@ -1077,6 +1085,11 @@ export const exportToImage = async (
   onProgress?: (progress: number) => void
 ): Promise<void> => {
   try {
+    onProgress?.(10);
+
+    // html2canvas를 동적으로 로드 (bundle-dynamic-imports)
+    const { default: html2canvas } = await import('html2canvas');
+
     onProgress?.(20);
 
     // html2canvas로 요소를 캡처 (oklch 색상 제거 포함)
@@ -1107,7 +1120,7 @@ export const exportToImage = async (
   }
 };
 
-// 각 섹션을 개별 이미지로 내보내기
+// 각 섹션을 개별 이미지로 내보내기 (동적 import로 번들 최적화)
 export const exportSectionsAsImages = async (
   sectionElements: HTMLElement[],
   baseFilename: string = 'section',
@@ -1115,6 +1128,9 @@ export const exportSectionsAsImages = async (
   onProgress?: (progress: number, sectionIndex: number) => void
 ): Promise<void> => {
   try {
+    // html2canvas를 동적으로 로드 (bundle-dynamic-imports)
+    const { default: html2canvas } = await import('html2canvas');
+
     for (let i = 0; i < sectionElements.length; i++) {
       const element = sectionElements[i];
 
@@ -1156,13 +1172,16 @@ export const exportSectionsAsImages = async (
   }
 };
 
-// 썸네일 이미지 생성 (미리보기용)
+// 썸네일 이미지 생성 (미리보기용, 동적 import로 번들 최적화)
 export const generateThumbnail = async (
   element: HTMLElement,
   maxWidth: number = 400,
   maxHeight: number = 300
 ): Promise<string> => {
   try {
+    // html2canvas를 동적으로 로드 (bundle-dynamic-imports)
+    const { default: html2canvas } = await import('html2canvas');
+
     const canvas = await html2canvas(element, {
       scale: 1,
       useCORS: true,

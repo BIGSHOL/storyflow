@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense, useMemo, startTransition } from 'react';
 import { Section } from './types';
 import Editor from './components/Editor';
 import PreviewRender from './components/PreviewRender';
@@ -196,19 +196,22 @@ function App() {
     }
   }, [currentProject]);
 
+  // 정렬된 프로젝트 목록 (useMemo로 캐싱)
+  const sortedProjects = useMemo(() =>
+    [...projects].sort((a, b) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    ), [projects]);
+
   // 로그인 후 가장 최근 프로젝트 자동 로드
   useEffect(() => {
-    if (isAuthenticated && !authLoading && projects.length > 0 && !currentProject) {
+    if (isAuthenticated && !authLoading && sortedProjects.length > 0 && !currentProject) {
       // 가장 최근에 업데이트된 프로젝트 로드 (이미 fetch된 데이터 사용)
-      const sortedProjects = [...projects].sort((a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
       const latestProject = sortedProjects[0];
       if (latestProject) {
         setCurrentProject(latestProject);
       }
     }
-  }, [isAuthenticated, authLoading, projects, currentProject, setCurrentProject]);
+  }, [isAuthenticated, authLoading, sortedProjects, currentProject, setCurrentProject]);
 
   // 로그인 후 익명 localStorage 데이터 마이그레이션 확인
   useEffect(() => {
@@ -244,12 +247,14 @@ function App() {
     setCanRedo(false);
   }, []);
 
-  // 섹션 변경 래퍼
+  // 섹션 변경 래퍼 (startTransition으로 비긴급 업데이트 처리)
   const handleSetSections: React.Dispatch<React.SetStateAction<Section[]>> = useCallback((action) => {
-    setSections(prev => {
-      const newSections = typeof action === 'function' ? action(prev) : action;
-      pushHistory(newSections);
-      return newSections;
+    startTransition(() => {
+      setSections(prev => {
+        const newSections = typeof action === 'function' ? action(prev) : action;
+        pushHistory(newSections);
+        return newSections;
+      });
     });
   }, [pushHistory]);
 

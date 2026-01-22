@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { memo, useState, useEffect, useRef, lazy, Suspense, useCallback, useMemo } from 'react';
 import { Section, LayoutType } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
@@ -39,20 +39,20 @@ const suspenseFallback = (
 const currentYear = new Date().getFullYear();
 
 const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewMode = false }) => {
-  // 스크롤 핸들러 - 첫 번째 섹션의 화살표 버튼 클릭 시
-  const handleScrollDown = () => {
+  // 스크롤 핸들러 - 첫 번째 섹션의 화살표 버튼 클릭 시 (useCallback으로 메모이제이션)
+  const handleScrollDown = useCallback(() => {
     const secondSection = document.querySelector('.section-preview:nth-child(2)');
     if (secondSection) {
       secondSection.scrollIntoView({ behavior: 'smooth' });
     } else {
       window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
     }
-  };
+  }, []);
 
-  // isPreviewMode일 때는 페이지 스크롤 사용, 에디터에서는 컨테이너 스크롤 사용
-  const containerClasses = isPreviewMode
+  // isPreviewMode일 때는 페이지 스크롤 사용, 에디터에서는 컨테이너 스크롤 사용 (useMemo로 캐싱)
+  const containerClasses = useMemo(() => isPreviewMode
     ? 'w-full min-h-screen bg-black text-white'
-    : 'w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white';
+    : 'w-full h-full overflow-y-auto overflow-x-hidden bg-black text-white', [isPreviewMode]);
 
   return (
     <div className={containerClasses} data-preview-container>
@@ -82,8 +82,11 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  const mediaRatio = section.splitRatio ? section.splitRatio : 50;
-  const textRatio = 100 - mediaRatio;
+  // 미디어 비율 계산 (useMemo로 캐싱)
+  const { mediaRatio, textRatio } = useMemo(() => ({
+    mediaRatio: section.splitRatio ?? 50,
+    textRatio: 100 - (section.splitRatio ?? 50)
+  }), [section.splitRatio]);
 
   // Intersection Observer for scroll animations
   useEffect(() => {
@@ -103,12 +106,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     return () => observer.disconnect();
   }, []);
 
-  const handleMediaError = () => {
+  // 미디어 에러 핸들러 (useCallback으로 메모이제이션)
+  const handleMediaError = useCallback(() => {
     setMediaError(true);
-  };
+  }, []);
 
-  // Image filter CSS
-  const getImageFilterStyle = (): React.CSSProperties => {
+  // Image filter CSS (useMemo로 캐싱)
+  const imageFilterStyle = useMemo((): React.CSSProperties => {
     const filters: string[] = [];
     const style: React.CSSProperties = {};
 
@@ -159,10 +163,10 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     }
 
     return style;
-  };
+  }, [section.imageFilter, section.imageFilterIntensity, section.imageBrightness, section.imageContrast, section.imageRotation]);
 
-  // Gradient overlay CSS
-  const getGradientOverlayStyle = () => {
+  // Gradient overlay CSS (useMemo로 캐싱)
+  const gradientOverlayStyle = useMemo(() => {
     if (!section.gradientOverlay?.enabled) return {};
 
     const { startColor, endColor, direction, opacity } = section.gradientOverlay;
@@ -179,10 +183,10 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       background: `linear-gradient(${directionMap[direction] || 'to bottom'}, ${startColor}, ${endColor})`,
       opacity: opacity || 0.5,
     };
-  };
+  }, [section.gradientOverlay]);
 
-  // Animation CSS
-  const getAnimationStyle = () => {
+  // Animation CSS (useMemo로 캐싱 - isVisible 의존)
+  const animationStyle = useMemo(() => {
     // 애니메이션이 없거나 'none'이면 항상 보이도록 opacity: 1
     if (!section.animation || section.animation === 'none') {
       return { opacity: 1 };
@@ -209,20 +213,20 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       animation: `${animationMap[section.animation]} ${duration}s ease-out ${delay}s forwards`,
       opacity: 0,
     };
-  };
+  }, [section.animation, section.animationDuration, section.animationDelay, isVisible]);
 
-  // Text shadow CSS
-  const getTextShadowStyle = () => {
+  // Text shadow CSS (useMemo로 캐싱)
+  const textShadowStyle = useMemo(() => {
     if (!section.textShadow?.enabled) return {};
 
     const { color, blur, offsetX, offsetY } = section.textShadow;
     return {
       textShadow: `${offsetX || 2}px ${offsetY || 2}px ${blur || 4}px ${color || '#000000'}`,
     };
-  };
+  }, [section.textShadow]);
 
-  // Text position classes
-  const getPositionClasses = () => {
+  // Text position classes (useMemo로 캐싱)
+  const positionClasses = useMemo(() => {
     const vPos = section.textVerticalPosition || 'center';
     const hPos = section.textHorizontalPosition || 'center';
 
@@ -239,7 +243,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
     };
 
     return `${verticalMap[vPos]} ${horizontalMap[hPos]}`;
-  };
+  }, [section.textVerticalPosition, section.textHorizontalPosition]);
 
   // CTA Button component
   const CTAButtonComponent = () => {
@@ -297,7 +301,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
         <video
           src={section.mediaUrl}
           className="w-full h-full object-cover"
-          style={getImageFilterStyle()}
+          style={imageFilterStyle}
           autoPlay
           muted
           loop
@@ -311,56 +315,53 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
         src={section.mediaUrl}
         alt={section.imageAlt || section.title || '섹션 이미지'}
         className="w-full h-full object-cover"
-        style={getImageFilterStyle()}
+        style={imageFilterStyle}
         loading="lazy"
         onError={handleMediaError}
       />
     );
   };
 
-  // Common styles
-  const containerStyle: React.CSSProperties = {
+  // Common styles (useMemo로 캐싱)
+  const containerStyle = useMemo((): React.CSSProperties => ({
     backgroundColor: section.backgroundColor || '#000000',
     color: section.textColor || '#ffffff',
     fontFamily: section.fontFamily || 'system-ui, -apple-system, sans-serif',
     minHeight: section.sectionHeight || '100vh',
     height: section.sectionHeight === 'auto' ? 'auto' : section.sectionHeight,
-  };
+  }), [section.backgroundColor, section.textColor, section.fontFamily, section.sectionHeight]);
 
-  const textStyle: React.CSSProperties = {
-    ...getTextShadowStyle(),
-  };
-
-  const titleStyle: React.CSSProperties = {
+  const titleStyle = useMemo((): React.CSSProperties => ({
     fontSize: `${section.titleFontSize || 48}px`,
-    ...textStyle,
-  };
+    ...textShadowStyle,
+  }), [section.titleFontSize, textShadowStyle]);
 
-  const descStyle: React.CSSProperties = {
+  const descStyle = useMemo((): React.CSSProperties => ({
     fontSize: `${section.descriptionFontSize || 18}px`,
-    ...textStyle,
-  };
+    ...textShadowStyle,
+  }), [section.descriptionFontSize, textShadowStyle]);
 
-  const paddingStyle: React.CSSProperties = {
+  const paddingStyle = useMemo((): React.CSSProperties => ({
     paddingLeft: `${section.paddingX || 24}px`,
     paddingRight: `${section.paddingX || 24}px`,
     paddingTop: `${section.paddingY || 24}px`,
     paddingBottom: `${section.paddingY || 24}px`,
-  };
+  }), [section.paddingX, section.paddingY]);
 
-  const splitMediaStyle = {
+  const splitMediaStyle = useMemo(() => ({
     width: `${mediaRatio}%`,
-  };
-  const splitTextStyle = {
+  }), [mediaRatio]);
+
+  const splitTextStyle = useMemo(() => ({
     width: `${textRatio}%`,
-  };
+  }), [textRatio]);
 
   switch (section.layout) {
     case LayoutType.HERO:
       return (
         <section
           ref={sectionRef}
-          className={`section-preview relative w-full flex flex-col overflow-hidden ${getPositionClasses()}`}
+          className={`section-preview relative w-full flex flex-col overflow-hidden ${positionClasses}`}
           style={containerStyle}
         >
           <div className="absolute inset-0 z-0">
@@ -373,11 +374,11 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           />
           {/* Gradient Overlay */}
           {section.gradientOverlay?.enabled && (
-            <div className="absolute inset-0 z-[2] pointer-events-none" style={getGradientOverlayStyle()} />
+            <div className="absolute inset-0 z-[2] pointer-events-none" style={gradientOverlayStyle} />
           )}
           <div
-            className={`relative z-10 w-full max-w-5xl mx-auto flex flex-col ${getPositionClasses()}`}
-            style={{ ...paddingStyle, ...getAnimationStyle() }}
+            className={`relative z-10 w-full max-w-5xl mx-auto flex flex-col ${positionClasses}`}
+            style={{ ...paddingStyle, ...animationStyle }}
           >
             <h1 className="font-serif font-bold mb-6 tracking-tight leading-tight" style={titleStyle}>{section.title}</h1>
             <p className="font-light opacity-90 leading-relaxed max-w-2xl" style={descStyle}>{section.description}</p>
@@ -405,13 +406,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           <div className="hidden md:block h-screen sticky top-0" style={splitMediaStyle}>
             {renderMedia()}
             {section.gradientOverlay?.enabled && (
-              <div className="absolute inset-0" style={getGradientOverlayStyle()} />
+              <div className="absolute inset-0" style={gradientOverlayStyle} />
             )}
           </div>
 
           <div
-            className={`w-full flex flex-col ${getPositionClasses()}`}
-            style={{ ...splitTextStyle, ...paddingStyle, minHeight: '50vh', ...getAnimationStyle() }}
+            className={`w-full flex flex-col ${positionClasses}`}
+            style={{ ...splitTextStyle, ...paddingStyle, minHeight: '50vh', ...animationStyle }}
           >
              <div className="max-w-xl">
               <h2 className="font-serif mb-6 leading-tight" style={titleStyle}>{section.title}</h2>
@@ -431,13 +432,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           <div className="hidden md:block h-screen sticky top-0" style={splitMediaStyle}>
             {renderMedia()}
             {section.gradientOverlay?.enabled && (
-              <div className="absolute inset-0" style={getGradientOverlayStyle()} />
+              <div className="absolute inset-0" style={gradientOverlayStyle} />
             )}
           </div>
 
           <div
-            className={`w-full flex flex-col ${getPositionClasses()}`}
-            style={{ ...splitTextStyle, ...paddingStyle, minHeight: '50vh', ...getAnimationStyle() }}
+            className={`w-full flex flex-col ${positionClasses}`}
+            style={{ ...splitTextStyle, ...paddingStyle, minHeight: '50vh', ...animationStyle }}
           >
             <div className="max-w-xl">
               <h2 className="font-serif mb-6 leading-tight" style={titleStyle}>{section.title}</h2>
@@ -452,7 +453,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <section
           ref={sectionRef}
-          className={`section-preview relative w-full flex flex-col overflow-hidden ${getPositionClasses()}`}
+          className={`section-preview relative w-full flex flex-col overflow-hidden ${positionClasses}`}
           style={containerStyle}
         >
           <div className="absolute inset-0 z-0">
@@ -465,11 +466,11 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           />
           {/* Gradient Overlay */}
           {section.gradientOverlay?.enabled && (
-            <div className="absolute inset-0 z-[2] pointer-events-none" style={getGradientOverlayStyle()} />
+            <div className="absolute inset-0 z-[2] pointer-events-none" style={gradientOverlayStyle} />
           )}
           <div
-            className={`relative z-10 max-w-3xl flex flex-col ${getPositionClasses()}`}
-            style={{ ...paddingStyle, ...getAnimationStyle() }}
+            className={`relative z-10 max-w-3xl flex flex-col ${positionClasses}`}
+            style={{ ...paddingStyle, ...animationStyle }}
           >
             <h2 className="font-bold font-serif leading-tight mb-6" style={titleStyle}>{section.title}</h2>
             <div className={`w-20 h-1 mb-6 bg-current opacity-50 ${section.textHorizontalPosition === 'center' ? 'mx-auto' : section.textHorizontalPosition === 'right' ? 'ml-auto' : ''}`}></div>
@@ -544,15 +545,15 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <section
           ref={sectionRef}
-          className={`section-preview w-full flex flex-col ${getPositionClasses()}`}
+          className={`section-preview w-full flex flex-col ${positionClasses}`}
           style={containerStyle}
         >
           {section.gradientOverlay?.enabled && (
-            <div className="absolute inset-0" style={getGradientOverlayStyle()} />
+            <div className="absolute inset-0" style={gradientOverlayStyle} />
           )}
           <div
-            className={`w-full max-w-4xl mx-auto relative z-10 flex flex-col ${getPositionClasses()}`}
-            style={{ ...paddingStyle, ...getAnimationStyle() }}
+            className={`w-full max-w-4xl mx-auto relative z-10 flex flex-col ${positionClasses}`}
+            style={{ ...paddingStyle, ...animationStyle }}
           >
             <h2 className="font-serif leading-tight tracking-tight mb-10" style={titleStyle}>{section.title}</h2>
             <p className="opacity-70 leading-relaxed whitespace-pre-wrap" style={descStyle}>{section.description}</p>
