@@ -98,6 +98,7 @@ const AccordionSection: React.FC<{
 // Range input에서 부모의 드래그 이벤트가 시작되는 것을 방지
 const preventDragProps = {
   onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+  onPointerDown: (e: React.PointerEvent) => e.stopPropagation(),
   onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
   onDragStart: (e: React.DragEvent) => e.preventDefault(),
   draggable: false,
@@ -1468,6 +1469,7 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                                   ? 'bg-blue-600 text-white'
                                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                               }`}
+                              {...preventDragProps}
                             >
                               {degree}°
                             </button>
