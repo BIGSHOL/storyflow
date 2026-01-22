@@ -688,15 +688,25 @@ function App() {
   const handleDeleteProject = useCallback(async (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    const projectToDelete = projects.find(p => p.id === projectId);
-    if (!projectToDelete) return;
+    // DB 프로젝트 또는 현재 프로젝트에서 찾기
+    const projectToDelete = projects.find(p => p.id === projectId) ||
+      (currentProject?.id === projectId ? currentProject : null);
+
+    if (!projectToDelete) {
+      console.warn('삭제할 프로젝트를 찾을 수 없습니다:', projectId);
+      return;
+    }
 
     const confirmDelete = window.confirm(
       `"${projectToDelete.title}" 프로젝트를 삭제하시겠어요?\n\n이 작업은 되돌릴 수 없어요.`
     );
     if (!confirmDelete) return;
 
-    await removeProject(projectId);
+    // DB에 저장된 프로젝트만 서버에서 삭제
+    const isDbProject = projects.some(p => p.id === projectId);
+    if (isDbProject) {
+      await removeProject(projectId);
+    }
 
     // 현재 프로젝트가 삭제된 경우, 다른 프로젝트로 전환하거나 초기화
     if (currentProject?.id === projectId) {
@@ -913,16 +923,26 @@ function App() {
   const handleRenameProjectMobile = renameProjectById;
 
   // 프로젝트 삭제 핸들러 (모바일용)
-  const handleDeleteProjectMobile = useCallback((projectId: string) => {
-    const projectToDelete = projects.find(p => p.id === projectId);
-    if (!projectToDelete) return;
+  const handleDeleteProjectMobile = useCallback(async (projectId: string) => {
+    // DB 프로젝트 또는 현재 프로젝트에서 찾기
+    const projectToDelete = projects.find(p => p.id === projectId) ||
+      (currentProject?.id === projectId ? currentProject : null);
+
+    if (!projectToDelete) {
+      console.warn('삭제할 프로젝트를 찾을 수 없습니다:', projectId);
+      return;
+    }
 
     const confirmDelete = window.confirm(
       `"${projectToDelete.title}" 프로젝트를 삭제하시겠어요?\n\n이 작업은 되돌릴 수 없어요.`
     );
     if (!confirmDelete) return;
 
-    removeProject(projectId);
+    // DB에 저장된 프로젝트만 서버에서 삭제
+    const isDbProject = projects.some(p => p.id === projectId);
+    if (isDbProject) {
+      await removeProject(projectId);
+    }
 
     if (currentProject?.id === projectId) {
       const remainingProjects = projects.filter(p => p.id !== projectId);
