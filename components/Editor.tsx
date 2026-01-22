@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -35,6 +35,11 @@ import Link from 'lucide-react/dist/esm/icons/link';
 import Upload from 'lucide-react/dist/esm/icons/upload';
 import Search from 'lucide-react/dist/esm/icons/search';
 import { TEMPLATES, applyTemplate, Template, TEMPLATE_CATEGORIES, TemplateCategoryId } from '../data/templates';
+import { MarketplaceTemplate, exportAsTemplate, downloadTemplateAsJson, loadTemplateFromJson, applyMarketplaceTemplate, getAllCommunityTemplates, registerToCommunity, getMyTemplates, removeFromMyTemplates, isRegisteredToCommunity, searchAllCommunityTemplates } from '../services/marketplaceService';
+import Download from 'lucide-react/dist/esm/icons/download';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import Store from 'lucide-react/dist/esm/icons/store';
+import User from 'lucide-react/dist/esm/icons/user';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
@@ -56,6 +61,7 @@ const getLayoutName = (layout: LayoutType): string => {
     [LayoutType.STATS]: '통계',
     [LayoutType.VIDEO_HERO]: '비디오 배경',
     [LayoutType.CAROUSEL]: '이미지 슬라이더',
+    [LayoutType.MASONRY]: 'Masonry',
   };
   return layoutNames[layout] || layout;
 };
@@ -108,6 +114,7 @@ const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; gr
   { value: LayoutType.SIMPLE_TEXT, name: '중앙 텍스트', description: '텍스트만', group: 'basic' },
   // 신규 레이아웃
   { value: LayoutType.GALLERY, name: '갤러리', description: '이미지 그리드', group: 'advanced' },
+  { value: LayoutType.MASONRY, name: 'Masonry', description: 'Pinterest 스타일', group: 'advanced' },
   { value: LayoutType.TIMELINE, name: '타임라인', description: '시간순 스토리', group: 'advanced' },
   { value: LayoutType.CARDS, name: '카드', description: '카드형 나열', group: 'advanced' },
   { value: LayoutType.QUOTE, name: '인용문', description: '인용문 강조', group: 'advanced' },
@@ -554,6 +561,15 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
   const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   const [guestWarning, setGuestWarning] = useState<string | null>(null);
 
+  // 마켓플레이스 상태
+  const [marketplaceTab, setMarketplaceTab] = useState<'templates' | 'community' | 'myTemplates' | 'export'>('templates');
+  const [myTemplates, setMyTemplates] = useState<MarketplaceTemplate[]>([]);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportTemplateName, setExportTemplateName] = useState('');
+  const [exportTemplateDesc, setExportTemplateDesc] = useState('');
+  const [exportTemplateCategory, setExportTemplateCategory] = useState<TemplateCategoryId>('personal');
+  const [exportTemplateTags, setExportTemplateTags] = useState('');
+
   // URL 입력 모드 상태
   const [urlInputMode, setUrlInputMode] = useState<Record<string, boolean>>({});
   const [urlInputValue, setUrlInputValue] = useState<Record<string, string>>({});
@@ -632,6 +648,119 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     setShowTemplates(false);
     setActiveSectionId(newSections[0]?.id || null);
   }, [setSections]);
+
+  // 커뮤니티 템플릿 적용
+  const handleApplyMarketplaceTemplate = useCallback((template: MarketplaceTemplate) => {
+    sectionsRef.current.forEach(s => {
+      if (s.mediaUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(s.mediaUrl);
+      }
+    });
+
+    const newSections = applyMarketplaceTemplate(template);
+    setSections(newSections);
+    setShowTemplates(false);
+    setMarketplaceTab('templates');
+    setActiveSectionId(newSections[0]?.id || null);
+  }, [setSections]);
+
+  // 현재 디자인을 템플릿으로 내보내기
+  const handleExportTemplate = useCallback(() => {
+    if (!exportTemplateName.trim()) {
+      alert('템플릿 이름을 입력해주세요.');
+      return;
+    }
+    if (sections.length === 0) {
+      alert('내보낼 섹션이 없습니다.');
+      return;
+    }
+
+    const template = exportAsTemplate(sections, {
+      name: exportTemplateName.trim(),
+      description: exportTemplateDesc.trim(),
+      category: exportTemplateCategory,
+      author: '나',
+      tags: exportTemplateTags.split(',').map(t => t.trim()).filter(Boolean),
+    });
+
+    downloadTemplateAsJson(template);
+
+    // 상태 초기화
+    setShowExportModal(false);
+    setExportTemplateName('');
+    setExportTemplateDesc('');
+    setExportTemplateCategory('personal');
+    setExportTemplateTags('');
+  }, [sections, exportTemplateName, exportTemplateDesc, exportTemplateCategory, exportTemplateTags]);
+
+  // 템플릿 파일 불러오기
+  const handleImportTemplate = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const template = await loadTemplateFromJson(file);
+      handleApplyMarketplaceTemplate(template);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '템플릿을 불러올 수 없습니다.');
+    }
+
+    // input 초기화
+    e.target.value = '';
+  }, [handleApplyMarketplaceTemplate]);
+
+  // 내 템플릿 목록 새로고침
+  const refreshMyTemplates = useCallback(() => {
+    setMyTemplates(getMyTemplates());
+  }, []);
+
+  // 템플릿 패널 열릴 때 내 템플릿 로드
+  useEffect(() => {
+    if (showTemplates) {
+      refreshMyTemplates();
+    }
+  }, [showTemplates, refreshMyTemplates]);
+
+  // 커뮤니티에 템플릿 등록
+  const handleRegisterToCommunity = useCallback(() => {
+    if (!exportTemplateName.trim()) {
+      alert('템플릿 이름을 입력해주세요.');
+      return;
+    }
+    if (sections.length === 0) {
+      alert('등록할 섹션이 없습니다.');
+      return;
+    }
+
+    const template = exportAsTemplate(sections, {
+      name: exportTemplateName.trim(),
+      description: exportTemplateDesc.trim(),
+      category: exportTemplateCategory,
+      author: '나',
+      tags: exportTemplateTags.split(',').map(t => t.trim()).filter(Boolean),
+    });
+
+    const success = registerToCommunity(template);
+    if (success) {
+      alert('커뮤니티에 등록되었습니다!');
+      // 상태 초기화
+      setExportTemplateName('');
+      setExportTemplateDesc('');
+      setExportTemplateCategory('personal');
+      setExportTemplateTags('');
+      refreshMyTemplates();
+    } else {
+      alert('같은 이름의 템플릿이 이미 존재합니다.');
+    }
+  }, [sections, exportTemplateName, exportTemplateDesc, exportTemplateCategory, exportTemplateTags, refreshMyTemplates]);
+
+  // 내 템플릿 삭제
+  const handleDeleteMyTemplate = useCallback((templateId: string) => {
+    if (confirm('이 템플릿을 삭제하시겠습니까? 커뮤니티에 등록된 경우 함께 삭제됩니다.')) {
+      removeFromMyTemplates(templateId);
+      refreshMyTemplates();
+    }
+  }, [refreshMyTemplates]);
 
   const updateSection = useCallback((id: string, updates: Partial<Section>) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
@@ -1251,6 +1380,87 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     }
   }, [sections, updateCarouselImage, showGuestWarning]);
 
+  // Masonry 이미지 추가
+  const addMasonryImage = useCallback((sectionId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.masonryImages || [];
+    const newImage: MasonryImage = {
+      id: Math.random().toString(36).substr(2, 9),
+      url: '',
+      caption: '',
+      link: '',
+      aspectRatio: 'auto',
+    };
+    updateSection(sectionId, { masonryImages: [...currentImages, newImage] });
+  }, [updateSection]);
+
+  // Masonry 이미지 업데이트
+  const updateMasonryImage = useCallback((sectionId: string, imageId: string, updates: Partial<MasonryImage>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.masonryImages || [];
+    const updatedImages = currentImages.map(img =>
+      img.id === imageId ? { ...img, ...updates } : img
+    );
+    updateSection(sectionId, { masonryImages: updatedImages });
+  }, [updateSection]);
+
+  // Masonry 이미지 삭제
+  const removeMasonryImage = useCallback((sectionId: string, imageId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentImages = section?.masonryImages || [];
+    const image = currentImages.find(img => img.id === imageId);
+    if (image?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(image.url);
+    }
+    updateSection(sectionId, { masonryImages: currentImages.filter(img => img.id !== imageId) });
+  }, [updateSection]);
+
+  // Masonry 설정 업데이트
+  const updateMasonrySettings = useCallback((sectionId: string, updates: Partial<MasonrySettings>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentSettings = section?.masonrySettings || {
+      columns: 3 as const,
+      gap: 16,
+      showCaptions: true,
+      hoverEffect: true,
+      rounded: true
+    };
+    updateSection(sectionId, { masonrySettings: { ...currentSettings, ...updates } });
+  }, [updateSection]);
+
+  // Masonry 이미지 파일 업로드
+  const handleMasonryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const image = section?.masonryImages?.find(img => img.id === imageId);
+    if (image?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(image.url);
+    }
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data, error } = await uploadMedia(file);
+        if (!error && data?.public_url) {
+          updateMasonryImage(sectionId, imageId, { url: data.public_url });
+          return;
+        }
+      }
+
+      // 비로그인 시 blob URL 사용 + 경고 표시
+      const url = URL.createObjectURL(file);
+      updateMasonryImage(sectionId, imageId, { url });
+      showGuestWarning('로그인하지 않으면 공유 링크에서 미디어가 표시되지 않아요.');
+    } catch (error) {
+      console.error('Masonry 이미지 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateMasonryImage(sectionId, imageId, { url });
+    }
+  }, [sections, updateMasonryImage, showGuestWarning]);
+
   // Gallery 이미지 파일 업로드
   const handleGalleryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
     const file = e.target.files?.[0];
@@ -1402,110 +1612,357 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           {/* 헤더 */}
           <div className="p-4 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
             <div>
-              <h3 className="font-bold text-white">템플릿 선택</h3>
-              <p className="text-xs text-gray-400 mt-1">원하는 스타일로 빠르게 시작하세요</p>
+              <h3 className="font-bold text-white">템플릿 & 마켓플레이스</h3>
+              <p className="text-xs text-gray-400 mt-1">템플릿을 선택하거나 공유하세요</p>
             </div>
             <button
-              onClick={() => setShowTemplates(false)}
+              onClick={() => { setShowTemplates(false); setMarketplaceTab('templates'); }}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
             >
               <X size={20} />
             </button>
           </div>
 
-          {/* 검색 입력 */}
-          <div className="px-4 py-3 border-b border-gray-700 flex-shrink-0">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={templateSearchQuery}
-                onChange={(e) => setTemplateSearchQuery(e.target.value)}
-                placeholder="템플릿 검색..."
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
-              />
-              {templateSearchQuery && (
-                <button
-                  onClick={() => setTemplateSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* 카테고리 탭 */}
-          <div className="flex flex-wrap gap-2 p-3 border-b border-gray-700 flex-shrink-0">
+          {/* 상단 탭 */}
+          <div className="flex border-b border-gray-700 flex-shrink-0">
             <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              onClick={() => setMarketplaceTab('templates')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${marketplaceTab === 'templates'
+                ? 'text-white border-b-2 border-indigo-500'
+                : 'text-gray-400 hover:text-white'
                 }`}
             >
-              전체 ({TEMPLATES.length})
+              <Sparkles size={12} className="inline mr-1" />
+              기본
             </button>
-            {TEMPLATE_CATEGORIES.map(category => (
+            <button
+              onClick={() => setMarketplaceTab('community')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${marketplaceTab === 'community'
+                ? 'text-white border-b-2 border-indigo-500'
+                : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <Store size={12} className="inline mr-1" />
+              커뮤니티
+            </button>
+            <button
+              onClick={() => setMarketplaceTab('myTemplates')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${marketplaceTab === 'myTemplates'
+                ? 'text-white border-b-2 border-indigo-500'
+                : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <User size={12} className="inline mr-1" />
+              내 템플릿
+            </button>
+            <button
+              onClick={() => setMarketplaceTab('export')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors ${marketplaceTab === 'export'
+                ? 'text-white border-b-2 border-indigo-500'
+                : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <Share2 size={12} className="inline mr-1" />
+              등록
+            </button>
+          </div>
+
+          {/* 검색 입력 (템플릿/커뮤니티 탭에서만) */}
+          {(marketplaceTab === 'templates' || marketplaceTab === 'community') && (
+            <div className="px-4 py-3 border-b border-gray-700 flex-shrink-0">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={templateSearchQuery}
+                  onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                  placeholder="템플릿 검색..."
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
+                />
+                {templateSearchQuery && (
+                  <button
+                    onClick={() => setTemplateSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 카테고리 탭 (템플릿/커뮤니티 탭에서만) */}
+          {(marketplaceTab === 'templates' || marketplaceTab === 'community') && (
+            <div className="flex flex-wrap gap-2 p-3 border-b border-gray-700 flex-shrink-0">
               <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === category.id
+                onClick={() => setSelectedCategory('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all'
                   ? 'bg-indigo-600 text-white'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
               >
-                {category.name} ({TEMPLATES.filter(t => t.category === category.id).length})
+                전체 ({marketplaceTab === 'templates' ? TEMPLATES.length : getAllCommunityTemplates().length})
               </button>
-            ))}
-          </div>
+              {TEMPLATE_CATEGORIES.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === category.id
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                >
+                  {category.name} ({(marketplaceTab === 'templates' ? TEMPLATES : getAllCommunityTemplates()).filter(t => t.category === category.id).length})
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* 템플릿 목록 */}
+          {/* 콘텐츠 영역 */}
           <div className="flex-1 relative overflow-hidden">
             {/* 상단 페이드 그라데이션 */}
             <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10"></div>
 
             <div className="h-full overflow-y-auto p-4">
-              <div className="space-y-3">
-                {(() => {
-                  const searchLower = templateSearchQuery.toLowerCase();
-                  const filteredTemplates = TEMPLATES.filter(t => {
-                    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
-                    const matchesSearch = !templateSearchQuery ||
-                      t.name.toLowerCase().includes(searchLower) ||
-                      t.description.toLowerCase().includes(searchLower);
-                    return matchesCategory && matchesSearch;
-                  });
+              {/* 기본 템플릿 탭 */}
+              {marketplaceTab === 'templates' && (
+                <div className="space-y-3">
+                  {(() => {
+                    const searchLower = templateSearchQuery.toLowerCase();
+                    const filteredTemplates = TEMPLATES.filter(t => {
+                      const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+                      const matchesSearch = !templateSearchQuery ||
+                        t.name.toLowerCase().includes(searchLower) ||
+                        t.description.toLowerCase().includes(searchLower);
+                      return matchesCategory && matchesSearch;
+                    });
 
-                  if (filteredTemplates.length === 0) {
-                    return (
-                      <div className="text-center py-8 text-gray-500">
-                        <Search size={32} className="mx-auto mb-3 opacity-50" />
-                        <p className="text-sm">검색 결과가 없습니다</p>
-                        <p className="text-xs mt-1">다른 검색어를 입력해보세요</p>
-                      </div>
-                    );
-                  }
-
-                  return filteredTemplates.map(template => (
-                    <button
-                      key={template.id}
-                      onClick={() => handleApplyTemplate(template)}
-                      className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="font-medium text-white">{template.name}</p>
-                          <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+                    if (filteredTemplates.length === 0) {
+                      return (
+                        <div className="text-center py-8 text-gray-500">
+                          <Search size={32} className="mx-auto mb-3 opacity-50" />
+                          <p className="text-sm">검색 결과가 없습니다</p>
+                          <p className="text-xs mt-1">다른 검색어를 입력해보세요</p>
                         </div>
-                        <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
-                          {template.sections.length}개 섹션
-                        </span>
+                      );
+                    }
+
+                    return filteredTemplates.map(template => (
+                      <button
+                        key={template.id}
+                        onClick={() => handleApplyTemplate(template)}
+                        className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-white">{template.name}</p>
+                            <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+                          </div>
+                          <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
+                            {template.sections.length}개 섹션
+                          </span>
+                        </div>
+                      </button>
+                    ));
+                  })()}
+                </div>
+              )}
+
+              {/* 커뮤니티 탭 */}
+              {marketplaceTab === 'community' && (
+                <div className="space-y-3">
+                  {(() => {
+                    const filteredTemplates = searchAllCommunityTemplates(templateSearchQuery, selectedCategory === 'all' ? undefined : selectedCategory);
+
+                    if (filteredTemplates.length === 0) {
+                      return (
+                        <div className="text-center py-8 text-gray-500">
+                          <Store size={32} className="mx-auto mb-3 opacity-50" />
+                          <p className="text-sm">커뮤니티 템플릿이 없습니다</p>
+                          <p className="text-xs mt-1">다른 카테고리를 선택해보세요</p>
+                        </div>
+                      );
+                    }
+
+                    return filteredTemplates.map(template => (
+                      <button
+                        key={template.id}
+                        onClick={() => handleApplyMarketplaceTemplate(template)}
+                        className="w-full p-4 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-indigo-500"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-white">{template.name}</p>
+                            <p className="text-xs text-gray-400 mt-1">{template.description}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-xs text-gray-500">by {template.author}</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-500">{template.downloads.toLocaleString()} 다운로드</span>
+                            </div>
+                            {template.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {template.tags.slice(0, 3).map(tag => (
+                                  <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded ml-3 flex-shrink-0">
+                            {template.sections.length}개 섹션
+                          </span>
+                        </div>
+                      </button>
+                    ));
+                  })()}
+                </div>
+              )}
+
+              {/* 내 템플릿 탭 */}
+              {marketplaceTab === 'myTemplates' && (
+                <div className="space-y-3">
+                  {myTemplates.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <User size={32} className="mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">등록한 템플릿이 없습니다</p>
+                      <p className="text-xs mt-1">'등록' 탭에서 템플릿을 만들어보세요</p>
+                    </div>
+                  ) : (
+                    myTemplates.map(template => (
+                      <div
+                        key={template.id}
+                        className="p-4 bg-gray-800 rounded-lg border border-gray-700"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-white">{template.name}</p>
+                            <p className="text-xs text-gray-400 mt-1">{template.description || '설명 없음'}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className={`text-xs px-2 py-0.5 rounded ${isRegisteredToCommunity(template.id) ? 'bg-green-600/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                                {isRegisteredToCommunity(template.id) ? '커뮤니티 등록됨' : '비공개'}
+                              </span>
+                              <span className="text-xs text-gray-500">{template.sections.length}개 섹션</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-1 ml-3">
+                            <button
+                              onClick={() => handleApplyMarketplaceTemplate(template)}
+                              className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 rounded transition-colors"
+                            >
+                              적용
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMyTemplate(template.id)}
+                              className="px-3 py-1.5 text-xs bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded transition-colors"
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </button>
-                  ));
-                })()}
-              </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* 내보내기 탭 */}
+              {marketplaceTab === 'export' && (
+                <div className="space-y-6">
+                  {/* 템플릿으로 내보내기 */}
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                      <Download size={16} /> 템플릿으로 내보내기
+                    </h4>
+                    <p className="text-xs text-gray-400 mb-4">
+                      현재 디자인을 JSON 파일로 저장하여 다른 사람과 공유하세요.
+                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">템플릿 이름 *</label>
+                        <input
+                          type="text"
+                          value={exportTemplateName}
+                          onChange={(e) => setExportTemplateName(e.target.value)}
+                          placeholder="예: 미니멀 포트폴리오"
+                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">설명</label>
+                        <textarea
+                          value={exportTemplateDesc}
+                          onChange={(e) => setExportTemplateDesc(e.target.value)}
+                          placeholder="템플릿에 대한 간단한 설명"
+                          rows={2}
+                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm resize-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">카테고리</label>
+                        <select
+                          value={exportTemplateCategory}
+                          onChange={(e) => setExportTemplateCategory(e.target.value as TemplateCategoryId)}
+                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                        >
+                          {TEMPLATE_CATEGORIES.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">태그 (쉼표로 구분)</label>
+                        <input
+                          type="text"
+                          value={exportTemplateTags}
+                          onChange={(e) => setExportTemplateTags(e.target.value)}
+                          placeholder="예: 미니멀, 포트폴리오, 모던"
+                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleExportTemplate}
+                          disabled={sections.length === 0}
+                          className="flex-1 py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <Download size={14} className="inline mr-1.5" />
+                          JSON 저장
+                        </button>
+                        <button
+                          onClick={handleRegisterToCommunity}
+                          disabled={sections.length === 0}
+                          className="flex-1 py-2.5 bg-green-600 hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <Store size={14} className="inline mr-1.5" />
+                          커뮤니티 등록
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 템플릿 불러오기 */}
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                      <Upload size={16} /> 템플릿 불러오기
+                    </h4>
+                    <p className="text-xs text-gray-400 mb-4">
+                      .storyflow.json 파일을 선택하여 템플릿을 불러오세요.
+                    </p>
+                    <label className="block w-full py-8 border-2 border-dashed border-gray-600 rounded-lg text-center cursor-pointer hover:border-indigo-500 transition-colors">
+                      <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-400">파일을 선택하거나 드래그하세요</p>
+                      <p className="text-xs text-gray-500 mt-1">.storyflow.json</p>
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportTemplate}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 하단 페이드 그라데이션 */}
@@ -1515,7 +1972,11 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
           {/* 푸터 */}
           <div className="p-4 border-t border-gray-700 bg-gray-800/50 flex-shrink-0">
             <p className="text-xs text-gray-400 text-center">
-              템플릿을 선택하면 현재 내용이 대체됩니다
+              {marketplaceTab === 'export'
+                ? '이미지는 보안을 위해 포함되지 않습니다'
+                : marketplaceTab === 'myTemplates'
+                ? '내가 등록한 템플릿을 관리합니다'
+                : '템플릿을 선택하면 현재 내용이 대체됩니다'}
             </p>
           </div>
         </div>
@@ -2846,6 +3307,146 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     </AccordionSection>
                   )}
 
+                  {/* Masonry 레이아웃 편집 */}
+                  {section.layout === LayoutType.MASONRY && (
+                    <AccordionSection
+                      title="Masonry 설정"
+                      icon={<Grid size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'masonry')}
+                      onToggle={() => toggleAccordion(section.id, 'masonry')}
+                    >
+                      <div className="space-y-4">
+                        {/* 열 수 설정 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">열 수</label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {([2, 3, 4, 5] as const).map(cols => (
+                              <button
+                                key={cols}
+                                onClick={() => updateMasonrySettings(section.id, { columns: cols })}
+                                className={`py-2 rounded text-xs font-medium ${(section.masonrySettings?.columns || 3) === cols
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                  }`}
+                              >
+                                {cols}열
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 간격 설정 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>이미지 간격</span>
+                            <span className="text-white">{section.masonrySettings?.gap || 16}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="32"
+                            step="4"
+                            value={section.masonrySettings?.gap || 16}
+                            onChange={(e) => updateMasonrySettings(section.id, { gap: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+
+                        {/* 옵션 토글 */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">캡션 표시</label>
+                            <button
+                              onClick={() => updateMasonrySettings(section.id, { showCaptions: !(section.masonrySettings?.showCaptions ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.masonrySettings?.showCaptions ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.masonrySettings?.showCaptions ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">호버 효과</label>
+                            <button
+                              onClick={() => updateMasonrySettings(section.id, { hoverEffect: !(section.masonrySettings?.hoverEffect ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.masonrySettings?.hoverEffect ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.masonrySettings?.hoverEffect ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">둥근 모서리</label>
+                            <button
+                              onClick={() => updateMasonrySettings(section.id, { rounded: !(section.masonrySettings?.rounded ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.masonrySettings?.rounded ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.masonrySettings?.rounded ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 이미지 목록 */}
+                        <div className="space-y-2 pt-2 border-t border-gray-700">
+                          <label className="text-xs text-gray-400">이미지 ({section.masonryImages?.length || 0}개)</label>
+                          {(section.masonryImages || []).map((image, idx) => (
+                            <div key={image.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
+                                {image.url ? (
+                                  <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
+                                ) : (
+                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
+                                    <Plus size={16} className="text-gray-400" />
+                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleMasonryImageUpload(e, section.id, image.id)} />
+                                  </label>
+                                )}
+                                <div className="flex-1">
+                                  <input
+                                    type="text"
+                                    value={image.caption || ''}
+                                    onChange={(e) => updateMasonryImage(section.id, image.id, { caption: e.target.value })}
+                                    placeholder="캡션 (선택)"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                </div>
+                                <button onClick={() => removeMasonryImage(section.id, image.id)} className="p-1 text-gray-400 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <select
+                                  value={image.aspectRatio || 'auto'}
+                                  onChange={(e) => updateMasonryImage(section.id, image.id, { aspectRatio: e.target.value as 'square' | 'portrait' | 'landscape' | 'auto' })}
+                                  className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                >
+                                  <option value="auto">자동</option>
+                                  <option value="square">정사각형</option>
+                                  <option value="portrait">세로</option>
+                                  <option value="landscape">가로</option>
+                                </select>
+                                <Link size={12} className="text-gray-500" />
+                                <input
+                                  type="text"
+                                  value={image.link || ''}
+                                  onChange={(e) => updateMasonryImage(section.id, image.id, { link: e.target.value })}
+                                  placeholder="링크 URL (선택)"
+                                  className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addMasonryImage(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 이미지 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
                   {/* 미디어 업로드 (기존 레이아웃용) */}
                   {section.layout !== LayoutType.SIMPLE_TEXT &&
                     section.layout !== LayoutType.GALLERY &&
@@ -2853,7 +3454,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     section.layout !== LayoutType.CARDS &&
                     section.layout !== LayoutType.STATS &&
                     section.layout !== LayoutType.VIDEO_HERO &&
-                    section.layout !== LayoutType.CAROUSEL && (
+                    section.layout !== LayoutType.CAROUSEL &&
+                    section.layout !== LayoutType.MASONRY && (
                       <AccordionSection
                         title="미디어"
                         icon={<ImageIcon size={12} />}

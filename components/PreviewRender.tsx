@@ -12,6 +12,7 @@ const QuoteLayout = lazy(() => import('./layouts/QuoteLayout'));
 const StatsLayout = lazy(() => import('./layouts/StatsLayout'));
 const VideoHeroLayout = lazy(() => import('./layouts/VideoHeroLayout'));
 const CarouselLayout = lazy(() => import('./layouts/CarouselLayout'));
+const MasonryLayout = lazy(() => import('./layouts/MasonryLayout'));
 
 interface PreviewRenderProps {
   sections: Section[];
@@ -526,6 +527,13 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <Suspense fallback={suspenseFallback}>
           <CarouselLayout section={section} />
+        </Suspense>
+      );
+
+    case LayoutType.MASONRY:
+      return (
+        <Suspense fallback={suspenseFallback}>
+          <MasonryLayout section={section} />
         </Suspense>
       );
 

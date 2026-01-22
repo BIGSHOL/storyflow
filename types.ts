@@ -13,6 +13,7 @@ export enum LayoutType {
   STATS = 'stats',
   VIDEO_HERO = 'video_hero',
   CAROUSEL = 'carousel',
+  MASONRY = 'masonry',
 }
 
 export type TextAlignment = 'left' | 'center' | 'right';
@@ -138,6 +139,23 @@ export interface CarouselSettings {
   loop: boolean;
 }
 
+/** Masonry 레이아웃 - Pinterest 스타일 불규칙 그리드 */
+export interface MasonryImage {
+  id: string;
+  url: string;
+  caption?: string;
+  link?: string;
+  aspectRatio?: 'square' | 'portrait' | 'landscape' | 'auto';
+}
+
+export interface MasonrySettings {
+  columns: 2 | 3 | 4 | 5;
+  gap: number;
+  showCaptions: boolean;
+  hoverEffect: boolean;
+  rounded: boolean;
+}
+
 // ========== Section 인터페이스 ==========
 
 export interface Section {
@@ -217,6 +235,10 @@ export interface Section {
   // Carousel 레이아웃
   carouselImages?: CarouselImage[];
   carouselSettings?: CarouselSettings;
+
+  // Masonry 레이아웃
+  masonryImages?: MasonryImage[];
+  masonrySettings?: MasonrySettings;
 }
 
 export interface ProjectState {
