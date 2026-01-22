@@ -126,15 +126,22 @@ export const updateProject = async (
     }
     if (updates.is_public !== undefined) updateData.is_public = updates.is_public;
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('projects')
       .update(updateData as never)
-      .eq('id', id)
-      .select()
-      .single();
+      .eq('id', id);
 
     if (error) throw error;
-    return { data: data as Project, error: null };
+
+    // 업데이트된 프로젝트 다시 조회
+    const { data: updatedProject, error: fetchError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    return { data: updatedProject as Project, error: null };
   } catch (error) {
     console.error('프로젝트 업데이트 오류:', error);
     return { data: null, error: error as Error };

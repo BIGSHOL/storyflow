@@ -1066,6 +1066,55 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* 비로그인 경고 팝업 - 모바일 */}
+        {showLoginWarningModal && !isAuthenticated && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
+            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-5 max-w-sm w-full shadow-2xl">
+              <div className="text-center mb-5">
+                <div className="text-5xl mb-3">🚨</div>
+                <h2 className="text-xl font-bold text-white mb-1">잠깐!</h2>
+                <h3 className="text-base font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
+              </div>
+
+              <div className="bg-red-900/30 border border-red-700 rounded-xl p-3 mb-4">
+                <ul className="space-y-1.5 text-xs text-red-100">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400">✗</span>
+                    <span>브라우저를 닫으면 <strong>모든 작업 삭제</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400">✗</span>
+                    <span>새로고침해도 <strong>복구 불가</strong></span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-green-900/30 border border-green-700 rounded-xl p-3 mb-5">
+                <p className="text-xs text-green-100 font-medium mb-1">✨ 로그인하면</p>
+                <p className="text-xs text-green-200">클라우드 저장 + 어디서든 접근 가능</p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setShowLoginWarningModal(false);
+                    signIn();
+                  }}
+                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors"
+                >
+                  Google로 로그인
+                </button>
+                <button
+                  onClick={() => setShowLoginWarningModal(false)}
+                  className="w-full py-2 text-gray-400 hover:text-white text-xs transition-colors"
+                >
+                  나중에 할게요
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     );
   }
@@ -1413,6 +1462,58 @@ function App() {
               isOwner={currentProject.user_id === userId}
             />
           </Suspense>
+        )}
+
+        {/* 비로그인 경고 팝업 - 태블릿 */}
+        {showLoginWarningModal && !isAuthenticated && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
+            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-4">🚨</div>
+                <h2 className="text-2xl font-bold text-white mb-2">잠깐!</h2>
+                <h3 className="text-lg font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
+              </div>
+
+              <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-6">
+                <ul className="space-y-2 text-sm text-red-100">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">✗</span>
+                    <span>브라우저를 닫으면 <strong>모든 작업이 삭제</strong>됩니다</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">✗</span>
+                    <span>새로고침해도 <strong>복구할 수 없어요</strong></span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 mb-6">
+                <p className="text-sm text-green-100 font-medium mb-2">✨ 로그인하면</p>
+                <ul className="space-y-1 text-sm text-green-200">
+                  <li>• 클라우드에 안전하게 저장</li>
+                  <li>• 어디서든 작업 이어하기</li>
+                </ul>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowLoginWarningModal(false);
+                    signIn();
+                  }}
+                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors text-lg"
+                >
+                  Google로 로그인하기
+                </button>
+                <button
+                  onClick={() => setShowLoginWarningModal(false)}
+                  className="w-full py-2 text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  나중에 할게요
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     );
