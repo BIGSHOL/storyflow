@@ -15,6 +15,7 @@ export enum LayoutType {
   CAROUSEL = 'carousel',
   MASONRY = 'masonry',
   GUESTBOOK = 'guestbook',
+  AUDIO = 'audio',
 }
 
 export type TextAlignment = 'left' | 'center' | 'right';
@@ -176,6 +177,24 @@ export interface GuestbookSettings {
   columns: 1 | 2 | 3; // 컬럼 수
 }
 
+// Audio (오디오 플레이어)
+export interface AudioSettings {
+  autoPlay: boolean; // 자동 재생
+  loop: boolean; // 반복 재생
+  showPlaylist: boolean; // 플레이리스트 표시
+  playerStyle: 'minimal' | 'full' | 'waveform'; // 플레이어 스타일
+  volume: number; // 기본 볼륨 (0-100)
+}
+
+export interface AudioTrack {
+  id: string;
+  title: string;
+  artist?: string;
+  url: string;
+  duration?: string; // "3:45" 형식
+  coverImage?: string; // 앨범 커버
+}
+
 // ========== Section 인터페이스 ==========
 
 export interface Section {
@@ -263,6 +282,10 @@ export interface Section {
   // Guestbook 레이아웃
   guestbookEntries?: GuestbookEntry[];
   guestbookSettings?: GuestbookSettings;
+
+  // Audio 레이아웃
+  audioTracks?: AudioTrack[];
+  audioSettings?: AudioSettings;
 }
 
 export interface ProjectState {

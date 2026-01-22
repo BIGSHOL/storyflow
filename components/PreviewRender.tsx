@@ -14,6 +14,7 @@ const VideoHeroLayout = lazy(() => import('./layouts/VideoHeroLayout'));
 const CarouselLayout = lazy(() => import('./layouts/CarouselLayout'));
 const MasonryLayout = lazy(() => import('./layouts/MasonryLayout'));
 const GuestbookLayout = lazy(() => import('./layouts/GuestbookLayout'));
+const AudioLayout = lazy(() => import('./layouts/AudioLayout'));
 
 interface PreviewRenderProps {
   sections: Section[];
@@ -558,6 +559,26 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
             backgroundColor={section.backgroundColor}
             textColor={section.textColor}
             isPreview={true}
+          />
+        </Suspense>
+      );
+
+    case LayoutType.AUDIO:
+      return (
+        <Suspense fallback={suspenseFallback}>
+          <AudioLayout
+            title={section.title}
+            description={section.description}
+            tracks={section.audioTracks || []}
+            settings={section.audioSettings || {
+              autoPlay: false,
+              loop: false,
+              showPlaylist: true,
+              playerStyle: 'full',
+              volume: 80,
+            }}
+            backgroundColor={section.backgroundColor}
+            textColor={section.textColor}
           />
         </Suspense>
       );

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -66,6 +66,7 @@ const getLayoutName = (layout: LayoutType): string => {
     [LayoutType.CAROUSEL]: '이미지 슬라이더',
     [LayoutType.MASONRY]: 'Masonry',
     [LayoutType.GUESTBOOK]: '방명록',
+    [LayoutType.AUDIO]: '오디오',
   };
   return layoutNames[layout] || layout;
 };
@@ -126,6 +127,7 @@ const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; gr
   { value: LayoutType.VIDEO_HERO, name: '비디오 Hero', description: '비디오 배경', group: 'advanced' },
   { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
   { value: LayoutType.GUESTBOOK, name: '방명록', description: '댓글 섹션', group: 'advanced' },
+  { value: LayoutType.AUDIO, name: '오디오', description: '음악 플레이어', group: 'advanced' },
 ];
 
 // 레이아웃 선택 컴포넌트 (memo로 최적화)
@@ -1551,6 +1553,89 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
     };
     updateSection(sectionId, { guestbookSettings: { ...currentSettings, ...updates } });
   }, [updateSection]);
+
+  // ========== Audio 관련 함수 ==========
+
+  // Audio 트랙 추가
+  const addAudioTrack = useCallback((sectionId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentTracks = section?.audioTracks || [];
+    const newTrack: AudioTrack = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: '새 트랙',
+      url: '',
+      artist: '',
+      duration: '',
+    };
+    updateSection(sectionId, { audioTracks: [...currentTracks, newTrack] });
+  }, [updateSection]);
+
+  // Audio 트랙 업데이트
+  const updateAudioTrack = useCallback((sectionId: string, trackId: string, updates: Partial<AudioTrack>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentTracks = section?.audioTracks || [];
+    const updatedTracks = currentTracks.map((track: AudioTrack) =>
+      track.id === trackId ? { ...track, ...updates } : track
+    );
+    updateSection(sectionId, { audioTracks: updatedTracks });
+  }, [updateSection]);
+
+  // Audio 트랙 삭제
+  const removeAudioTrack = useCallback((sectionId: string, trackId: string) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentTracks = section?.audioTracks || [];
+    updateSection(sectionId, { audioTracks: currentTracks.filter((track: AudioTrack) => track.id !== trackId) });
+  }, [updateSection]);
+
+  // Audio 설정 업데이트
+  const updateAudioSettings = useCallback((sectionId: string, updates: Partial<AudioSettings>) => {
+    const section = sectionsRef.current.find(s => s.id === sectionId);
+    const currentSettings = section?.audioSettings || {
+      autoPlay: false,
+      loop: false,
+      showPlaylist: true,
+      playerStyle: 'full' as const,
+      volume: 80,
+    };
+    updateSection(sectionId, { audioSettings: { ...currentSettings, ...updates } });
+  }, [updateSection]);
+
+  // Audio 파일 업로드 핸들러
+  const handleAudioUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, trackId: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 오디오 파일 검증
+    if (!file.type.startsWith('audio/')) {
+      alert('오디오 파일만 업로드할 수 있어요 (MP3, WAV, OGG 등)');
+      return;
+    }
+
+    // 파일 크기 검증 (50MB)
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      alert('파일 크기가 너무 커요. 50MB 이하로 줄여주세요');
+      return;
+    }
+
+    try {
+      // 로그인 시 Supabase에 업로드
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const url = await uploadMedia(file, 'audio');
+        updateAudioTrack(sectionId, trackId, { url });
+      } else {
+        // 비로그인 시 blob URL 사용 + 경고 표시
+        const url = URL.createObjectURL(file);
+        updateAudioTrack(sectionId, trackId, { url });
+        showGuestWarning('로그인하지 않으면 공유 링크에서 오디오가 재생되지 않아요.');
+      }
+    } catch (error) {
+      console.error('오디오 업로드 오류:', error);
+      const url = URL.createObjectURL(file);
+      updateAudioTrack(sectionId, trackId, { url });
+    }
+  }, [updateAudioTrack, showGuestWarning]);
 
   // Gallery 이미지 파일 업로드
   const handleGalleryImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, sectionId: string, imageId: string) => {
@@ -3773,6 +3858,156 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     </AccordionSection>
                   )}
 
+                  {/* Audio 레이아웃 편집 */}
+                  {section.layout === LayoutType.AUDIO && (
+                    <AccordionSection
+                      title="오디오 설정"
+                      icon={<Video size={12} />}
+                      isOpen={isAccordionOpen(section.id, 'audio')}
+                      onToggle={() => toggleAccordion(section.id, 'audio')}
+                    >
+                      <div className="space-y-4">
+                        {/* 플레이어 스타일 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">플레이어 스타일</label>
+                          <select
+                            value={section.audioSettings?.playerStyle || 'full'}
+                            onChange={(e) => updateAudioSettings(section.id, { playerStyle: e.target.value as 'minimal' | 'full' | 'waveform' })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                          >
+                            <option value="minimal">미니멀</option>
+                            <option value="full">전체</option>
+                            <option value="waveform">웨이브폼</option>
+                          </select>
+                        </div>
+
+                        {/* 기본 볼륨 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 flex justify-between">
+                            <span>기본 볼륨</span>
+                            <span className="text-white">{section.audioSettings?.volume || 80}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={section.audioSettings?.volume || 80}
+                            onChange={(e) => updateAudioSettings(section.id, { volume: parseInt(e.target.value) })}
+                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            {...preventDragProps}
+                          />
+                        </div>
+
+                        {/* 옵션 토글 */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">자동 재생</label>
+                            <button
+                              onClick={() => updateAudioSettings(section.id, { autoPlay: !(section.audioSettings?.autoPlay ?? false) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.audioSettings?.autoPlay ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.audioSettings?.autoPlay ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">반복 재생</label>
+                            <button
+                              onClick={() => updateAudioSettings(section.id, { loop: !(section.audioSettings?.loop ?? false) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.audioSettings?.loop ?? false) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.audioSettings?.loop ?? false) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs text-gray-400">플레이리스트 표시</label>
+                            <button
+                              onClick={() => updateAudioSettings(section.id, { showPlaylist: !(section.audioSettings?.showPlaylist ?? true) })}
+                              className={`w-10 h-5 rounded-full transition-colors ${(section.audioSettings?.showPlaylist ?? true) ? 'bg-blue-500' : 'bg-gray-600'}`}
+                            >
+                              <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${(section.audioSettings?.showPlaylist ?? true) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 트랙 목록 */}
+                        <div className="space-y-2 pt-2 border-t border-gray-700">
+                          <label className="text-xs text-gray-400">트랙 목록 ({section.audioTracks?.length || 0}개)</label>
+                          {(section.audioTracks || []).map((track: AudioTrack, idx: number) => (
+                            <div key={track.id} className="p-3 bg-gray-800 rounded space-y-2">
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs text-gray-500 w-5 pt-1">{idx + 1}</span>
+                                <div className="flex-1 space-y-2">
+                                  <input
+                                    type="text"
+                                    value={track.title}
+                                    onChange={(e) => updateAudioTrack(section.id, track.id, { title: e.target.value })}
+                                    placeholder="트랙 제목"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={track.artist || ''}
+                                    onChange={(e) => updateAudioTrack(section.id, track.id, { artist: e.target.value })}
+                                    placeholder="아티스트 (선택)"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                  />
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <input
+                                      type="text"
+                                      value={track.duration || ''}
+                                      onChange={(e) => updateAudioTrack(section.id, track.id, { duration: e.target.value })}
+                                      placeholder="길이 (3:45)"
+                                      className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={track.coverImage || ''}
+                                      onChange={(e) => updateAudioTrack(section.id, track.id, { coverImage: e.target.value })}
+                                      placeholder="커버 URL"
+                                      className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                    />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="text"
+                                      value={track.url}
+                                      onChange={(e) => updateAudioTrack(section.id, track.id, { url: e.target.value })}
+                                      placeholder="오디오 URL"
+                                      className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
+                                    />
+                                    <label className="cursor-pointer">
+                                      <input
+                                        type="file"
+                                        accept="audio/*"
+                                        onChange={(e) => handleAudioUpload(e, section.id, track.id)}
+                                        className="hidden"
+                                      />
+                                      <div className="px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs text-white">
+                                        업로드
+                                      </div>
+                                    </label>
+                                  </div>
+                                </div>
+                                <button onClick={() => removeAudioTrack(section.id, track.id)} className="p-1 text-gray-400 hover:text-red-400 mt-1">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => addAudioTrack(section.id)}
+                            className="w-full py-2 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-500"
+                          >
+                            + 트랙 추가
+                          </button>
+                        </div>
+                      </div>
+                    </AccordionSection>
+                  )}
+
                   {/* 미디어 업로드 (기존 레이아웃용) */}
                   {section.layout !== LayoutType.SIMPLE_TEXT &&
                     section.layout !== LayoutType.GALLERY &&
@@ -3782,7 +4017,8 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections }) => {
                     section.layout !== LayoutType.VIDEO_HERO &&
                     section.layout !== LayoutType.CAROUSEL &&
                     section.layout !== LayoutType.MASONRY &&
-                    section.layout !== LayoutType.GUESTBOOK && (
+                    section.layout !== LayoutType.GUESTBOOK &&
+                    section.layout !== LayoutType.AUDIO && (
                       <AccordionSection
                         title="미디어"
                         icon={<ImageIcon size={12} />}
