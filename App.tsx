@@ -864,6 +864,8 @@ function App() {
           onExport={handleExport}
           onExportPDF={handleExportPDF}
           onExportImage={handleExportImage}
+          onExportSectionImages={handleExportSectionImages}
+          onExportThumbnail={handleExportThumbnail}
           onCreateProject={handleCreateNewProject}
           onSwitchProject={handleSwitchProject}
           onRenameProject={handleRenameProjectMobile}

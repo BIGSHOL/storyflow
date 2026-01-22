@@ -59,6 +59,8 @@ interface MobileLayoutProps {
   onExport: () => void;
   onExportPDF: () => void;
   onExportImage: () => void;
+  onExportSectionImages: () => void;
+  onExportThumbnail: () => void;
   onCreateProject: () => void;
   onSwitchProject: (project: Project) => void;
   onRenameProject: (id: string) => void;
@@ -87,6 +89,8 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   onExport,
   onExportPDF,
   onExportImage,
+  onExportSectionImages,
+  onExportThumbnail,
   onCreateProject,
   onSwitchProject,
   onRenameProject,
@@ -439,6 +443,32 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
                 <div className="text-left">
                   <div className="font-medium">이미지 (PNG)</div>
                   <div className="text-xs text-gray-400">PNG 이미지로 내보내기</div>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  onExportSectionImages();
+                  closeExportSheet();
+                }}
+                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-3"
+              >
+                <ImageIcon size={20} />
+                <div className="text-left">
+                  <div className="font-medium">섹션별 이미지</div>
+                  <div className="text-xs text-gray-400">각 섹션을 개별 PNG로 내보내기</div>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  onExportThumbnail();
+                  closeExportSheet();
+                }}
+                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-3"
+              >
+                <ImageIcon size={20} />
+                <div className="text-left">
+                  <div className="font-medium">썸네일 (OG)</div>
+                  <div className="text-xs text-gray-400">소셜 미디어용 썸네일 생성</div>
                 </div>
               </button>
             </div>
