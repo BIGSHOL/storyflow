@@ -648,6 +648,8 @@ function App() {
       if (remainingProjects.length > 0) {
         setCurrentProject(remainingProjects[0]);
       } else {
+        // 마지막 프로젝트 삭제 시 로컬 스토리지도 삭제 (복구 모달 방지)
+        clearSavedProject(userId);
         setCurrentProject(null);
         setSections([]);
         historyRef.current = [[]];
@@ -656,7 +658,7 @@ function App() {
         setCanRedo(false);
       }
     }
-  }, [projects, currentProject, removeProject, setCurrentProject]);
+  }, [projects, currentProject, removeProject, setCurrentProject, userId]);
 
   // HTML 내보내기 기능
   const handleExport = useCallback(async () => {
@@ -871,6 +873,8 @@ function App() {
       if (remainingProjects.length > 0) {
         setCurrentProject(remainingProjects[0]);
       } else {
+        // 마지막 프로젝트 삭제 시 로컬 스토리지도 삭제 (복구 모달 방지)
+        clearSavedProject(userId);
         setCurrentProject(null);
         setSections([]);
         historyRef.current = [[]];
@@ -879,7 +883,7 @@ function App() {
         setCanRedo(false);
       }
     }
-  }, [projects, currentProject, removeProject, setCurrentProject]);
+  }, [projects, currentProject, removeProject, setCurrentProject, userId]);
 
   // 모바일 레이아웃 렌더링 (실제 모바일 디바이스만)
   if (isMobile) {
