@@ -553,20 +553,34 @@ function App() {
 
       // 에러 메시지 추출
       let errorMessage = '알 수 없는 오류';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'object' && err !== null) {
-        const errObj = err as Record<string, unknown>;
-        errorMessage = String(errObj.message || errObj.error || errObj.details || JSON.stringify(err));
-      } else if (err) {
-        errorMessage = String(err);
+      try {
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'object' && err !== null) {
+          const errObj = err as Record<string, unknown>;
+          if (typeof errObj.message === 'string') {
+            errorMessage = errObj.message;
+          } else if (typeof errObj.error === 'string') {
+            errorMessage = errObj.error;
+          } else if (typeof errObj.details === 'string') {
+            errorMessage = errObj.details;
+          } else {
+            // 객체의 모든 키-값 출력
+            const keys = Object.keys(errObj);
+            errorMessage = keys.map(k => `${k}: ${errObj[k]}`).join(', ') || '서버 오류';
+          }
+        } else if (err) {
+          errorMessage = String(err);
+        }
+      } catch {
+        errorMessage = '오류 정보를 읽을 수 없습니다';
       }
 
       // 용량 초과 에러인 경우
       if (errorMessage.includes('용량') || errorMessage.includes('quota') || errorMessage.includes('storage')) {
         alert('❌ 저장 공간이 부족해요!\n\n내 정보에서 저장 공간을 확인하고,\n불필요한 미디어를 삭제해주세요.');
       } else {
-        alert(`저장에 실패했어요.\n\n오류: ${errorMessage}\n\n다시 시도해주세요.`);
+        alert(`저장에 실패했어요.\n\n${errorMessage}\n\n다시 시도해주세요.`);
       }
     } finally {
       setIsSaving(false);
