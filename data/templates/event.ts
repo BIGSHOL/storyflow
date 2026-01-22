@@ -127,7 +127,7 @@ export const eventTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Tech Summit 2024',
+                title: '테크 서밋 2024',
                 description: '기술의 미래를 함께 그립니다\n2024.09.15 - 09.16',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/technology,conference?lock=208',
@@ -247,7 +247,7 @@ export const eventTemplates: Template[] = [
                 title: '🎉 파티에 초대합니다!',
                 description: '2024년 8월 15일 저녁 7시',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/party,celebration?lock=213',
+                mediaUrl: '/images/templates/event/party-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#7c3aed',
@@ -385,7 +385,7 @@ export const eventTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Happy Graduation',
+                title: '졸업을 축하해',
                 description: '새로운 시작을 응원해!',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/graduation?lock=221',
@@ -447,7 +447,7 @@ export const eventTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '2024 Design Team Workshop',
-                description: 'Recharge & Reconnect',
+                description: '재충전 & 재연결',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/teamwork?lock=226',
                 textColor: '#ffffff',
@@ -456,7 +456,7 @@ export const eventTemplates: Template[] = [
             },
             {
                 layout: LayoutType.TIMELINE,
-                title: 'Schedule',
+                title: '일정',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -479,7 +479,7 @@ export const eventTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Solo Exhibition',
+                title: '개인전',
                 description: '오프닝 리셉션에 초대합니다',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/artgallery?lock=227',
@@ -507,7 +507,7 @@ export const eventTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Grand Open',
+                title: '그랜드 오픈',
                 description: '새로운 공간을 소개합니다',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/shop?lock=228',
@@ -540,8 +540,8 @@ export const eventTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.VIDEO_HERO,
-                title: 'Saturday Night Fever',
-                description: 'Special Guest DJ',
+                title: '토요일 밤의 열기',
+                description: '스페셜 게스트 DJ',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/nightclub?lock=229',
                 textColor: '#ffffff',
@@ -550,7 +550,7 @@ export const eventTemplates: Template[] = [
             },
             {
                 layout: LayoutType.SPLIT_RIGHT,
-                title: 'Line up',
+                title: '라인업',
                 description: '22:00 DJ A\n24:00 DJ B (Headliner)\n02:00 DJ C',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/800/600/dj?lock=230',

@@ -13,7 +13,7 @@ export const creativeTemplates: Template[] = [
                 title: '안녕하세요',
                 description: '저는 디자이너 홍길동입니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/art?lock=100',
+                mediaUrl: '/images/templates/creative/portfolio-art.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1a1a2e',
@@ -62,7 +62,7 @@ export const creativeTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '순간을 담다',
-                description: 'Photography by 홍길동',
+                description: '사진 by 홍길동',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/camera?lock=103',
                 textAlignment: 'center',
@@ -122,9 +122,9 @@ export const creativeTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '상상을 현실로',
-                description: 'Digital Art Exhibition',
+                description: '디지털 아트 전시',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/painting?lock=110',
+                mediaUrl: '/images/templates/creative/artwork-abstract.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#312e81',
@@ -179,9 +179,9 @@ export const creativeTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '디자인으로 문제를 해결합니다',
-                description: 'UI/UX Designer Portfolio',
+                description: 'UI/UX 디자이너 포트폴리오',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/workspace?lock=116',
+                mediaUrl: '/images/templates/creative/design-workspace.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#0c4a6e',
@@ -256,7 +256,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.SIMPLE_TEXT,
-                title: 'About Us',
+                title: '소개',
                 description: '2020년 결성된 4인조 록 밴드\n감성적인 멜로디와 강렬한 사운드',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -301,7 +301,7 @@ export const creativeTemplates: Template[] = [
             {
                 layout: LayoutType.VIDEO_HERO,
                 title: '스토리를 영상으로',
-                description: 'Video Production',
+                description: '영상 제작',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/film?lock=120',
                 textAlignment: 'center',
@@ -364,7 +364,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.CAROUSEL,
-                title: 'Featured Works',
+                title: '대표 작품',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -387,7 +387,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.MASONRY,
-                title: 'Artworks',
+                title: '작품들',
                 description: '따뜻한 감성을 그립니다',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -413,8 +413,8 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.VIDEO_HERO,
-                title: 'Beyond Reality',
-                description: '3D Character & Environment Artist',
+                title: '현실을 넘어서',
+                description: '3D 캐릭터 & 환경 아티스트',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/3d?lock=132',
                 textColor: '#ffffff',
@@ -424,7 +424,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Renderings',
+                title: '렌더링 작품',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -432,9 +432,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#111111',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/800/600/scifi?lock=133', caption: 'Sci-fi City' },
-                    { id: '2', url: 'https://loremflickr.com/800/600/character?lock=134', caption: 'Fantasy Character' },
-                    { id: '3', url: 'https://loremflickr.com/800/600/product?lock=135', caption: 'Product Vis' }
+                    { id: '1', url: 'https://loremflickr.com/800/600/scifi?lock=133', caption: 'SF 도시' },
+                    { id: '2', url: 'https://loremflickr.com/800/600/character?lock=134', caption: '판타지 캐릭터' },
+                    { id: '3', url: 'https://loremflickr.com/800/600/product?lock=135', caption: '제품 비주얼' }
                 ]
             }
         ]
@@ -447,7 +447,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.VIDEO_HERO,
-                title: 'Motion Showreel 2024',
+                title: '모션 쇼릴 2024',
                 description: '',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/motiongraphics?lock=136',
@@ -457,8 +457,8 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.SPLIT_LEFT,
-                title: 'Project A',
-                description: 'Title Sequence Design',
+                title: '프로젝트 A',
+                description: '타이틀 시퀀스 디자인',
                 mediaType: 'image', // video
                 mediaUrl: 'https://loremflickr.com/800/600/typography?lock=137',
                 textColor: '#ffffff',
@@ -492,7 +492,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.SIMPLE_TEXT,
-                title: 'Booking',
+                title: '예약',
                 description: '예약 문의는 오픈카톡으로 부탁드립니다.\n(미성년자 작업 불가)',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -511,7 +511,7 @@ export const creativeTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '공간에 숨을 불어넣다',
-                description: 'Residential & Commercial Interior',
+                description: '주거 & 상업 인테리어',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/interior?lock=142',
                 textColor: '#000000',
@@ -520,7 +520,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.SPLIT_RIGHT,
-                title: 'Modern House',
+                title: '모던 하우스',
                 description: '40평대 아파트 리모델링\n미니멀리즘을 기반으로 한 따뜻한 공간 연출',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/800/600/livingroom?lock=143',
@@ -548,7 +548,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.MASONRY,
-                title: 'Lookbook',
+                title: '룩북',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -556,10 +556,10 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#ffffff',
                 textAlignment: 'center',
                 masonryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/900/fashion?lock=145', caption: 'Look 1' },
-                    { id: '2', url: 'https://loremflickr.com/600/900/model?lock=146', caption: 'Look 2' },
-                    { id: '3', url: 'https://loremflickr.com/600/900/dress?lock=147', caption: 'Look 3' },
-                    { id: '4', url: 'https://loremflickr.com/600/600/clothing?lock=148', caption: 'Detail' }
+                    { id: '1', url: 'https://loremflickr.com/600/900/fashion?lock=145', caption: '룩 1' },
+                    { id: '2', url: 'https://loremflickr.com/600/900/model?lock=146', caption: '룩 2' },
+                    { id: '3', url: 'https://loremflickr.com/600/900/dress?lock=147', caption: '룩 3' },
+                    { id: '4', url: 'https://loremflickr.com/600/600/clothing?lock=148', caption: '디테일' }
                 ],
                 masonrySettings: { columns: 2, gap: 8, showCaptions: true, rounded: false, hoverEffect: false }
             }
@@ -573,7 +573,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Sweet Moments',
+                title: '달콤한 순간',
                 description: '특별한 날을 더욱 빛나게',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/cake?lock=149',
@@ -583,7 +583,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Custom Cakes',
+                title: '맞춤 케이크',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -606,7 +606,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Channel Name',
+                title: '채널명',
                 description: '매주 금요일 업로드! 구독과 좋아요',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/youtube?lock=153',
@@ -616,7 +616,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.CARDS,
-                title: 'Popular Videos',
+                title: '인기 영상',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -625,8 +625,8 @@ export const creativeTemplates: Template[] = [
                 textAlignment: 'center',
                 cards: [
                     { id: '1', title: '여행 브이로그', description: '조회수 100만회', imageUrl: 'https://loremflickr.com/400/300/travel?lock=154' },
-                    { id: '2', title: 'Q&A', description: '50문 50답', imageUrl: 'https://loremflickr.com/400/300/talking?lock=155' },
-                    { id: '3', title: 'Room Tour', description: '랜선 집들이', imageUrl: 'https://loremflickr.com/400/300/room?lock=156' }
+                    { id: '2', title: '질문과 답변', description: '50문 50답', imageUrl: 'https://loremflickr.com/400/300/talking?lock=155' },
+                    { id: '3', title: '룸 투어', description: '랜선 집들이', imageUrl: 'https://loremflickr.com/400/300/room?lock=156' }
                 ]
             }
         ]
@@ -718,7 +718,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Wedding Moments',
+                title: '웨딩 모먼트',
                 description: '가장 아름다운 순간을 영원히',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/wedding?lock=163',
@@ -728,7 +728,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.MASONRY,
-                title: 'Gallery',
+                title: '갤러리',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -752,7 +752,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.GALLERY,
-                title: 'Commercial Photography',
+                title: '상업 사진',
                 description: '제품의 디테일을 살리는 조명과 연출',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -760,9 +760,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#1c1917',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/800/600/cosmetics?lock=168', caption: 'Cosmetics' },
-                    { id: '2', url: 'https://loremflickr.com/800/600/food?lock=169', caption: 'Food' },
-                    { id: '3', url: 'https://loremflickr.com/800/600/watch?lock=170', caption: 'Tech' }
+                    { id: '1', url: 'https://loremflickr.com/800/600/cosmetics?lock=168', caption: '화장품' },
+                    { id: '2', url: 'https://loremflickr.com/800/600/food?lock=169', caption: '음식' },
+                    { id: '3', url: 'https://loremflickr.com/800/600/watch?lock=170', caption: '테크' }
                 ]
             }
         ]
@@ -775,7 +775,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.SPLIT_RIGHT,
-                title: 'Portrait',
+                title: '인물 사진',
                 description: '당신의 진짜 모습을 담습니다.\n배우 프로필 / 개인 화보 / 사원증',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/800/1000/portrait?lock=171',
@@ -793,7 +793,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Chef Table',
+                title: '셰프 테이블',
                 description: '재료 본연의 맛을 살린 다이닝',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/chef,cooking?lock=172',
@@ -803,7 +803,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Signature Dishes',
+                title: '시그니처 요리',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -811,9 +811,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#1c1917',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/appetizer?lock=173', caption: 'Amuse-bouche' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/steak?lock=174', caption: 'Main' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/dessert?lock=175', caption: 'Dessert' }
+                    { id: '1', url: 'https://loremflickr.com/600/600/appetizer?lock=173', caption: '애피타이저' },
+                    { id: '2', url: 'https://loremflickr.com/600/600/steak?lock=174', caption: '메인' },
+                    { id: '3', url: 'https://loremflickr.com/600/600/dessert?lock=175', caption: '디저트' }
                 ]
             }
         ]
@@ -836,7 +836,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Works',
+                title: '작품',
                 description: '웨딩 부케 / 센터피스 / 꽃다발',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -859,7 +859,7 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Handmade Ceramics',
+                title: '수제 도자기',
                 description: '흙의 온도, 손의 정성',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/pottery?lock=180',
@@ -869,7 +869,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Collections',
+                title: '컨렉션',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -877,8 +877,8 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#e7e5e4',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/ceramic?lock=181', caption: 'Moon Jar' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/cup?lock=182', caption: 'Teacup' }
+                    { id: '1', url: 'https://loremflickr.com/600/600/ceramic?lock=181', caption: '달항아리' },
+                    { id: '2', url: 'https://loremflickr.com/600/600/cup?lock=182', caption: '찻잔' }
                 ]
             }
         ]
@@ -901,7 +901,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.AUDIO,
-                title: 'Latest Mix',
+                title: '최신 믹스',
                 description: 'Summer Vibes 2024',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -922,8 +922,8 @@ export const creativeTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.VIDEO_HERO,
-                title: 'Move Your Body',
-                description: 'Choreography by Sarah',
+                title: '몸을 움직여',
+                description: '안무 by 사라',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/dance?lock=185',
                 textColor: '#ffffff',
@@ -933,7 +933,7 @@ export const creativeTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Classes',
+                title: '클래스',
                 description: '화/목 19:00 K-POP Class',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -941,8 +941,8 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#18181b',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/400/danceclass?lock=186', caption: 'Studio A' },
-                    { id: '2', url: 'https://loremflickr.com/600/400/dancer?lock=187', caption: 'Group Photo' }
+                    { id: '1', url: 'https://loremflickr.com/600/400/danceclass?lock=186', caption: '스튜디오 A' },
+                    { id: '2', url: 'https://loremflickr.com/600/400/dancer?lock=187', caption: '단체 사진' }
                 ]
             }
         ]

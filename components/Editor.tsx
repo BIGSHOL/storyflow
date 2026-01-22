@@ -607,6 +607,71 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
     return current.includes(accordionKey);
   };
 
+  // Korean IME composition 상태 (한글 입력 버그 수정)
+  const isComposingRef = useRef(false);
+
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
+  }, []);
+
+  const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'title' | 'description') => {
+    isComposingRef.current = false;
+    // composition 종료 시 최종 값으로 업데이트
+    const value = (e.target as HTMLInputElement | HTMLTextAreaElement).value;
+    updateSection(id, { [field]: value });
+  }, []);
+
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'title' | 'description') => {
+    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
+    if (!isComposingRef.current) {
+      updateSection(id, { [field]: e.target.value });
+    }
+  }, []);
+
+  const handleCtaTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, id: string, field: 'text' | 'link') => {
+    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
+    if (!isComposingRef.current) {
+      updateCtaButton(id, { [field]: e.target.value });
+    }
+  }, []);
+
+  const handleCtaCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement>, id: string, field: 'text' | 'link') => {
+    isComposingRef.current = false;
+    // composition 종료 시 최종 값으로 업데이트
+    const value = (e.target as HTMLInputElement).value;
+    updateCtaButton(id, { [field]: value });
+  }, []);
+
+  // 범용 텍스트 입력 핸들러 (템플릿 export 등)
+  const handleGenericTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, setter: (value: string) => void) => {
+    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
+    if (!isComposingRef.current) {
+      setter(e.target.value);
+    }
+  }, []);
+
+  const handleGenericCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>, setter: (value: string) => void) => {
+    isComposingRef.current = false;
+    // composition 종료 시 최종 값으로 업데이트
+    const value = (e.target as HTMLInputElement | HTMLTextAreaElement).value;
+    setter(value);
+  }, []);
+
+  // Quote 필드 핸들러
+  const handleQuoteFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'quoteText' | 'quoteAuthor') => {
+    // composition 중이 아닐 때만 업데이트 (한글 입력 시 자모 분리 방지)
+    if (!isComposingRef.current) {
+      updateSection(id, { [field]: e.target.value });
+    }
+  }, []);
+
+  const handleQuoteFieldCompositionEnd = useCallback((e: React.CompositionEvent<HTMLInputElement | HTMLTextAreaElement>, id: string, field: 'quoteText' | 'quoteAuthor') => {
+    isComposingRef.current = false;
+    // composition 종료 시 최종 값으로 업데이트
+    const value = (e.target as HTMLInputElement | HTMLTextAreaElement).value;
+    updateSection(id, { [field]: value });
+  }, []);
+
   const addSection = useCallback(() => {
     const newSection: Section = {
       id: Math.random().toString(36).substr(2, 9),
@@ -2135,7 +2200,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         <input
                           type="text"
                           value={exportTemplateName}
-                          onChange={(e) => setExportTemplateName(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGenericTextChange(e, setExportTemplateName)}
+                          onCompositionStart={handleCompositionStart}
+                          onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleGenericCompositionEnd(e, setExportTemplateName)}
                           placeholder="예: 미니멀 포트폴리오"
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
                         />
@@ -2144,7 +2211,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         <label className="text-xs text-gray-400 mb-1 block">설명</label>
                         <textarea
                           value={exportTemplateDesc}
-                          onChange={(e) => setExportTemplateDesc(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleGenericTextChange(e, setExportTemplateDesc)}
+                          onCompositionStart={handleCompositionStart}
+                          onCompositionEnd={(e: React.CompositionEvent<HTMLTextAreaElement>) => handleGenericCompositionEnd(e, setExportTemplateDesc)}
                           placeholder="템플릿에 대한 간단한 설명"
                           rows={2}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm resize-none"
@@ -2167,7 +2236,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                         <input
                           type="text"
                           value={exportTemplateTags}
-                          onChange={(e) => setExportTemplateTags(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGenericTextChange(e, setExportTemplateTags)}
+                          onCompositionStart={handleCompositionStart}
+                          onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleGenericCompositionEnd(e, setExportTemplateTags)}
                           placeholder="예: 미니멀, 포트폴리오, 모던"
                           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
                         />
@@ -2450,13 +2521,17 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                       <input
                         type="text"
                         value={section.title}
-                        onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTextChange(e, section.id, 'title')}
+                        onCompositionStart={handleCompositionStart}
+                        onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleCompositionEnd(e, section.id, 'title')}
                         className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none font-bold text-white"
                         placeholder="제목"
                       />
                       <textarea
                         value={section.description}
-                        onChange={(e) => updateSection(section.id, { description: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleTextChange(e, section.id, 'description')}
+                        onCompositionStart={handleCompositionStart}
+                        onCompositionEnd={(e: React.CompositionEvent<HTMLTextAreaElement>) => handleCompositionEnd(e, section.id, 'description')}
                         rows={4}
                         className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 focus:border-blue-500 outline-none resize-none text-white"
                         placeholder="내용"
@@ -2959,7 +3034,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <input
                               type="text"
                               value={section.ctaButton?.text || '자세히 보기'}
-                              onChange={(e) => updateCtaButton(section.id, { text: e.target.value })}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCtaTextChange(e, section.id, 'text')}
+                              onCompositionStart={handleCompositionStart}
+                              onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleCtaCompositionEnd(e, section.id, 'text')}
                               className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
                             />
                           </div>
@@ -2968,7 +3045,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <input
                               type="text"
                               value={section.ctaButton?.link || '#'}
-                              onChange={(e) => updateCtaButton(section.id, { link: e.target.value })}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCtaTextChange(e, section.id, 'link')}
+                              onCompositionStart={handleCompositionStart}
+                              onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleCtaCompositionEnd(e, section.id, 'link')}
                               className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs focus:border-blue-500 outline-none"
                               placeholder="https://..."
                             />
@@ -3264,7 +3343,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           <label className="text-xs text-gray-400 mb-2 block">인용문</label>
                           <textarea
                             value={section.quoteText || ''}
-                            onChange={(e) => updateSection(section.id, { quoteText: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleQuoteFieldChange(e, section.id, 'quoteText')}
+                            onCompositionStart={handleCompositionStart}
+                            onCompositionEnd={(e: React.CompositionEvent<HTMLTextAreaElement>) => handleQuoteFieldCompositionEnd(e, section.id, 'quoteText')}
                             rows={4}
                             placeholder="인용문을 입력하세요..."
                             className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm resize-none"
@@ -3275,7 +3356,9 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           <input
                             type="text"
                             value={section.quoteAuthor || ''}
-                            onChange={(e) => updateSection(section.id, { quoteAuthor: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleQuoteFieldChange(e, section.id, 'quoteAuthor')}
+                            onCompositionStart={handleCompositionStart}
+                            onCompositionEnd={(e: React.CompositionEvent<HTMLInputElement>) => handleQuoteFieldCompositionEnd(e, section.id, 'quoteAuthor')}
                             placeholder="저자 이름"
                             className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs"
                           />

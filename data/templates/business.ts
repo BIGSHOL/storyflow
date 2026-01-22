@@ -13,7 +13,7 @@ export const businessTemplates: Template[] = [
                 title: '혁신적인 제품',
                 description: '당신의 일상을 바꿔줄 새로운 경험',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/technology?lock=1',
+                mediaUrl: '/images/templates/business/product-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
@@ -64,7 +64,7 @@ export const businessTemplates: Template[] = [
                 title: '우리가 만드는 미래',
                 description: '혁신과 신뢰로 세상을 바꿉니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/office,building?lock=4',
+                mediaUrl: '/images/templates/business/company-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1a365d',
@@ -90,7 +90,7 @@ export const businessTemplates: Template[] = [
                 title: '우리의 미션',
                 description: '기술과 창의력으로 고객의 성공을 돕습니다. 최고의 품질과 서비스를 약속드립니다.',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/meeting?lock=5',
+                mediaUrl: '/images/templates/business/company-meeting.png',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -119,7 +119,7 @@ export const businessTemplates: Template[] = [
                 title: '더 나은 방법이 있습니다',
                 description: '업무 효율을 200% 높여주는 솔루션',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/startup?lock=6',
+                mediaUrl: '/images/templates/business/service-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#4c1d95',
@@ -219,7 +219,7 @@ export const businessTemplates: Template[] = [
                 title: '맛있는 순간',
                 description: '당신을 위한 특별한 식사',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/restaurant,food?lock=10',
+                mediaUrl: '/images/templates/business/restaurant-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#7c2d12',
@@ -275,7 +275,7 @@ export const businessTemplates: Template[] = [
                 title: '당신의 꿈을 현실로',
                 description: '완벽한 공간을 찾아드립니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/house,modern?lock=16',
+                mediaUrl: '/images/templates/business/realestate-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1e40af',
@@ -332,7 +332,7 @@ export const businessTemplates: Template[] = [
                 title: '팀 협업의 새로운 기준',
                 description: '모든 것을 한 곳에서, 더 스마트하게',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/software?lock=22',
+                mediaUrl: '/images/templates/business/saas-hero.png',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#0f172a',
@@ -397,7 +397,7 @@ export const businessTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Problem & Solution',
+                title: '문제점과 해결책',
                 description: '우리는 시장의 문제를 이렇게 해결합니다',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/presentation?lock=25',
@@ -407,7 +407,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.STATS,
-                title: 'Market Size',
+                title: '시장 규모',
                 description: '폭발적으로 성장하는 시장',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -422,7 +422,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.TIMELINE,
-                title: 'Roadmap',
+                title: '로드맵',
                 description: '성장 계획',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -497,7 +497,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Best Sellers',
+                title: '베스트 셀러',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -525,7 +525,7 @@ export const businessTemplates: Template[] = [
                 title: '도심 속의 휴식',
                 description: '프리미엄 럭셔리 스테이',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/luxuryhotel?lock=35',
+                mediaUrl: '/images/templates/business/hotel-luxury.png',
                 textColor: '#ffffff',
                 backgroundColor: '#0c4a6e',
                 textAlignment: 'center',
@@ -597,14 +597,14 @@ export const businessTemplates: Template[] = [
                 title: 'BE STRONG',
                 description: '최고의 시설에서 시작하는 변화',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/gym?lock=41', // fallback
+                mediaUrl: '/images/templates/business/gym-hero.png',
                 textColor: '#ffffff',
                 backgroundColor: '#171717',
                 textAlignment: 'center'
             },
             {
                 layout: LayoutType.STATS,
-                title: 'Why Us',
+                title: '왜 우리인가',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -698,7 +698,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Style Book',
+                title: '스타일북',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -749,7 +749,7 @@ export const businessTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'We are Hiring',
+                title: '인재를 모집합니다',
                 description: '세상을 바꿀 동료를 찾습니다',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/team?lock=53',
@@ -767,9 +767,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#3b82f6',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: 'Frontend', description: 'React, TS', imageUrl: 'https://loremflickr.com/400/300/code?lock=54' },
-                    { id: '2', title: 'Backend', description: 'Node.js, AWS', imageUrl: 'https://loremflickr.com/400/300/server?lock=55' },
-                    { id: '3', title: 'Design', description: 'Product Design', imageUrl: 'https://loremflickr.com/400/300/design?lock=56' }
+                    { id: '1', title: '프론트엔드', description: 'React, TS', imageUrl: 'https://loremflickr.com/400/300/code?lock=54' },
+                    { id: '2', title: '백엔드', description: 'Node.js, AWS', imageUrl: 'https://loremflickr.com/400/300/server?lock=55' },
+                    { id: '3', title: '디자인', description: '제품 디자인', imageUrl: 'https://loremflickr.com/400/300/design?lock=56' }
                 ]
             }
         ]
@@ -921,9 +921,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#111111',
                 textAlignment: 'left',
                 timelineItems: [
-                    { id: '1', date: 'Week 1-3', title: '기초 다지기', description: '' },
-                    { id: '2', date: 'Week 4-7', title: '심화 응용', description: '' },
-                    { id: '3', date: 'Week 8-10', title: '파이널 프로젝트', description: '' }
+                    { id: '1', date: '1-3주차', title: '기초 다지기', description: '' },
+                    { id: '2', date: '4-7주차', title: '심화 응용', description: '' },
+                    { id: '3', date: '8-10주차', title: '파이널 프로젝트', description: '' }
                 ]
             }
         ]
@@ -955,7 +955,7 @@ export const businessTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.SIMPLE_TEXT,
-                title: 'Press Resources',
+                title: '프레스 자료',
                 description: 'StoryFlow의 브랜드 자산을 소개합니다.\n로고, 보도자료, 이미지를 다운로드하세요.',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -965,7 +965,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Brand Assets',
+                title: '브랜드 자산',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -973,9 +973,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#f9fafb',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/400/logo?lock=65', caption: 'Logo Light' },
-                    { id: '2', url: 'https://loremflickr.com/600/400/symbol?lock=66', caption: 'Logo Dark' },
-                    { id: '3', url: 'https://loremflickr.com/600/400/icon?lock=67', caption: 'Symbol' }
+                    { id: '1', url: 'https://loremflickr.com/600/400/logo?lock=65', caption: '로고 라이트' },
+                    { id: '2', url: 'https://loremflickr.com/600/400/symbol?lock=66', caption: '로고 다크' },
+                    { id: '3', url: 'https://loremflickr.com/600/400/icon?lock=67', caption: '심볼' }
                 ]
             }
         ]
@@ -988,7 +988,7 @@ export const businessTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Partner with Us',
+                title: '함께 하세요',
                 description: '국내 최대 개발자 컨퍼런스 후원 제안',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/audience?lock=68',
@@ -998,7 +998,7 @@ export const businessTemplates: Template[] = [
             },
             {
                 layout: LayoutType.CARDS,
-                title: 'Sponsorship Benefits',
+                title: '후원 혜택',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',

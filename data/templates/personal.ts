@@ -81,9 +81,9 @@ export const personalTemplates: Template[] = [
                 textColor: '#ffffff',
                 backgroundColor: '#1e3a8a',
                 timelineItems: [
-                    { id: '1', date: 'Day 1', title: '에펠탑', description: '파리의 상징, 첫 만남' },
-                    { id: '2', date: 'Day 2', title: '루브르 박물관', description: '모나리자를 만나다' },
-                    { id: '3', date: 'Day 3', title: '몽마르뜨', description: '예술가들의 언덕' },
+                    { id: '1', date: '1일차', title: '에펠탑', description: '파리의 상징, 첫 만남' },
+                    { id: '2', date: '2일차', title: '루브르 박물관', description: '모나리자를 만나다' },
+                    { id: '3', date: '3일차', title: '몽마르뜨', description: '예술가들의 언덕' },
                 ],
                 timelineAlignment: 'alternate',
             },
@@ -184,7 +184,7 @@ export const personalTemplates: Template[] = [
             {
                 layout: LayoutType.HERO,
                 title: '홍길동',
-                description: 'Frontend Developer',
+                description: '프론트엔드 개발자',
                 mediaType: 'none',
                 mediaUrl: '',
                 textAlignment: 'center',
@@ -559,7 +559,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.STATS,
-                title: 'Today\'s Record',
+                title: '오늘의 기록',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -582,7 +582,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Learning Log',
+                title: '학습 일지',
                 description: '꾸준함이 답이다',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -592,7 +592,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.CARDS,
-                title: 'Projects',
+                title: '프로젝트',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -633,7 +633,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Goodbye 2024',
+                title: '안녕 2024',
                 description: '다사다난했던 한 해를 보내며',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -643,7 +643,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.TIMELINE,
-                title: 'Highlights',
+                title: '하이라이트',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -651,9 +651,9 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#111',
                 textAlignment: 'left',
                 timelineItems: [
-                    { id: '1', date: 'Jan', title: '새해 목표 수립', description: '' },
-                    { id: '2', date: 'Jul', title: '이직 성공', description: '' },
-                    { id: '3', date: 'Dec', title: '해외 여행', description: '' }
+                    { id: '1', date: '1월', title: '새해 목표 수립', description: '' },
+                    { id: '2', date: '7월', title: '이직 성공', description: '' },
+                    { id: '3', date: '12월', title: '해외 여행', description: '' }
                 ]
             }
         ]
@@ -666,7 +666,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'My Bucket List',
+                title: '나의 버킷리스트',
                 description: '꿈을 향한 여정',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/skydiving?lock=338',
@@ -726,7 +726,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'Welcome to My House',
+                title: '우리 집에 오신 것을 환영합니다',
                 description: '취향이 담긴 공간',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/interior?lock=340',
@@ -736,7 +736,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Room Tour',
+                title: '룸 투어',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -744,10 +744,10 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#e7e5e4',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/livingroom?lock=341', caption: 'Living Room' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/kitchen?lock=342', caption: 'Kitchen' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/bedroom?lock=343', caption: 'Bedroom' },
-                    { id: '4', url: 'https://loremflickr.com/600/600/desk?lock=344', caption: 'Work Space' }
+                    { id: '1', url: 'https://loremflickr.com/600/600/livingroom?lock=341', caption: '거실' },
+                    { id: '2', url: 'https://loremflickr.com/600/600/kitchen?lock=342', caption: '주방' },
+                    { id: '3', url: 'https://loremflickr.com/600/600/bedroom?lock=343', caption: '침실' },
+                    { id: '4', url: 'https://loremflickr.com/600/600/desk?lock=344', caption: '작업공간' }
                 ]
             }
         ]
@@ -778,9 +778,9 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#92400e',
                 textAlignment: 'left',
                 timelineItems: [
-                    { id: '1', date: 'Day 1', title: '설계 및 목재 주문', description: '' },
-                    { id: '2', date: 'Day 3', title: '샌딩 및 스테인 칠하기', description: '' },
-                    { id: '3', date: 'Day 5', title: '조립 및 완성', description: '' }
+                    { id: '1', date: '1일차', title: '설계 및 목재 주문', description: '' },
+                    { id: '2', date: '3일차', title: '샌딩 및 스테인 칠하기', description: '' },
+                    { id: '3', date: '5일차', title: '조립 및 완성', description: '' }
                 ]
             }
         ]
@@ -793,7 +793,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'English Study',
+                title: '영어 공부',
                 description: '매일 30분 영어 습관',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/dictionary?lock=346',
@@ -812,7 +812,7 @@ export const personalTemplates: Template[] = [
             {
                 layout: LayoutType.VIDEO_HERO,
                 title: '비 오는 날 듣기 좋은 노래',
-                description: 'Rainy Day Playlist',
+                description: '비 오는 날 플레이리스트',
                 mediaType: 'image', // fallback
                 mediaUrl: 'https://loremflickr.com/1280/720/rainywindow?lock=347',
                 textColor: '#ffffff',
@@ -821,7 +821,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.AUDIO,
-                title: 'Tracklist',
+                title: '트랙리스트',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -883,7 +883,7 @@ export const personalTemplates: Template[] = [
             },
             {
                 layout: LayoutType.GALLERY,
-                title: 'Menu',
+                title: '메뉴',
                 description: '',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -905,7 +905,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.CAROUSEL,
-                title: 'Wisdom',
+                title: '지혜',
                 description: '매일 꺼내보는 지혜',
                 mediaType: 'none',
                 mediaUrl: '',
@@ -945,7 +945,7 @@ export const personalTemplates: Template[] = [
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: 'In Memory of',
+                title: '추모',
                 description: '당신을 영원히 기억합니다',
                 mediaType: 'image',
                 mediaUrl: 'https://loremflickr.com/1280/720/candle?lock=355',
