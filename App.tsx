@@ -1230,7 +1230,7 @@ function App() {
               </div>
             </>
           ) : (
-            <div className="w-full h-full">
+            <div className="w-full h-full overflow-y-auto scroll-smooth">
               <PreviewRender sections={sections} isPreviewMode={true} />
               <button
                 onClick={() => setViewMode('editor')}
@@ -1578,7 +1578,7 @@ function App() {
           </>
         ) : (
           /* Full Screen Preview Mode */
-          <div className="w-full h-full">
+          <div className="w-full h-full overflow-y-auto scroll-smooth">
             <PreviewRender sections={sections} isPreviewMode={true} />
 
             <button
