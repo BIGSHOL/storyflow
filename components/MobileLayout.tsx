@@ -185,11 +185,20 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       </nav>
 
       {/* 메인 컨텐츠 */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative flex flex-col">
         {viewMode === 'editor' ? (
-          <div className="h-full overflow-y-auto">
-            <Editor sections={sections} setSections={setSections} />
-          </div>
+          <>
+            {!isAuthenticated && (
+              <div className="bg-yellow-900/50 px-3 py-2 text-center flex-shrink-0">
+                <p className="text-yellow-200 text-xs font-medium">
+                  로그인하지 않으면 작업이 저장되지 않습니다
+                </p>
+              </div>
+            )}
+            <div className="flex-1 overflow-y-auto">
+              <Editor sections={sections} setSections={setSections} />
+            </div>
+          </>
         ) : (
           <div className="h-full overflow-y-auto">
             <PreviewRender sections={sections} isPreviewMode={true} />

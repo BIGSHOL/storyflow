@@ -158,8 +158,6 @@ function App() {
   // 협업자 다이얼로그 상태
   const [showCollaborationDialog, setShowCollaborationDialog] = useState(false);
 
-  // 비로그인 경고 팝업 상태
-  const [showLoginWarningModal, setShowLoginWarningModal] = useState(false);
 
   // 프로젝트 드롭다운 상태
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
@@ -168,6 +166,9 @@ function App() {
   // 내보내기 드롭다운 상태
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const exportDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 로그인 경고 모달 상태
+  const [showLoginWarningModal, setShowLoginWarningModal] = useState(false);
 
   // 프로젝트 개수 제한
   const MAX_PROJECTS = 3;
@@ -223,15 +224,6 @@ function App() {
     }
   }, [isAuthenticated, authLoading, sortedProjects, currentProject, setCurrentProject]);
 
-  // 비로그인 시 경고 팝업 표시 (3초 후)
-  useEffect(() => {
-    if (!isAuthenticated && !authLoading) {
-      const timer = setTimeout(() => {
-        setShowLoginWarningModal(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, authLoading]);
 
   // 로그인 후 익명 localStorage 데이터 마이그레이션 확인
   useEffect(() => {
@@ -983,23 +975,6 @@ function App() {
   if (isMobile) {
     return (
       <>
-        {/* 비로그인 경고 배너 - 모바일 */}
-        {!isAuthenticated && !authLoading && (
-          <div className="bg-red-600/30 border-b-2 border-red-500 px-3 py-2.5 z-[100]">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs text-red-100 font-medium flex-1">
-                🚨 <span className="font-bold">로그인 필수!</span> 지금 작업 중인 내용이 브라우저를 닫으면 <span className="underline">영구 삭제</span>됩니다
-              </p>
-              <button
-                onClick={signIn}
-                className="flex-shrink-0 px-3 py-1.5 bg-white text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors"
-              >
-                로그인
-              </button>
-            </div>
-          </div>
-        )}
-
         <MobileLayout
           sections={sections}
           setSections={handleSetSections}
@@ -1105,54 +1080,6 @@ function App() {
           </div>
         )}
 
-        {/* 비로그인 경고 팝업 - 모바일 */}
-        {showLoginWarningModal && !isAuthenticated && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
-            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-5 max-w-sm w-full shadow-2xl">
-              <div className="text-center mb-5">
-                <div className="text-5xl mb-3">🚨</div>
-                <h2 className="text-xl font-bold text-white mb-1">잠깐!</h2>
-                <h3 className="text-base font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
-              </div>
-
-              <div className="bg-red-900/30 border border-red-700 rounded-xl p-3 mb-4">
-                <ul className="space-y-1.5 text-xs text-red-100">
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400">✗</span>
-                    <span>브라우저를 닫으면 <strong>모든 작업 삭제</strong></span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400">✗</span>
-                    <span>새로고침해도 <strong>복구 불가</strong></span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-green-900/30 border border-green-700 rounded-xl p-3 mb-5">
-                <p className="text-xs text-green-100 font-medium mb-1">✨ 로그인하면</p>
-                <p className="text-xs text-green-200">클라우드 저장 + 어디서든 접근 가능</p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setShowLoginWarningModal(false);
-                    signIn();
-                  }}
-                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors"
-                >
-                  Google로 로그인
-                </button>
-                <button
-                  onClick={() => setShowLoginWarningModal(false)}
-                  className="w-full py-2 text-gray-400 hover:text-white text-xs transition-colors"
-                >
-                  나중에 할게요
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </>
     );
   }
@@ -1161,23 +1088,6 @@ function App() {
   if (deviceType === 'tablet') {
     return (
       <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
-        {/* 비로그인 경고 배너 - 태블릿 */}
-        {!isAuthenticated && !authLoading && (
-          <div className="bg-red-600/30 border-b-2 border-red-500 px-4 py-2.5 z-[100]">
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-sm text-red-100 font-medium">
-                🚨 <span className="font-bold">로그인 필수!</span> 지금 작업 중인 내용이 브라우저를 닫으면 <span className="underline">영구 삭제</span>됩니다
-              </p>
-              <button
-                onClick={signIn}
-                className="flex-shrink-0 px-4 py-1.5 bg-white text-red-600 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors"
-              >
-                로그인하기
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Top Navigation Bar - 태블릿용 컴팩트 2행 */}
         <nav className="border-b border-gray-800 bg-gray-900 z-50">
           {/* 1행: 로고 + 프로젝트 + 유저메뉴 */}
@@ -1394,8 +1304,17 @@ function App() {
         <main className="flex-1 flex overflow-hidden relative">
           {viewMode === 'editor' ? (
             <>
-              <div className="w-72 flex-shrink-0 h-full z-10 shadow-xl">
-                <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
+              <div className="w-72 flex-shrink-0 h-full z-10 shadow-xl flex flex-col">
+                {!isAuthenticated && !authLoading && (
+                  <div className="bg-yellow-900/50 px-3 py-2 text-center">
+                    <p className="text-yellow-200 text-xs font-medium">
+                      로그인하지 않으면 작업이 저장되지 않습니다
+                    </p>
+                  </div>
+                )}
+                <div className="flex-1 overflow-hidden">
+                  <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
+                </div>
               </div>
               <div className="flex-1 bg-gray-950 flex items-center justify-center overflow-hidden relative">
                 <div className={`transition-all duration-500 overflow-hidden bg-black ${devicePreview === 'mobile'
@@ -1502,57 +1421,6 @@ function App() {
           </Suspense>
         )}
 
-        {/* 비로그인 경고 팝업 - 태블릿 */}
-        {showLoginWarningModal && !isAuthenticated && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
-            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-              <div className="text-center mb-6">
-                <div className="text-6xl mb-4">🚨</div>
-                <h2 className="text-2xl font-bold text-white mb-2">잠깐!</h2>
-                <h3 className="text-lg font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
-              </div>
-
-              <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-6">
-                <ul className="space-y-2 text-sm text-red-100">
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5">✗</span>
-                    <span>브라우저를 닫으면 <strong>모든 작업이 삭제</strong>됩니다</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5">✗</span>
-                    <span>새로고침해도 <strong>복구할 수 없어요</strong></span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 mb-6">
-                <p className="text-sm text-green-100 font-medium mb-2">✨ 로그인하면</p>
-                <ul className="space-y-1 text-sm text-green-200">
-                  <li>• 클라우드에 안전하게 저장</li>
-                  <li>• 어디서든 작업 이어하기</li>
-                </ul>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    setShowLoginWarningModal(false);
-                    signIn();
-                  }}
-                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors text-lg"
-                >
-                  Google로 로그인하기
-                </button>
-                <button
-                  onClick={() => setShowLoginWarningModal(false)}
-                  className="w-full py-2 text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  나중에 할게요
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -1560,23 +1428,6 @@ function App() {
   // 데스크탑 레이아웃 (고정 크기 + 가로 스크롤)
   return (
     <div className="h-screen w-screen flex flex-col bg-black overflow-hidden">
-      {/* 비로그인 경고 배너 - 데스크탑 */}
-      {!isAuthenticated && !authLoading && (
-        <div className="bg-red-600/30 border-b-2 border-red-500 px-4 py-3 z-[100]">
-          <div className="flex items-center justify-center gap-4">
-            <p className="text-sm text-red-100 font-medium">
-              🚨 <span className="font-bold text-white">주의: 로그인하지 않으면 작업 내용이 삭제됩니다!</span> 브라우저를 닫거나 새로고침하면 지금 작업 중인 모든 내용이 <span className="underline font-bold">영구적으로 사라집니다.</span>
-            </p>
-            <button
-              onClick={signIn}
-              className="flex-shrink-0 px-5 py-2 bg-white text-red-600 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors shadow-lg"
-            >
-              지금 로그인하기
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Top Navigation Bar - 고정 크기, 1400px 미만에서 가로 스크롤 */}
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -1808,8 +1659,17 @@ function App() {
         {viewMode === 'editor' ? (
           <>
             {/* Editor Sidebar - 고정 크기 */}
-            <div className="w-96 flex-shrink-0 h-full z-10 shadow-xl">
-              <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
+            <div className="w-96 flex-shrink-0 h-full z-10 shadow-xl flex flex-col">
+              {!isAuthenticated && !authLoading && (
+                <div className="bg-yellow-900/50 px-4 py-2 text-center">
+                  <p className="text-yellow-200 text-sm font-medium">
+                    로그인하지 않으면 작업이 저장되지 않습니다
+                  </p>
+                </div>
+              )}
+              <div className="flex-1 overflow-hidden">
+                <Editor sections={sections} setSections={handleSetSections} bgm={bgm} setBgm={setBgm} />
+              </div>
             </div>
 
             {/* Live Canvas */}
@@ -1962,62 +1822,6 @@ function App() {
         </Suspense>
       )}
 
-      {/* 비로그인 경고 팝업 */}
-      {showLoginWarningModal && !isAuthenticated && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4">
-          <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-fade-in">
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-4">🚨</div>
-              <h2 className="text-2xl font-bold text-white mb-2">잠깐!</h2>
-              <h3 className="text-lg font-semibold text-red-400">로그인하지 않으면 작업이 사라져요</h3>
-            </div>
-
-            <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-6">
-              <ul className="space-y-2 text-sm text-red-100">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-0.5">✗</span>
-                  <span>브라우저를 닫으면 <strong>모든 작업이 삭제</strong>됩니다</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-0.5">✗</span>
-                  <span>새로고침해도 <strong>복구할 수 없어요</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-0.5">✗</span>
-                  <span>이미지가 많으면 <strong>저장이 안 될 수 있어요</strong></span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 mb-6">
-              <p className="text-sm text-green-100 font-medium mb-2">✨ 로그인하면</p>
-              <ul className="space-y-1 text-sm text-green-200">
-                <li>• 클라우드에 안전하게 저장</li>
-                <li>• 어디서든 작업 이어하기</li>
-                <li>• 100MB 미디어 저장 공간</li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  setShowLoginWarningModal(false);
-                  signIn();
-                }}
-                className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors text-lg"
-              >
-                Google로 로그인하기
-              </button>
-              <button
-                onClick={() => setShowLoginWarningModal(false)}
-                className="w-full py-2 text-gray-400 hover:text-white text-sm transition-colors"
-              >
-                나중에 할게요 (작업 삭제 위험 감수)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
