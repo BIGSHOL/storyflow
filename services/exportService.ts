@@ -712,7 +712,8 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
 export const generateHTML = async (
   sections: Section[],
   title: string = 'My Story',
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  options?: { removeBranding?: boolean }
 ): Promise<string> => {
   const totalSteps = sections.length + 1;
   let currentStep = 0;
@@ -821,9 +822,9 @@ export const generateHTML = async (
 <body>
 ${sectionsHTML}
 
-  <footer class="footer">
+  ${options?.removeBranding ? '' : `<footer class="footer">
     <p>&copy; ${currentYear} Made with StoryFlow</p>
-  </footer>
+  </footer>`}
 
   <script>
     // Scroll Animation Observer
@@ -961,9 +962,10 @@ export const hasBlobUrls = (sections: Section[]): boolean => {
 export const exportToHTML = async (
   sections: Section[],
   title?: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  options?: { removeBranding?: boolean }
 ): Promise<void> => {
-  const html = await generateHTML(sections, title, onProgress);
+  const html = await generateHTML(sections, title, onProgress, options);
   downloadHTML(html, `${title || 'my-story'}.html`);
 };
 // ========== PDF 및 이미지 내보내기 ==========

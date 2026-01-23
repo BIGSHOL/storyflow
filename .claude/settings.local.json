@@ -12,7 +12,11 @@
       "Read(//d/**)",
       "Bash(tree:*)",
       "Skill(orchestrate)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(git -C D:/storyflow status)",
+      "Bash(git -C D:/storyflow diff)",
+      "Bash(git -C D:/storyflow log --oneline -5)"
     ]
   }
 }

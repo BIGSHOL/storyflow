@@ -16,6 +16,7 @@ import {
   type Permission,
   type CollaboratorWithEmail,
 } from '../services/collaborationService';
+import { usePlanLimits } from '../hooks/usePlanLimits';
 
 interface CollaborationDialogProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ const CollaborationDialog: React.FC<CollaborationDialogProps> = ({
   const [permission, setPermission] = useState<Permission>('view');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { canInviteCollaborator } = usePlanLimits();
 
   // 협업자 목록 불러오기
   const fetchCollaborators = useCallback(async () => {
@@ -65,6 +67,12 @@ const CollaborationDialog: React.FC<CollaborationDialogProps> = ({
     e.preventDefault();
     if (!email.trim()) return;
 
+    // 협업자 제한 확인
+    if (!canInviteCollaborator(collaborators.length)) {
+      setError('협업자 수가 플랜 한도에 도달했어요. 업그레이드하면 더 많은 팀원을 초대할 수 있어요.');
+      return;
+    }
+
     setInviting(true);
     setError(null);
     setSuccess(null);
@@ -90,7 +98,7 @@ const CollaborationDialog: React.FC<CollaborationDialogProps> = ({
     } finally {
       setInviting(false);
     }
-  }, [email, permission, projectId]);
+  }, [email, permission, projectId, canInviteCollaborator, collaborators.length]);
 
   // 권한 변경
   const handlePermissionChange = useCallback(async (

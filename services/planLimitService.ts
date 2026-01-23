@@ -70,3 +70,50 @@ export function getPlanPrice(planType: PlanType): number {
 export function formatPrice(price: number): string {
   return price === 0 ? '무료' : `₩${price.toLocaleString()}/월`;
 }
+
+// ========== 제한 체크 함수 ==========
+
+/**
+ * 프로젝트 생성 가능 여부를 체크합니다.
+ * @param planType 플랜 타입
+ * @param currentCount 현재 프로젝트 수
+ * @returns 생성 가능 여부
+ */
+export function checkProjectLimit(planType: PlanType, currentCount: number): boolean {
+  const limit = PLAN_LIMITS[planType].maxProjects;
+  if (limit === null) return true;
+  return currentCount < limit;
+}
+
+/**
+ * 내보내기 가능 여부를 체크합니다.
+ * @param planType 플랜 타입
+ * @param todayCount 오늘 내보내기 횟수
+ * @returns 내보내기 가능 여부
+ */
+export function checkExportLimit(planType: PlanType, todayCount: number): boolean {
+  const limit = PLAN_LIMITS[planType].maxExportsPerDay;
+  if (limit === null) return true;
+  return todayCount < limit;
+}
+
+/**
+ * 협업자 초대 가능 여부를 체크합니다.
+ * @param planType 플랜 타입
+ * @param currentCount 현재 협업자 수
+ * @returns 초대 가능 여부
+ */
+export function checkCollaboratorLimit(planType: PlanType, currentCount: number): boolean {
+  const limit = PLAN_LIMITS[planType].maxCollaborators;
+  if (limit === null) return true;
+  return currentCount < limit;
+}
+
+/**
+ * 브랜딩 제거 가능 여부를 체크합니다.
+ * @param planType 플랜 타입
+ * @returns 제거 가능 여부
+ */
+export function checkCanRemoveBranding(planType: PlanType): boolean {
+  return PLAN_LIMITS[planType].canRemoveBranding;
+}

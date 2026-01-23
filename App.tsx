@@ -27,7 +27,11 @@ import { canExport, recordExport, getExportLimitInfo } from './services/exportLi
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject, hasAnonymousSavedProject, loadAnonymousProject, clearAnonymousSavedProject, clearSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
+import { PlanBadge } from './components/subscription/PlanBadge';
+import { UpgradeModal } from './components/subscription/UpgradeModal';
+import { PricingOverlay } from './components/subscription/PricingOverlay';
 import { useAuth } from './hooks/useAuth';
+import { usePlanLimits } from './hooks/usePlanLimits';
 import { useProject } from './hooks/useProject';
 import { useIsMobile } from './hooks/useIsMobile';
 import { useDeviceType } from './hooks/useDeviceType';
@@ -115,6 +119,7 @@ const MAX_HISTORY = 50;
 function App() {
   const { user, isAuthenticated, loading: authLoading, signIn } = useAuth();
   const { currentProject, setCurrentProject, projects, loadProject: loadProjectFromDB, saveAsNewProject, updateCurrentProject, removeProject } = useProject();
+  const { subscription, canCreateProject, canExport: canExportByPlan, canRemoveBranding } = usePlanLimits();
   const userId = user?.id ?? null;
   const isMobile = useIsMobile();
   const deviceType = useDeviceType();
@@ -171,8 +176,18 @@ function App() {
   // 로그인 경고 모달 상태
   const [showLoginWarningModal, setShowLoginWarningModal] = useState(false);
 
-  // 프로젝트 개수 제한
-  const MAX_PROJECTS = 3;
+  // 업그레이드 모달 상태
+  const [upgradeModal, setUpgradeModal] = useState<{
+    isOpen: boolean;
+    limitType: 'project' | 'export' | 'collaborator';
+    usage: { used: number; limit: number };
+  }>({ isOpen: false, limitType: 'project', usage: { used: 0, limit: 3 } });
+
+  // 플랜 비교 오버레이 상태
+  const [showPricingOverlay, setShowPricingOverlay] = useState(false);
+
+  // 프로젝트 개수 제한 (플랜 기반)
+  const MAX_PROJECTS = subscription?.limits.maxProjects ?? 3;
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -409,8 +424,7 @@ function App() {
       }
 
       // 새 프로젝트로 저장 (프로젝트 제한 확인)
-      if (projects.length >= MAX_PROJECTS) {
-        alert(`프로젝트는 최대 ${MAX_PROJECTS}개까지 만들 수 있어요.\n기존 프로젝트를 삭제하거나, 현재 프로젝트에 덮어쓰기 해주세요.`);
+      if (!canCreateProject()) {
         // 현재 프로젝트가 있으면 덮어쓰기 옵션 제공
         if (currentProject) {
           const overwrite = window.confirm('현재 프로젝트에 덮어쓰시겠어요?');
@@ -425,6 +439,12 @@ function App() {
             clearAnonymousSavedProject();
             alert('클라우드에 저장되었어요!');
           }
+        } else {
+          setUpgradeModal({
+            isOpen: true,
+            limitType: 'project',
+            usage: { used: projects.length, limit: MAX_PROJECTS as number },
+          });
         }
       } else {
         const title = prompt('프로젝트 제목을 입력하세요:', '로컬 프로젝트');
@@ -450,7 +470,7 @@ function App() {
       setShowMigrationModal(false);
       setPendingMigrationData(null);
     }
-  }, [pendingMigrationData, projects.length, currentProject, saveAsNewProject, setCurrentProject]);
+  }, [pendingMigrationData, projects.length, currentProject, saveAsNewProject, setCurrentProject, canCreateProject, MAX_PROJECTS]);
 
   // 마이그레이션 취소 (익명 데이터 삭제)
   const handleMigrationCancel = useCallback(() => {
@@ -532,8 +552,12 @@ function App() {
           alert('클라우드에 저장되었어요!');
         } else {
           // 새 프로젝트 생성 - 제한 체크
-          if (projects.length >= MAX_PROJECTS) {
-            alert(`프로젝트는 최대 ${MAX_PROJECTS}개까지 만들 수 있어요. 기존 프로젝트를 삭제해주세요.`);
+          if (!canCreateProject()) {
+            setUpgradeModal({
+              isOpen: true,
+              limitType: 'project',
+              usage: { used: projects.length, limit: MAX_PROJECTS as number },
+            });
             setIsSaving(false);
             return;
           }
@@ -609,7 +633,7 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  }, [sections, isAuthenticated, currentProject, saveAsNewProject, userId, setSections, projects.length]);
+  }, [sections, isAuthenticated, currentProject, saveAsNewProject, userId, setSections, projects.length, canCreateProject, MAX_PROJECTS]);
 
   // 프로젝트 불러오기
   const handleLoad = useCallback(() => {
@@ -640,8 +664,12 @@ function App() {
       return;
     }
 
-    if (projects.length >= MAX_PROJECTS) {
-      alert(`프로젝트는 최대 ${MAX_PROJECTS}개까지 만들 수 있어요. 기존 프로젝트를 삭제해주세요.`);
+    if (!canCreateProject()) {
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'project',
+        usage: { used: projects.length, limit: MAX_PROJECTS as number },
+      });
       return;
     }
 
@@ -658,7 +686,7 @@ function App() {
       setCanRedo(false);
       setShowProjectDropdown(false);
     }
-  }, [isAuthenticated, projects.length, saveAsNewProject, setCurrentProject]);
+  }, [isAuthenticated, projects.length, saveAsNewProject, setCurrentProject, canCreateProject, MAX_PROJECTS]);
 
   // 프로젝트 전환
   const handleSwitchProject = useCallback((project: typeof projects[0]) => {
@@ -750,10 +778,25 @@ function App() {
       return;
     }
 
-    // 무료티어 내보내기 제한 확인
+    // 내보내기 제한 확인 (플랜 기반)
+    if (!canExportByPlan()) {
+      const limitInfo = getExportLimitInfo();
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
+      return;
+    }
+
+    // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
       const limitInfo = getExportLimitInfo();
-      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
       return;
     }
 
@@ -771,7 +814,9 @@ function App() {
     setIsExporting(true);
     setShowExportDropdown(false);
     try {
-      await exportToHTML(sections, 'my-story');
+      await exportToHTML(sections, 'my-story', undefined, {
+        removeBranding: canRemoveBranding(),
+      });
       recordExport(); // 내보내기 성공 시 기록
       alert('HTML 파일이 다운로드되었어요!');
     } catch (error) {
@@ -780,7 +825,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, isAuthenticated]);
+  }, [sections, isAuthenticated, canRemoveBranding, canExportByPlan]);
 
   // PDF로 내보내기
   const handleExportPDF = useCallback(async () => {
@@ -795,10 +840,25 @@ function App() {
       return;
     }
 
-    // 무료티어 내보내기 제한 확인
+    // 내보내기 제한 확인 (플랜 기반)
+    if (!canExportByPlan()) {
+      const limitInfo = getExportLimitInfo();
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
+      return;
+    }
+
+    // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
       const limitInfo = getExportLimitInfo();
-      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
       return;
     }
 
@@ -830,7 +890,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject, isAuthenticated]);
+  }, [sections, currentProject, isAuthenticated, canExportByPlan]);
 
   // 이미지로 내보내기 (PNG)
   const handleExportImage = useCallback(async () => {
@@ -845,10 +905,25 @@ function App() {
       return;
     }
 
-    // 무료티어 내보내기 제한 확인
+    // 내보내기 제한 확인 (플랜 기반)
+    if (!canExportByPlan()) {
+      const limitInfo = getExportLimitInfo();
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
+      return;
+    }
+
+    // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
       const limitInfo = getExportLimitInfo();
-      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
       return;
     }
 
@@ -880,7 +955,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject, isAuthenticated]);
+  }, [sections, currentProject, isAuthenticated, canExportByPlan]);
 
   // 섹션별 이미지로 내보내기
   const handleExportSectionImages = useCallback(async () => {
@@ -895,10 +970,25 @@ function App() {
       return;
     }
 
-    // 무료티어 내보내기 제한 확인
+    // 내보내기 제한 확인 (플랜 기반)
+    if (!canExportByPlan()) {
+      const limitInfo = getExportLimitInfo();
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
+      return;
+    }
+
+    // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
       const limitInfo = getExportLimitInfo();
-      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
       return;
     }
 
@@ -936,7 +1026,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject, isAuthenticated]);
+  }, [sections, currentProject, isAuthenticated, canExportByPlan]);
 
   // 썸네일 다운로드
   const handleExportThumbnail = useCallback(async () => {
@@ -951,10 +1041,25 @@ function App() {
       return;
     }
 
-    // 무료티어 내보내기 제한 확인
+    // 내보내기 제한 확인 (플랜 기반)
+    if (!canExportByPlan()) {
+      const limitInfo = getExportLimitInfo();
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
+      return;
+    }
+
+    // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
       const limitInfo = getExportLimitInfo();
-      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
+      setUpgradeModal({
+        isOpen: true,
+        limitType: 'export',
+        usage: { used: limitInfo.limit - limitInfo.remaining, limit: limitInfo.limit },
+      });
       return;
     }
 
@@ -998,7 +1103,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject, isAuthenticated]);
+  }, [sections, currentProject, isAuthenticated, canExportByPlan]);
 
   // 프로젝트 이름 변경 핸들러 (모바일용 - 공통 함수 재사용)
   const handleRenameProjectMobile = renameProjectById;
@@ -1235,7 +1340,12 @@ function App() {
               )}
             </div>
 
-            <UserMenu />
+            <div className="flex items-center gap-2">
+              {isAuthenticated && subscription && (
+                <PlanBadge planType={subscription.planType} onClick={() => setShowPricingOverlay(true)} />
+              )}
+              <UserMenu />
+            </div>
           </div>
 
           {/* 2행: 편집 도구들 (컴팩트) */}
@@ -1892,6 +2002,25 @@ function App() {
           />
         </Suspense>
       )}
+
+      {/* 업그레이드 모달 */}
+      <UpgradeModal
+        isOpen={upgradeModal.isOpen}
+        onClose={() => setUpgradeModal(prev => ({ ...prev, isOpen: false }))}
+        onViewPlans={() => {
+          setUpgradeModal(prev => ({ ...prev, isOpen: false }));
+          setShowPricingOverlay(true);
+        }}
+        limitType={upgradeModal.limitType}
+        currentUsage={upgradeModal.usage}
+      />
+
+      {/* 플랜 비교 오버레이 */}
+      <PricingOverlay
+        isOpen={showPricingOverlay}
+        onClose={() => setShowPricingOverlay(false)}
+        currentPlan={subscription?.planType ?? 'free'}
+      />
 
     </div>
   );

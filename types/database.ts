@@ -97,6 +97,86 @@ export interface Database {
           }
         ];
       };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          plan_type: 'free' | 'pro' | 'team';
+          status: 'active' | 'canceled' | 'past_due' | 'expired';
+          billing_key: string | null;
+          current_period_start: string;
+          current_period_end: string | null;
+          canceled_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          plan_type?: 'free' | 'pro' | 'team';
+          status?: 'active' | 'canceled' | 'past_due' | 'expired';
+          billing_key?: string | null;
+          current_period_start?: string;
+          current_period_end?: string | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          plan_type?: 'free' | 'pro' | 'team';
+          status?: 'active' | 'canceled' | 'past_due' | 'expired';
+          billing_key?: string | null;
+          current_period_start?: string;
+          current_period_end?: string | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      usage_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          usage_date: string;
+          export_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          usage_date?: string;
+          export_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          usage_date?: string;
+          export_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'usage_logs_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       collaborators: {
         Row: {
           id: string;
