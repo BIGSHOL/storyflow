@@ -3471,6 +3471,17 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           )}
                         </div>
 
+                        {/* 비디오 URL 입력 */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">또는 URL 입력</label>
+                          <KoreanInput
+                            value={section.videoUrl || ''}
+                            onChange={(v) => updateSection(section.id, { videoUrl: v })}
+                            placeholder="https://example.com/video.mp4"
+                            className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
+                          />
+                        </div>
+
                         {/* 비디오 옵션 */}
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
