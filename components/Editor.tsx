@@ -44,6 +44,7 @@ import Eye from 'lucide-react/dist/esm/icons/eye';
 import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
 import Info from 'lucide-react/dist/esm/icons/info';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
 import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
@@ -3127,14 +3128,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           <label className="text-xs text-gray-400">이미지 ({section.galleryImages?.length || 0}개)</label>
                           {(section.galleryImages || []).map((image, idx) => (
                             <div key={image.id} className="flex items-center gap-2 p-2 bg-gray-800 rounded">
-                              {image.url ? (
-                                <img src={image.url} alt="" className="w-10 h-10 object-cover rounded" />
-                              ) : (
-                                <label className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                  <Plus size={16} className="text-gray-400" />
-                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleGalleryImageUpload(e, section.id, image.id)} />
-                                </label>
-                              )}
+                              <label className="w-10 h-10 cursor-pointer relative group flex-shrink-0">
+                                {image.url ? (
+                                  <>
+                                    <img src={image.url} alt="" className="w-10 h-10 object-cover rounded" />
+                                    <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                      <RefreshCw size={14} className="text-white" />
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600">
+                                    <Plus size={16} className="text-gray-400" />
+                                  </div>
+                                )}
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleGalleryImageUpload(e, section.id, image.id)} />
+                              </label>
                               <KoreanInput
                                 value={image.caption || ''}
                                 onChange={(v) => updateGalleryImage(section.id, image.id, { caption: v })}
@@ -3270,14 +3278,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                           {(section.cards || []).map((card, idx) => (
                             <div key={card.id} className="p-3 bg-gray-800 rounded space-y-2">
                               <div className="flex items-center gap-2">
-                                {card.imageUrl ? (
-                                  <img src={card.imageUrl} alt="" className="w-12 h-12 object-cover rounded" />
-                                ) : (
-                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                    <ImageIcon size={16} className="text-gray-400" />
-                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCardImageUpload(e, section.id, card.id)} />
-                                  </label>
-                                )}
+                                <label className="w-12 h-12 cursor-pointer relative group flex-shrink-0">
+                                  {card.imageUrl ? (
+                                    <>
+                                      <img src={card.imageUrl} alt="" className="w-12 h-12 object-cover rounded" />
+                                      <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <RefreshCw size={14} className="text-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600">
+                                      <ImageIcon size={16} className="text-gray-400" />
+                                    </div>
+                                  )}
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCardImageUpload(e, section.id, card.id)} />
+                                </label>
                                 <div className="flex-1">
                                   <KoreanInput
                                     value={card.title}
@@ -3619,14 +3634,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <div key={image.id} className="p-3 bg-gray-800 rounded space-y-2">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
-                                {image.url ? (
-                                  <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
-                                ) : (
-                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                    <Plus size={16} className="text-gray-400" />
-                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCarouselImageUpload(e, section.id, image.id)} />
-                                  </label>
-                                )}
+                                <label className="w-12 h-12 cursor-pointer relative group flex-shrink-0">
+                                  {image.url ? (
+                                    <>
+                                      <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
+                                      <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <RefreshCw size={14} className="text-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600">
+                                      <Plus size={16} className="text-gray-400" />
+                                    </div>
+                                  )}
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleCarouselImageUpload(e, section.id, image.id)} />
+                                </label>
                                 <div className="flex-1 space-y-1">
                                   <KoreanInput
                                     value={image.title || ''}
@@ -3764,14 +3786,21 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             <div key={image.id} className="p-3 bg-gray-800 rounded space-y-2">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-gray-500 w-5">{idx + 1}</span>
-                                {image.url ? (
-                                  <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
-                                ) : (
-                                  <label className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                                    <Plus size={16} className="text-gray-400" />
-                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleMasonryImageUpload(e, section.id, image.id)} />
-                                  </label>
-                                )}
+                                <label className="w-12 h-12 cursor-pointer relative group flex-shrink-0">
+                                  {image.url ? (
+                                    <>
+                                      <img src={image.url} alt="" className="w-12 h-12 object-cover rounded" />
+                                      <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <RefreshCw size={14} className="text-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600">
+                                      <Plus size={16} className="text-gray-400" />
+                                    </div>
+                                  )}
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleMasonryImageUpload(e, section.id, image.id)} />
+                                </label>
                                 <div className="flex-1">
                                   <KoreanInput
                                     value={image.caption || ''}
