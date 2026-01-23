@@ -62,9 +62,9 @@ const CardsLayout: React.FC<CardsLayoutProps> = memo(({ section }) => {
                 loading="lazy"
               />
             )}
-            <div className="p-6">
+            <div className="p-6 text-white">
               <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-              <p className="opacity-80 text-sm">{card.description}</p>
+              <p className="text-gray-300 text-sm">{card.description}</p>
               {card.link && (
                 <a
                   href={card.link}
