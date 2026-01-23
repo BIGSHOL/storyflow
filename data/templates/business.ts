@@ -13,7 +13,7 @@ export const businessTemplates: Template[] = [
                 title: '혁신적인 제품',
                 description: '당신의 일상을 바꿔줄 새로운 경험',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/product-hero.png',
+                mediaUrl: '/images/templates/business/product-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
@@ -24,7 +24,7 @@ export const businessTemplates: Template[] = [
                 title: '특별한 기능',
                 description: '왜 이 제품이 특별한지 설명해보세요. 사용자에게 어떤 가치를 제공하나요?',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/product-feature.png',
+                mediaUrl: '/images/templates/business/product-feature.webp',
                 textAlignment: 'left',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
@@ -35,7 +35,7 @@ export const businessTemplates: Template[] = [
                 title: '편리한 사용법',
                 description: '복잡한 설정 없이 바로 시작할 수 있습니다. 누구나 쉽게 사용할 수 있어요.',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/product-usage.png',
+                mediaUrl: '/images/templates/business/product-usage.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -64,7 +64,7 @@ export const businessTemplates: Template[] = [
                 title: '우리가 만드는 미래',
                 description: '혁신과 신뢰로 세상을 바꿉니다',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/company-hero.png',
+                mediaUrl: '/images/templates/business/company-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1a365d',
@@ -90,7 +90,7 @@ export const businessTemplates: Template[] = [
                 title: '우리의 미션',
                 description: '기술과 창의력으로 고객의 성공을 돕습니다. 최고의 품질과 서비스를 약속드립니다.',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/company-meeting.png',
+                mediaUrl: '/images/templates/business/company-meeting.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -119,7 +119,7 @@ export const businessTemplates: Template[] = [
                 title: '더 나은 방법이 있습니다',
                 description: '업무 효율을 200% 높여주는 솔루션',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/service-hero.png',
+                mediaUrl: '/images/templates/business/service-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#4c1d95',
@@ -135,9 +135,9 @@ export const businessTemplates: Template[] = [
                 textColor: '#ffffff',
                 backgroundColor: '#2e1065',
                 cards: [
-                    { id: '1', title: '빠른 속도', description: '기존 대비 3배 빠른 처리 속도', imageUrl: '/images/templates/business/service-fast.png' },
-                    { id: '2', title: '쉬운 사용', description: '직관적인 인터페이스', imageUrl: '/images/templates/business/service-ui.png' },
-                    { id: '3', title: '24/7 지원', description: '언제든 도움을 받으세요', imageUrl: '/images/templates/business/service-support.png' },
+                    { id: '1', title: '빠른 속도', description: '기존 대비 3배 빠른 처리 속도', imageUrl: '/images/templates/business/service-fast.webp' },
+                    { id: '2', title: '쉬운 사용', description: '직관적인 인터페이스', imageUrl: '/images/templates/business/service-ui.webp' },
+                    { id: '3', title: '24/7 지원', description: '언제든 도움을 받으세요', imageUrl: '/images/templates/business/service-support.webp' },
                 ],
             },
             {
@@ -219,7 +219,7 @@ export const businessTemplates: Template[] = [
                 title: '맛있는 순간',
                 description: '당신을 위한 특별한 식사',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/restaurant-hero.png',
+                mediaUrl: '/images/templates/business/restaurant-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#7c2d12',
@@ -230,7 +230,7 @@ export const businessTemplates: Template[] = [
                 title: '오늘의 특선 메뉴',
                 description: '계절의 신선한 재료로 만드는 정성 가득한 요리',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/restaurant-dish.png',
+                mediaUrl: '/images/templates/business/restaurant-dish.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -246,9 +246,9 @@ export const businessTemplates: Template[] = [
                 textColor: '#ffffff',
                 backgroundColor: '#7c2d12',
                 cards: [
-                    { id: '1', title: '스테이크', description: '35,000원\n프리미엄 한우', imageUrl: '/images/templates/business/restaurant-steak.png' },
-                    { id: '2', title: '파스타', description: '18,000원\n수제 면발', imageUrl: '/images/templates/business/restaurant-pasta.png' },
-                    { id: '3', title: '리조또', description: '22,000원\n이탈리안 스타일', imageUrl: '/images/templates/business/restaurant-risotto.png' },
+                    { id: '1', title: '스테이크', description: '35,000원\n프리미엄 한우', imageUrl: '/images/templates/business/restaurant-steak.webp' },
+                    { id: '2', title: '파스타', description: '18,000원\n수제 면발', imageUrl: '/images/templates/business/restaurant-pasta.webp' },
+                    { id: '3', title: '리조또', description: '22,000원\n이탈리안 스타일', imageUrl: '/images/templates/business/restaurant-risotto.webp' },
                 ],
             },
             {
@@ -256,7 +256,7 @@ export const businessTemplates: Template[] = [
                 title: '방문 안내',
                 description: '영업시간: 11:00 - 22:00 (라스트 오더 21:00)\n정기휴무: 매주 월요일\n\n주소: 서울시 강남구 테헤란로 123\n예약: 02-1234-5678',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/restaurant-interior.png',
+                mediaUrl: '/images/templates/business/restaurant-interior.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -275,7 +275,7 @@ export const businessTemplates: Template[] = [
                 title: '당신의 꿈을 현실로',
                 description: '완벽한 공간을 찾아드립니다',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/realestate-hero.png',
+                mediaUrl: '/images/templates/business/realestate-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1e40af',
@@ -286,7 +286,7 @@ export const businessTemplates: Template[] = [
                 title: '프리미엄 아파트',
                 description: '강남 중심부 위치\n전용면적 85㎡ / 3룸 2욕실\n남향 / 고층 / 한강뷰\n\n매매가: 15억원',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/realestate-apartment.png',
+                mediaUrl: '/images/templates/business/realestate-apartment.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -302,10 +302,10 @@ export const businessTemplates: Template[] = [
                 textColor: '#ffffff',
                 backgroundColor: '#1e40af',
                 galleryImages: [
-                    { id: '1', url: '/images/templates/business/realestate-livingroom.png', caption: '거실' },
-                    { id: '2', url: '/images/templates/business/realestate-kitchen.png', caption: '주방' },
-                    { id: '3', url: '/images/templates/business/realestate-bedroom.png', caption: '안방' },
-                    { id: '4', url: '/images/templates/business/realestate-bathroom.png', caption: '욕실' },
+                    { id: '1', url: '/images/templates/business/realestate-livingroom.webp', caption: '거실' },
+                    { id: '2', url: '/images/templates/business/realestate-kitchen.webp', caption: '주방' },
+                    { id: '3', url: '/images/templates/business/realestate-bedroom.webp', caption: '안방' },
+                    { id: '4', url: '/images/templates/business/realestate-bathroom.webp', caption: '욕실' },
                 ],
                 gallerySettings: { columns: 2, gap: 16, showCaptions: true },
             },
@@ -332,7 +332,7 @@ export const businessTemplates: Template[] = [
                 title: '팀 협업의 새로운 기준',
                 description: '모든 것을 한 곳에서, 더 스마트하게',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/saas-hero.png',
+                mediaUrl: '/images/templates/business/saas-hero.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#0f172a',
@@ -343,7 +343,7 @@ export const businessTemplates: Template[] = [
                 title: '실시간 협업',
                 description: '팀원들과 실시간으로 문서를 편집하고 피드백을 주고받으세요.',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/saas-collaboration.png',
+                mediaUrl: '/images/templates/business/saas-collaboration.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -354,7 +354,7 @@ export const businessTemplates: Template[] = [
                 title: '강력한 통합',
                 description: '이미 사용 중인 도구들과 완벽하게 연동됩니다.',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/saas-integration.png',
+                mediaUrl: '/images/templates/business/saas-integration.webp',
                 textAlignment: 'left',
                 splitRatio: 50,
                 textColor: '#ffffff',
@@ -400,7 +400,7 @@ export const businessTemplates: Template[] = [
                 title: '문제점과 해결책',
                 description: '우리는 시장의 문제를 이렇게 해결합니다',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/startup-presentation.png',
+                mediaUrl: '/images/templates/business/startup-presentation.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#111827',
                 textAlignment: 'center'
@@ -448,7 +448,7 @@ export const businessTemplates: Template[] = [
                 title: '내 손안의 모든 것',
                 description: '지금 바로 다운로드하여 새로운 세상을 경험하세요.',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/app-smartphone.png',
+                mediaUrl: '/images/templates/business/app-smartphone.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#4f46e5',
                 textAlignment: 'left',
@@ -471,9 +471,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#4338ca',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: '간편한 가입', description: '3초면 시작할 수 있습니다', imageUrl: '/images/templates/business/app-signup.png' },
-                    { id: '2', title: '강력한 보안', description: '안전하게 데이터를 보호합니다', imageUrl: '/images/templates/business/app-security.png' },
-                    { id: '3', title: '클라우드 동기화', description: '어디서나 이어서 사용하세요', imageUrl: '/images/templates/business/app-cloud.png' }
+                    { id: '1', title: '간편한 가입', description: '3초면 시작할 수 있습니다', imageUrl: '/images/templates/business/app-signup.webp' },
+                    { id: '2', title: '강력한 보안', description: '안전하게 데이터를 보호합니다', imageUrl: '/images/templates/business/app-security.webp' },
+                    { id: '3', title: '클라우드 동기화', description: '어디서나 이어서 사용하세요', imageUrl: '/images/templates/business/app-cloud.webp' }
                 ]
             }
         ]
@@ -489,7 +489,7 @@ export const businessTemplates: Template[] = [
                 title: 'SUMMER SALE',
                 description: '최대 50% 할인, 여름 시즌 오프',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/store-summer.png',
+                mediaUrl: '/images/templates/business/store-summer.webp',
                 textColor: '#000000',
                 backgroundColor: '#fde047',
                 textAlignment: 'center',
@@ -505,10 +505,10 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#ffffff',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: '/images/templates/business/store-dress.png', caption: '상품 A' },
-                    { id: '2', url: '/images/templates/business/store-shirt.png', caption: '상품 B' },
-                    { id: '3', url: '/images/templates/business/store-shoes.png', caption: '상품 C' },
-                    { id: '4', url: '/images/templates/business/store-bag.png', caption: '상품 D' }
+                    { id: '1', url: '/images/templates/business/store-dress.webp', caption: '상품 A' },
+                    { id: '2', url: '/images/templates/business/store-shirt.webp', caption: '상품 B' },
+                    { id: '3', url: '/images/templates/business/store-shoes.webp', caption: '상품 C' },
+                    { id: '4', url: '/images/templates/business/store-bag.webp', caption: '상품 D' }
                 ],
                 gallerySettings: { columns: 2, gap: 10, showCaptions: true }
             }
@@ -525,7 +525,7 @@ export const businessTemplates: Template[] = [
                 title: '도심 속의 휴식',
                 description: '프리미엄 럭셔리 스테이',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/hotel-luxury.png',
+                mediaUrl: '/images/templates/business/hotel-luxury.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#0c4a6e',
                 textAlignment: 'center',
@@ -541,9 +541,9 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#075985',
                 textAlignment: 'center',
                 carouselImages: [
-                    { id: '1', url: '/images/templates/business/hotel-room.png', title: '디럭스 룸' },
-                    { id: '2', url: '/images/templates/business/hotel-suite.png', title: '스위트 룸' },
-                    { id: '3', url: '/images/templates/business/hotel-pool.png', title: '인피니티 풀' }
+                    { id: '1', url: '/images/templates/business/hotel-room.webp', title: '디럭스 룸' },
+                    { id: '2', url: '/images/templates/business/hotel-suite.webp', title: '스위트 룸' },
+                    { id: '3', url: '/images/templates/business/hotel-pool.webp', title: '인피니티 풀' }
                 ]
             }
         ]
@@ -559,7 +559,7 @@ export const businessTemplates: Template[] = [
                 title: '여러분의 건강 지킴이',
                 description: '정직하고 바른 진료를 약속합니다',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/hospital-hero.png',
+                mediaUrl: '/images/templates/business/hospital-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#059669',
                 textAlignment: 'center'
@@ -569,7 +569,7 @@ export const businessTemplates: Template[] = [
                 title: '진료 과목',
                 description: '내과 / 소아과 / 이비인후과\n건강검진 센터 운영\n\n평일 야간 진료 시행',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/hospital-doctor.png',
+                mediaUrl: '/images/templates/business/hospital-doctor.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#047857',
                 textAlignment: 'left'
@@ -597,7 +597,7 @@ export const businessTemplates: Template[] = [
                 title: 'BE STRONG',
                 description: '최고의 시설에서 시작하는 변화',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/gym-hero.png',
+                mediaUrl: '/images/templates/business/gym-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#171717',
                 textAlignment: 'center'
@@ -630,7 +630,7 @@ export const businessTemplates: Template[] = [
                 title: '꿈을 향한 도전',
                 description: '체계적인 커리큘럼으로 합격까지',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/business/academy-classroom.png',
+                mediaUrl: '/images/templates/business/academy-classroom.webp',
                 textColor: '#000000',
                 backgroundColor: '#fbbf24',
                 textAlignment: 'center'
@@ -645,7 +645,7 @@ export const businessTemplates: Template[] = [
                 backgroundColor: '#f59e0b',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: '입문반', description: '기초부터 탄탄하게', imageUrl: '/images/templates/business/academy-book.png' },
+                    { id: '1', title: '입문반', description: '기초부터 탄탄하게', imageUrl: '/images/templates/business/academy-book.webp' },
                     { id: '2', title: '심화반', description: '실전 문제 풀이', imageUrl: 'https://loremflickr.com/400/300/study?lock=44' },
                     { id: '3', title: '특강', description: '방학 집중 과정', imageUrl: 'https://loremflickr.com/400/300/lecture?lock=45' }
                 ]
