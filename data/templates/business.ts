@@ -596,11 +596,12 @@ export const businessTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: 'BE STRONG',
                 description: '최고의 시설에서 시작하는 변화',
-                mediaType: 'image',
-                mediaUrl: '/images/templates/business/gym-hero.webp',
+                mediaType: 'video',
+                mediaUrl: '/videos/templates/business/gym-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#171717',
-                textAlignment: 'center'
+                textAlignment: 'center',
+                videoHeroSettings: { autoPlay: true, muted: true, loop: true }
             },
             {
                 layout: LayoutType.STATS,
@@ -905,11 +906,12 @@ export const businessTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '마스터클래스',
                 description: '업계 최고에게 배우는 실전 노하우',
-                mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/tutor?lock=63',
+                mediaType: 'video',
+                mediaUrl: '/videos/templates/business/online-course-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
-                textAlignment: 'center'
+                textAlignment: 'center',
+                videoHeroSettings: { autoPlay: true, muted: true, loop: true }
             },
             {
                 layout: LayoutType.TIMELINE,

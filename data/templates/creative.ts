@@ -246,8 +246,8 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: 'The Rockers',
                 description: '우리는 음악을 들어보세요',
-                mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/concert?lock=119',
+                mediaType: 'video',
+                mediaUrl: '/videos/templates/creative/music-band-hero.webm',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#991b1b',
@@ -302,8 +302,8 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '스토리를 영상으로',
                 description: '영상 제작',
-                mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/film?lock=120',
+                mediaType: 'video',
+                mediaUrl: '/videos/templates/creative/video-portfolio-hero.webm',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#171717',
@@ -415,8 +415,8 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '현실을 넘어서',
                 description: '3D 캐릭터 & 환경 아티스트',
-                mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/3d?lock=132',
+                mediaType: 'video',
+                mediaUrl: '/videos/templates/creative/3d-artist-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center',
