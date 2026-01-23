@@ -167,7 +167,7 @@ const AudioLayout: React.FC<AudioLayoutProps> = ({
         )}
 
         {/* 플레이어 */}
-        <div className="bg-gray-800/50 rounded-2xl p-8 backdrop-blur-sm border border-gray-700">
+        <div className="bg-gray-800/50 rounded-2xl p-8 backdrop-blur-sm border border-gray-700 text-white">
           {/* 앨범 커버 */}
           {currentTrack.coverImage && (
             <div className="mb-6 flex justify-center">
@@ -270,7 +270,7 @@ const AudioLayout: React.FC<AudioLayoutProps> = ({
 
         {/* 플레이리스트 */}
         {settings.showPlaylist && tracks.length > 1 && (
-          <div className="mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+          <div className="mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/50 text-white">
             <h4 className="text-sm font-medium mb-3 opacity-70">플레이리스트</h4>
             <div className="space-y-2">
               {tracks.map((track, index) => (

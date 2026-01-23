@@ -227,7 +227,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
       case 'bordered':
         return `${baseClass} bg-transparent border border-gray-700`;
       default:
-        return `${baseClass} bg-gray-800/50 backdrop-blur-sm`;
+        return `${baseClass} bg-gray-800/50 backdrop-blur-sm text-white`;
     }
   };
 
@@ -262,7 +262,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
 
   // ========== 리스트형 스타일 ==========
   const renderListStyle = () => (
-    <div className="space-y-3 bg-gray-800/30 backdrop-blur-sm rounded-lg p-4">
+    <div className="space-y-3 bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 text-white">
       {displayedEntries.map((entry) => (
         <div key={entry.id} className="flex items-center gap-4 py-3 border-b border-gray-700/50 last:border-0">
           {renderAvatar(entry, 'sm')}
@@ -282,7 +282,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
 
   // ========== 채팅형 스타일 ==========
   const renderChatStyle = () => (
-    <div className="space-y-4 max-w-2xl mx-auto bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6">
+    <div className="space-y-4 max-w-2xl mx-auto bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 text-white">
       {displayedEntries.map((entry, index) => {
         // 번갈아가며 좌우 배치
         const isLeft = index % 2 === 0;
@@ -329,7 +329,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
               {/* 모바일: 항상 오른쪽 */}
               <div className="md:hidden pl-12">
                 <div className="absolute left-2.5 top-2 w-3 h-3 bg-indigo-500 rounded-full border-2 border-gray-900" />
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 text-white">
                   <div className="flex items-center gap-2 mb-2">
                     {renderAvatar(entry, 'sm')}
                     <span className="font-medium">{entry.name}</span>
@@ -344,7 +344,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
               {/* 데스크탑: 교대 배치 */}
               <div className={`hidden md:flex items-start ${isLeft ? '' : 'flex-row-reverse'}`}>
                 <div className={`w-[calc(50%-24px)] ${isLeft ? 'pr-8 text-right' : 'pl-8'}`}>
-                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
+                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 text-white">
                     <div className={`flex items-center gap-2 mb-2 ${isLeft ? 'justify-end' : ''}`}>
                       {!isLeft && renderAvatar(entry, 'sm')}
                       <span className="font-medium">{entry.name}</span>
@@ -415,7 +415,7 @@ const GuestbookLayout: React.FC<GuestbookLayoutProps> = ({
         {/* 방명록 입력 폼 */}
         {!isPreview && (
           <form onSubmit={handleSubmit} className="mb-12 max-w-2xl mx-auto">
-            <div className="space-y-4 bg-gray-800/30 backdrop-blur-sm rounded-lg p-6">
+            <div className="space-y-4 bg-gray-800/30 backdrop-blur-sm rounded-lg p-6 text-white">
               {(!settings.allowAnonymous || settings.requireName) && (
                 <IMEInput
                   value={name}
