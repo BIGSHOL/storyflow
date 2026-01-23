@@ -1,6 +1,7 @@
 # Orchestrator Command
 
 StoryFlow Creator 에이전트 팀을 조율하는 오케스트레이터입니다.
+**Phase 번호에 따라 Git Worktree와 TDD 정보를 자동으로 서브에이전트에 전달합니다.**
 
 ## 사용법
 
@@ -12,72 +13,112 @@ StoryFlow Creator 에이전트 팀을 조율하는 오케스트레이터입니�
 
 사용자 요청을 분석하여 적절한 에이전트에게 작업을 분배하고, 결과를 통합합니다.
 
+## 워크플로우
+
+### 1단계: 컨텍스트 파악
+
+기획 문서를 확인합니다:
+- `docs/planning/06-tasks.md` - 마일스톤, 태스크 목록
+- `docs/planning/01-prd.md` - 요구사항 정의
+- `docs/planning/02-trd.md` - 기술 요구사항
+
+### 2단계: 작업 분석
+
+사용자 요청을 분석하여:
+1. 어떤 태스크(Phase N, TN.X)에 해당하는지 파악
+2. **Phase 번호 추출** (Git Worktree 결정에 필수!)
+3. 필요한 전문 분야 결정
+4. 의존성 확인
+5. 병렬 가능 여부 판단
+
 ## 에이전트 팀
 
-| 에이전트 | 역할 | 담당 파일 |
+| 에이전트 | 역할 | 담당 영역 |
 |---------|------|----------|
+| Supabase Specialist | Edge Functions, DB, RLS | 백엔드 API, 인증, 데이터베이스 |
+| Database Specialist | PostgreSQL, 마이그레이션, RLS | 스키마 설계, 마이그레이션 |
+| Frontend Specialist | React 컴포넌트 개발 | UI 컴포넌트, 상태관리 |
+| Test Specialist | 테스트 작성, Mock 생성 | TDD, 품질 게이트 |
 | UX Specialist | 노코드 사용자를 위한 직관적 UI/UX | 전체 UX 검토 |
-| Frontend Specialist | React 컴포넌트 개발 | App.tsx, Editor.tsx, PreviewRender.tsx, types.ts |
-| Media Specialist | 이미지/비디오 업로드 및 최적화 | Editor.tsx (업로드 로직) |
-| Export Specialist | HTML 내보내기 기능 | (별도 export 로직) |
+| Media Specialist | 이미지/비디오 업로드 및 최적화 | 미디어 처리 |
+| Export Specialist | HTML 내보내기 기능 | 내보내기 로직 |
 
-## 작업 유형별 분배
+## Phase 기반 Git Worktree 규칙 (필수!)
+
+| Phase | Git Worktree | 설명 |
+|-------|-------------|------|
+| Phase 0 | 생성 안함 | main 브랜치에서 직접 작업 |
+| Phase 1+ | **자동 생성** | 별도 worktree에서 작업 |
+
+### Phase 번호 추출 방법
+
+태스크 ID에서 Phase 번호를 추출합니다:
+- `Phase 0, T0.1` → Phase 0
+- `Phase 1, T1.1` → Phase 1
+- `Phase 2, T2.3` → Phase 2
+
+## 수익화 기능 작업 분배
 
 | 작업 | 담당 에이전트 |
 |------|-------------|
-| UI 개선, 버튼 추가 | UX + Frontend |
-| 새 레이아웃 추가 | Frontend |
-| 이미지 업로드 기능 | Media + Frontend |
-| 드래그 앤 드롭 | UX + Media |
-| HTML 내보내기 | Export |
-| 성능 최적화 | Frontend + Media |
+| 구독 API, Edge Functions | Supabase Specialist |
+| DB 스키마, RLS 정책 | Database Specialist |
+| 플랜 배지, 업그레이드 모달 UI | Frontend Specialist |
+| 플랜 제한 로직 | Supabase + Frontend |
+| 테스트 작성 | Test Specialist |
+| 비공격적 UX 검토 | UX Specialist |
 
-## 작업 흐름
+## Task 도구 호출 형식
 
-```
-사용자 요청
-    ↓
-[1] 요청 분석 - 필요한 에이전트 식별
-    ↓
-[2] UX Specialist 검토 (필요시)
-    ↓
-[3] 담당 에이전트에게 작업 분배
-    ↓
-[4] 결과 통합 및 검증
-    ↓
-완료
-```
-
-## 오케스트레이션 프로세스
-
-### 1단계: 요청 분석
-
-사용자 요청을 분석하여 다음을 결정:
-- 관련 에이전트 식별
-- 작업 순서 결정
-- 병렬 실행 가능 여부 확인
-
-### 2단계: 에이전트 호출
-
-Task 도구를 사용하여 에이전트를 호출합니다:
+### Phase 0 태스크 (Worktree 없음)
 
 ```
-Task 호출 시:
-- subagent_type: "general-purpose"
-- prompt: 에이전트 파일 내용 + 구체적 작업 지시
+Task tool parameters:
+- subagent_type: "supabase-specialist"
+- description: "Phase 0, T0.1: 프로젝트 구조 초기화"
+- prompt: |
+    ## 태스크 정보
+    - Phase: 0
+    - 태스크 ID: T0.1
+    - 태스크명: 프로젝트 구조 초기화
+
+    ## Git Worktree
+    Phase 0이므로 main 브랜치에서 직접 작업합니다.
+
+    ## 작업 내용
+    {상세 작업 지시사항}
 ```
 
-### 3단계: 결과 통합
+### Phase 1+ 태스크 (Worktree + TDD 필수)
 
-각 에이전트의 결과를 수집하고:
-- 충돌 여부 확인
-- 통합 테스트 실행
-- 사용자에게 결과 보고
+```
+Task tool parameters:
+- subagent_type: "supabase-specialist"
+- description: "Phase 1, T1.1: 구독 서비스 구현"
+- prompt: |
+    ## 태스크 정보
+    - Phase: 1
+    - 태스크 ID: T1.1
+    - 태스크명: 구독 서비스 구현
 
-## 충돌 해결 규칙
+    ## Git Worktree 설정 (Phase 1+ 필수!)
+    작업 시작 전 반드시 Worktree를 생성하세요:
+    git worktree add ../storyflow-phase1-subscription -b phase/1-subscription
+    cd ../storyflow-phase1-subscription
 
-- **UX vs 기술**: UX 우선 (노코드 사용자 경험이 최우선)
-- **성능 vs 기능**: 균형 (60fps 유지하면서 기능 추가)
+    ## TDD 요구사항 (Phase 1+ 필수!)
+    반드시 TDD 사이클을 따르세요:
+    1. RED: 테스트 먼저 작성
+    2. GREEN: 테스트 통과하는 최소 구현
+    3. REFACTOR: 테스트 유지하며 코드 정리
+
+    ## 작업 내용
+    {상세 작업 지시사항}
+```
+
+## 병렬 실행
+
+의존성이 없는 작업은 **동시에 여러 Task 도구를 호출**하여 병렬로 실행합니다.
 
 ## 검증 체크리스트
 
@@ -86,51 +127,20 @@ Task 호출 시:
 ```bash
 npx tsc --noEmit  # TypeScript 검사
 npm run build     # Vite 빌드
+npm run test      # 테스트 실행
 ```
 
 - [ ] TypeScript 에러 없음
 - [ ] 빌드 성공
+- [ ] 테스트 통과
 - [ ] 기존 기능 정상 동작
-- [ ] 새 기능 정상 동작
 
-## 예시
+## 완료 보고 확인
 
-### 예시 1: "드래그 앤 드롭 이미지 업로드 추가"
+서브에이전트의 완료 보고를 받으면:
 
-```
-1. UX Specialist 호출
-   - 드래그 앤 드롭 UX 가이드라인 확인
-   - 시각적 피드백 요구사항 정의
+1. **TDD 결과 확인**: RED → GREEN 달성 여부
+2. **Git Worktree 상태 확인**: 브랜치, 경로
+3. **사용자에게 병합 승인 요청**
 
-2. Media Specialist 호출
-   - 파일 드롭 핸들러 구현
-   - 파일 유효성 검증 로직
-
-3. Frontend Specialist 호출
-   - Editor.tsx에 드롭존 UI 추가
-   - 드래그 시 시각적 피드백 스타일
-
-4. 통합 검증
-   - 전체 플로우 테스트
-   - 빌드 확인
-```
-
-### 예시 2: "HTML 내보내기 기능 추가"
-
-```
-1. Export Specialist 호출
-   - HTML 생성 로직 구현
-   - Base64 이미지 변환 로직
-
-2. Frontend Specialist 호출
-   - 내보내기 버튼 UI 추가
-   - 다운로드 트리거 연결
-
-3. UX Specialist 호출
-   - 버튼 위치/레이블 검토
-   - 진행 상태 표시 방법 검토
-
-4. 통합 검증
-   - 실제 내보내기 테스트
-   - 다양한 섹션 조합 테스트
-```
+**중요: 사용자 승인 없이 절대 병합 명령을 실행하지 않습니다!**

@@ -23,6 +23,7 @@ import FileText from 'lucide-react/dist/esm/icons/file-text';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import FileImage from 'lucide-react/dist/esm/icons/file-image';
 import { exportToHTML, exportToPDF, exportToImage, hasBlobUrls } from './services/exportService';
+import { canExport, recordExport, getExportLimitInfo } from './services/exportLimitService';
 import { saveProject, loadProject, loadAutoSave, autoSave, hasSavedProject, hasAnonymousSavedProject, loadAnonymousProject, clearAnonymousSavedProject, clearSavedProject } from './services/storageService';
 import { uploadMedia } from './services/mediaService';
 import UserMenu from './components/UserMenu';
@@ -738,8 +739,21 @@ function App() {
 
   // HTML 내보내기 기능
   const handleExport = useCallback(async () => {
+    // 비로그인 사용자 내보내기 차단
+    if (!isAuthenticated) {
+      alert('내보내기는 로그인 후 이용할 수 있어요.\n\n무료로 가입하고 하루 10회 내보내기를 이용해보세요!');
+      return;
+    }
+
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    // 무료티어 내보내기 제한 확인
+    if (!canExport()) {
+      const limitInfo = getExportLimitInfo();
+      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
       return;
     }
 
@@ -758,6 +772,7 @@ function App() {
     setShowExportDropdown(false);
     try {
       await exportToHTML(sections, 'my-story');
+      recordExport(); // 내보내기 성공 시 기록
       alert('HTML 파일이 다운로드되었어요!');
     } catch (error) {
       console.error('내보내기 실패:', error);
@@ -765,12 +780,25 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections]);
+  }, [sections, isAuthenticated]);
 
   // PDF로 내보내기
   const handleExportPDF = useCallback(async () => {
+    // 비로그인 사용자 내보내기 차단
+    if (!isAuthenticated) {
+      alert('내보내기는 로그인 후 이용할 수 있어요.\n\n무료로 가입하고 하루 10회 내보내기를 이용해보세요!');
+      return;
+    }
+
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    // 무료티어 내보내기 제한 확인
+    if (!canExport()) {
+      const limitInfo = getExportLimitInfo();
+      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
       return;
     }
 
@@ -794,6 +822,7 @@ function App() {
       }
 
       await exportToPDF(previewElement, `${currentProject?.title || 'my-story'}.pdf`);
+      recordExport(); // 내보내기 성공 시 기록
       alert('PDF 파일이 다운로드되었어요!');
     } catch (error) {
       console.error('PDF 내보내기 실패:', error);
@@ -801,12 +830,25 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject]);
+  }, [sections, currentProject, isAuthenticated]);
 
   // 이미지로 내보내기 (PNG)
   const handleExportImage = useCallback(async () => {
+    // 비로그인 사용자 내보내기 차단
+    if (!isAuthenticated) {
+      alert('내보내기는 로그인 후 이용할 수 있어요.\n\n무료로 가입하고 하루 10회 내보내기를 이용해보세요!');
+      return;
+    }
+
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    // 무료티어 내보내기 제한 확인
+    if (!canExport()) {
+      const limitInfo = getExportLimitInfo();
+      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
       return;
     }
 
@@ -830,6 +872,7 @@ function App() {
       }
 
       await exportToImage(previewElement, `${currentProject?.title || 'my-story'}.png`, 'png');
+      recordExport(); // 내보내기 성공 시 기록
       alert('이미지 파일이 다운로드되었어요!');
     } catch (error) {
       console.error('이미지 내보내기 실패:', error);
@@ -837,12 +880,25 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject]);
+  }, [sections, currentProject, isAuthenticated]);
 
   // 섹션별 이미지로 내보내기
   const handleExportSectionImages = useCallback(async () => {
+    // 비로그인 사용자 내보내기 차단
+    if (!isAuthenticated) {
+      alert('내보내기는 로그인 후 이용할 수 있어요.\n\n무료로 가입하고 하루 10회 내보내기를 이용해보세요!');
+      return;
+    }
+
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    // 무료티어 내보내기 제한 확인
+    if (!canExport()) {
+      const limitInfo = getExportLimitInfo();
+      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
       return;
     }
 
@@ -872,6 +928,7 @@ function App() {
 
       const { exportSectionsAsImages } = await import('./services/exportService');
       await exportSectionsAsImages(sectionElements, currentProject?.title || 'section', 'png');
+      recordExport(); // 내보내기 성공 시 기록
       alert(`${sectionElements.length}개의 이미지가 다운로드되었어요!`);
     } catch (error) {
       console.error('섹션 이미지 내보내기 실패:', error);
@@ -879,12 +936,25 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject]);
+  }, [sections, currentProject, isAuthenticated]);
 
   // 썸네일 다운로드
   const handleExportThumbnail = useCallback(async () => {
+    // 비로그인 사용자 내보내기 차단
+    if (!isAuthenticated) {
+      alert('내보내기는 로그인 후 이용할 수 있어요.\n\n무료로 가입하고 하루 10회 내보내기를 이용해보세요!');
+      return;
+    }
+
     if (sections.length === 0) {
       alert('내보낼 섹션이 없어요. 먼저 섹션을 추가해주세요.');
+      return;
+    }
+
+    // 무료티어 내보내기 제한 확인
+    if (!canExport()) {
+      const limitInfo = getExportLimitInfo();
+      alert(`오늘의 내보내기 횟수를 모두 사용했어요.\n\n일일 한도: ${limitInfo.limit}회\n초기화: ${limitInfo.nextReset}`);
       return;
     }
 
@@ -920,6 +990,7 @@ function App() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      recordExport(); // 내보내기 성공 시 기록
       alert('썸네일이 다운로드되었어요!');
     } catch (error) {
       console.error('썸네일 다운로드 실패:', error);
@@ -927,7 +998,7 @@ function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [sections, currentProject]);
+  }, [sections, currentProject, isAuthenticated]);
 
   // 프로젝트 이름 변경 핸들러 (모바일용 - 공통 함수 재사용)
   const handleRenameProjectMobile = renameProjectById;

@@ -9,6 +9,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useStorageQuota } from '../hooks/useStorageQuota';
 import { deleteAllUserMedia } from '../services/mediaService';
 import { useProject } from '../hooks/useProject';
+import { getExportLimitInfo } from '../services/exportLimitService';
+import Download from 'lucide-react/dist/esm/icons/download';
 
 const UserMenu: React.FC = () => {
   const { user, loading, error, signIn, logOut, isAuthenticated } = useAuth();
@@ -25,10 +27,14 @@ const UserMenu: React.FC = () => {
     return (bytes / (1024 * 1024)).toFixed(1);
   };
 
-  // 메뉴 열릴 때 저장 용량 새로고침
+  // 내보내기 제한 정보
+  const [exportInfo, setExportInfo] = useState(getExportLimitInfo());
+
+  // 메뉴 열릴 때 저장 용량 및 내보내기 정보 새로고침
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       refreshStorage();
+      setExportInfo(getExportLimitInfo());
     }
   }, [isOpen, isAuthenticated, refreshStorage]);
 
@@ -164,6 +170,37 @@ const UserMenu: React.FC = () => {
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-400">프로젝트</span>
               <span className="text-gray-300 font-medium">{projects.length} / 3</span>
+            </div>
+
+            {/* 내보내기 횟수 */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <div className="flex items-center gap-1.5">
+                  <Download size={12} className="text-gray-400" />
+                  <span className="text-gray-400">오늘 내보내기</span>
+                </div>
+                <span className={`font-medium ${
+                  exportInfo.remaining === 0
+                    ? 'text-red-400'
+                    : exportInfo.remaining <= 3
+                      ? 'text-yellow-400'
+                      : 'text-gray-300'
+                }`}>
+                  {exportInfo.limit - exportInfo.remaining} / {exportInfo.limit}
+                </span>
+              </div>
+              {exportInfo.remaining === 0 ? (
+                <p className="text-xs text-red-400">
+                  오늘 한도를 모두 사용했어요
+                </p>
+              ) : exportInfo.remaining <= 3 && (
+                <p className="text-xs text-yellow-400">
+                  {exportInfo.remaining}회 남음
+                </p>
+              )}
+              <p className="text-xs text-gray-500 mt-0.5">
+                초기화: {exportInfo.nextReset}
+              </p>
             </div>
 
             {/* 저장 공간 */}
@@ -314,6 +351,10 @@ const UserMenu: React.FC = () => {
                   </li>
                   <li className="flex items-start gap-2 text-gray-300">
                     <span className="text-green-400 mt-0.5">✓</span>
+                    <span>일 10회 내보내기</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-green-400 mt-0.5">✓</span>
                     <span>협업자 1명</span>
                   </li>
                   <li className="flex items-start gap-2 text-gray-400">
@@ -357,6 +398,10 @@ const UserMenu: React.FC = () => {
                   </li>
                   <li className="flex items-start gap-2 text-gray-300">
                     <span className="text-indigo-400 mt-0.5">✓</span>
+                    <span>무제한 내보내기</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-indigo-400 mt-0.5">✓</span>
                     <span>협업자 5명</span>
                   </li>
                   <li className="flex items-start gap-2 text-gray-300">
@@ -397,6 +442,10 @@ const UserMenu: React.FC = () => {
                   <li className="flex items-start gap-2 text-gray-300">
                     <span className="text-purple-400 mt-0.5">✓</span>
                     <span>미디어 50GB</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-300">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    <span>무제한 내보내기</span>
                   </li>
                   <li className="flex items-start gap-2 text-gray-300">
                     <span className="text-purple-400 mt-0.5">✓</span>

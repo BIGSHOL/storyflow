@@ -9,7 +9,10 @@
       "WebFetch(domain:storyflow-gilt.vercel.app)",
       "Bash(node:*)",
       "Bash(git restore:*)",
-      "Read(//d/**)"
+      "Read(//d/**)",
+      "Bash(tree:*)",
+      "Skill(orchestrate)",
+      "Bash(npm run test:*)"
     ]
   }
 }
