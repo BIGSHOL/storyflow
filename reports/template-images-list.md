@@ -6,9 +6,9 @@ StoryFlow 템플릿에 필요한 이미지 파일 목록과 AI 이미지 생성�
 
 ## ✅ 업로드 진행 상황
 
-- **업로드 완료**: 82개
-- **임시 이미지(Placeholder)**: 약 208개
-- **진행률**: 28.3%
+- **업로드 완료**: 105개
+- **임시 이미지(Placeholder)**: 약 185개
+- **진행률**: 36.2%
 - **다음 생성 가능 시간**: 2026-01-24 23:45 (API 할당량 리셋)
 
 ### 완료된 이미지
@@ -338,38 +338,38 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
 | `writer-library.webp` | ✅ | `Classic library with tall bookshelves, warm lighting, cozy reading corner, literary atmosphere` |
-| `writer-book.jpg` | 🔄 | `Open vintage book with reading glasses, literary aesthetic, warm light, thoughtful mood` |
+| `writer-book.webp` | ✅ | `Open vintage book with reading glasses, literary aesthetic, warm light, thoughtful mood` |
 
 ### 18. 시인 (poet)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `poet-flower.jpg` | 🔄 | `Romantic rose with soft petals, poetic aesthetic, delicate beauty, dreamy lighting` |
+| `poet-flower.webp` | ✅ | `Romantic rose with soft petals, poetic aesthetic, delicate beauty, dreamy lighting` |
 
 ### 19. 사진작가 (결혼식) (photographer-wedding)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `wedding-hero.jpg` | 🔄 | `Beautiful wedding ceremony venue, elegant decoration, romantic atmosphere, celebration` |
-| `wedding-bride.jpg` | 🔄 | `Elegant bride portrait, beautiful wedding dress, soft natural light, romantic mood` |
-| `wedding-groom.jpg` | 🔄 | `Handsome groom in suit, wedding day portrait, confident pose, classic style` |
-| `wedding-ring.jpg` | 🔄 | `Wedding rings close-up, gold bands, romantic macro photography, marriage symbol` |
-| `wedding-bouquet.jpg` | 🔄 | `Bridal bouquet with white roses, elegant floral arrangement, wedding flowers, romantic` |
+| `wedding-hero.webp` | ✅ | `Beautiful wedding ceremony venue, elegant decoration, romantic atmosphere, celebration` |
+| `wedding-bride.webp` | ✅ | `Elegant bride portrait, beautiful wedding dress, soft natural light, romantic mood` |
+| `wedding-groom.webp` | ✅ | `Handsome groom in suit, wedding day portrait, confident pose, classic style` |
+| `wedding-ring.webp` | ✅ | `Wedding rings close-up, gold bands, romantic macro photography, marriage symbol` |
+| `wedding-bouquet.webp` | ✅ | `Bridal bouquet with white roses, elegant floral arrangement, wedding flowers, romantic` |
 
 ### 20. 사진작가 (제품) (photographer-product)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `product-cosmetics.jpg` | 🔄 | `Luxury cosmetics product photography, beauty products, elegant arrangement, premium branding` |
-| `product-food.jpg` | 🔄 | `Delicious food styling photography, gourmet dish, professional food editorial, appetizing` |
-| `product-watch.jpg` | 🔄 | `Luxury watch product shot, premium timepiece, elegant lighting, high-end jewelry photography` |
+| `product-cosmetics.webp` | ✅ | `Luxury cosmetics product photography, beauty products, elegant arrangement, premium branding` |
+| `product-food.webp` | ✅ | `Delicious food styling photography, gourmet dish, professional food editorial, appetizing` |
+| `product-watch.webp` | ✅ | `Luxury watch product shot, premium timepiece, elegant lighting, high-end jewelry photography` |
 
 ### 21. 사진작가 (인물) (photographer-portrait)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `portrait-hero.jpg` | 🔄 | `Professional studio portrait, dramatic lighting, artistic headshot, expressive photography` |
+| `portrait-hero.webp` | ✅ | `Professional studio portrait, dramatic lighting, artistic headshot, expressive photography` |
 
 ### 22. 요리사/셰프 (chef)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `chef-cooking.jpg` | 🔄 | `Professional chef cooking in kitchen, flames from pan, action shot, restaurant kitchen` |
+| `chef-cooking.webp` | ✅ | `Professional chef cooking in kitchen, flames from pan, action shot, restaurant kitchen` |
 | `chef-appetizer.jpg` | 🔄 | `Gourmet appetizer on elegant plate, fine dining starter, artistic food presentation` |
 | `chef-steak.jpg` | 🔄 | `Chef grilling steak with flames, professional cooking, dramatic kitchen action` |
 | `chef-dessert.jpg` | 🔄 | `Pastry chef plating elegant dessert, fine dining sweet, artistic presentation` |
@@ -377,30 +377,30 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 ### 23. 플로리스트 (florist)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `florist-garden.jpg` | 🔄 | `Colorful flower garden in bloom, botanical paradise, vibrant florals, natural beauty` |
-| `florist-bouquet.jpg` | 🔄 | `Beautiful flower bouquet arrangement, professional florist work, colorful fresh flowers` |
+| `florist-garden.webp` | ✅ | `Colorful flower garden in bloom, botanical paradise, vibrant florals, natural beauty` |
+| `florist-bouquet.webp` | ✅ | `Beautiful flower bouquet arrangement, professional florist work, colorful fresh flowers` |
 | `florist-centerpiece.jpg` | 🔄 | `Elegant floral centerpiece, table decoration, event floristry, sophisticated arrangement` |
 | `florist-rose.jpg` | 🔄 | `Beautiful red roses close-up, romantic flowers, velvet petals, classic elegance` |
 
 ### 24. 공예가 (crafter)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `craft-pottery.jpg` | 🔄 | `Handmade ceramic pottery collection, artisan craft, earthy tones, rustic beauty` |
-| `craft-moonjar.jpg` | 🔄 | `Traditional Korean moon jar, white porcelain, minimalist ceramic, artistic craft` |
-| `craft-teacup.jpg` | 🔄 | `Handmade ceramic teacup set, artisan pottery, elegant design, craft photography` |
+| `craft-pottery.webp` | ✅ | `Handmade ceramic pottery collection, artisan craft, earthy tones, rustic beauty` |
+| `craft-moonjar.webp` | ✅ | `Traditional Korean moon jar, white porcelain, minimalist ceramic, artistic craft` |
+| `craft-teacup.webp` | ✅ | `Handmade ceramic teacup set, artisan pottery, elegant design, craft photography` |
 
 ### 25. DJ/프로듀서 (dj)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `dj-club.jpg` | 🔄 | `DJ at turntables in nightclub, neon lights, electronic music, party atmosphere` |
-| `dj-party.jpg` | 🔄 | `Crowd dancing at EDM party, colorful lights, DJ booth, nightlife celebration` |
+| `dj-club.webp` | ✅ | `DJ at turntables in nightclub, neon lights, electronic music, party atmosphere` |
+| `dj-party.webp` | ✅ | `Crowd dancing at EDM party, colorful lights, DJ booth, nightlife celebration` |
 
 ### 26. 댄서/안무가 (dancer)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `dancer-hero.jpg` | 🔄 | `Dancer in motion, artistic movement, dramatic lighting, contemporary dance performance` |
-| `dancer-class.jpg` | 🔄 | `Dance class in modern studio, students practicing, mirror wall, professional training` |
-| `dancer-group.jpg` | 🔄 | `Dance crew performing choreography, synchronized movement, urban dance, group dynamics` |
+| `dancer-hero.webp` | ✅ | `Dancer in motion, artistic movement, dramatic lighting, contemporary dance performance` |
+| `dancer-class.webp` | ✅ | `Dance class in modern studio, students practicing, mirror wall, professional training` |
+| `dancer-group.webp` | ✅ | `Dance crew performing choreography, synchronized movement, urban dance, group dynamics` |
 
 ---
 
@@ -420,15 +420,15 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | `wedding-hands.webp` | ✅ | `Couple holding hands wearing wedding rings, intimate moment, romantic gesture` |
 | `wedding-love.webp` | ✅ | `Romantic couple silhouette at sunset, love and marriage, dreamy atmosphere` |
 | `wedding-flowers.webp` | ✅ | `White roses wedding decoration, elegant floral arrangement, romantic setting` |
-| `wedding-hall.jpg` | 🔄 | `Beautiful wedding reception hall, elegant table setting, romantic lighting, celebration venue` |
+| `wedding-hall.webp` | ✅ | `Beautiful wedding reception hall, elegant table setting, romantic lighting, celebration venue` |
 
 ### 3. 컨퍼런스 (conference)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `conference-tech.jpg` | 🔄 | `Tech conference main stage, large LED screens, professional event, audience seating` |
-| `conference-speaker1.jpg` | 🔄 | `Conference speaker on stage, professional presentation, engaging audience, TED-style` |
-| `conference-speaker2.jpg` | 🔄 | `Keynote speaker at podium, business conference, professional presenter, corporate event` |
-| `conference-speaker3.jpg` | 🔄 | `Panel discussion speakers, multiple experts on stage, conference setting, knowledge sharing` |
+| `conference-tech.webp` | ✅ | `Tech conference main stage, large LED screens, professional event, audience seating` |
+| `conference-speaker1.webp` | ✅ | `Conference speaker on stage, professional presentation, engaging audience, TED-style` |
+| `conference-speaker2.webp` | ✅ | `Keynote speaker at podium, business conference, professional presenter, corporate event` |
+| `conference-speaker3.webp` | ✅ | `Panel discussion speakers, multiple experts on stage, conference setting, knowledge sharing` |
 
 ### 4. 밋업 초대 (meetup)
 | 파일 | 상태 | AI 프롬프트 |
@@ -531,19 +531,19 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 ### 1. 스토리텔링 (story)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `story-road.jpg` | 🔄 | `Winding road through scenic landscape, journey metaphor, adventure path, travel destination` |
-| `story-forest.jpg` | 🔄 | `Mystical forest path with sunlight, enchanted woods, peaceful nature walk, storytelling setting` |
-| `story-mountain.jpg` | 🔄 | `Majestic mountain peak at sunrise, inspiring landscape, achievement symbolism, epic scenery` |
-| `story-sunset.jpg` | 🔄 | `Beautiful golden sunset sky, dramatic clouds, peaceful ending, inspiring horizon` |
+| `story-road.webp` | ✅ | `Winding road through scenic landscape, journey metaphor, adventure path, travel destination` |
+| `story-forest.webp` | ✅ | `Mystical forest path with sunlight, enchanted woods, peaceful nature walk, storytelling setting` |
+| `story-mountain.webp` | ✅ | `Majestic mountain peak at sunrise, inspiring landscape, achievement symbolism, epic scenery` |
+| `story-sunset.webp` | ✅ | `Beautiful golden sunset sky, dramatic clouds, peaceful ending, inspiring horizon` |
 
 ### 2. 여행 일기 (travel-diary)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `travel-paris.jpg` | 🔄 | `Paris cityscape with Eiffel Tower, romantic city view, travel destination, French capital` |
-| `travel-eiffel.jpg` | 🔄 | `Eiffel Tower at golden hour, iconic Paris landmark, romantic atmosphere, travel photography` |
-| `travel-river.jpg` | 🔄 | `Seine River with Parisian bridges, boat cruise view, classic Paris scenery` |
-| `travel-cathedral.jpg` | 🔄 | `Notre Dame Cathedral architecture, Gothic beauty, Paris landmark, historic monument` |
-| `travel-street.jpg` | 🔄 | `Charming Paris street with cafes, cobblestone road, French bistro, romantic atmosphere` |
+| `travel-paris.webp` | ✅ | `Paris cityscape with Eiffel Tower, romantic city view, travel destination, French capital` |
+| `travel-eiffel.webp` | ✅ | `Eiffel Tower at golden hour, iconic Paris landmark, romantic atmosphere, travel photography` |
+| `travel-river.webp` | ✅ | `Seine River with Parisian bridges, boat cruise view, classic Paris scenery` |
+| `travel-cathedral.webp` | ✅ | `Notre Dame Cathedral architecture, Gothic beauty, Paris landmark, historic monument` |
+| `travel-street.webp` | ✅ | `Charming Paris street with cafes, cobblestone road, French bistro, romantic atmosphere` |
 | `travel-arch.jpg` | 🔄 | `Arc de Triomphe Paris at dusk, grand monument, Champs-Élysées view, iconic landmark` |
 | `travel-cafe.jpg` | 🔄 | `Parisian outdoor cafe terrace, French coffee culture, street scene, European charm` |
 
@@ -693,10 +693,10 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | 카테고리 | 완료 | 미완료 | 총계 |
 |---------|-----|-------|-----|
 | Business | 48 | 17 | 65 |
-| Creative | 31 | 51 | 82 |
-| Event | 7 | 33 | 40 |
-| Personal | 0 | 50 | 50 |
-| **총계** | **86** | **151** | **237** |
+| Creative | 34 | 48 | 82 |
+| Event | 12 | 28 | 40 |
+| Personal | 9 | 41 | 50 |
+| **총계** | **103** | **134** | **237** |
 
 ---
 

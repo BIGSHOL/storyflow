@@ -684,7 +684,7 @@ export const creativeTemplates: Template[] = [
                 title: '신간 소개',
                 description: '《계절의 온도》\n우리가 사랑했던 그 계절, 그 온도에 대하여.',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/book?lock=161',
+                mediaUrl: '/images/templates/creative/writer-book.webp',
                 textColor: '#000000',
                 backgroundColor: '#e7e5e4',
                 textAlignment: 'left'
@@ -702,7 +702,7 @@ export const creativeTemplates: Template[] = [
                 title: '꽃 한 송이',
                 description: '흔들리지 않고 피는 꽃이 어디 있으랴\n이 세상 그 어떤 아름다운 꽃들도\n다 흔들리면서 피었나니\n\n- 도종환, 흔들리며 피는 꽃',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/flower?lock=162',
+                mediaUrl: '/images/templates/creative/poet-flower.webp',
                 textColor: '#000000',
                 backgroundColor: '#fff',
                 textAlignment: 'center',
@@ -721,7 +721,7 @@ export const creativeTemplates: Template[] = [
                 title: '웨딩 모먼트',
                 description: '가장 아름다운 순간을 영원히',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/wedding?lock=163',
+                mediaUrl: '/images/templates/creative/wedding-hero.webp',
                 textColor: '#000000',
                 backgroundColor: '#fff',
                 textAlignment: 'center'
@@ -736,10 +736,10 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#fff',
                 textAlignment: 'center',
                 masonryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/800/bride?lock=164' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/groom?lock=165' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/ring?lock=166' },
-                    { id: '4', url: 'https://loremflickr.com/600/800/bouquet?lock=167' }
+                    { id: '1', url: '/images/templates/creative/wedding-bride.webp' },
+                    { id: '2', url: '/images/templates/creative/wedding-groom.webp' },
+                    { id: '3', url: '/images/templates/creative/wedding-ring.webp' },
+                    { id: '4', url: '/images/templates/creative/wedding-bouquet.webp' }
                 ]
             }
         ]
@@ -760,9 +760,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#1c1917',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/800/600/cosmetics?lock=168', caption: '화장품' },
-                    { id: '2', url: 'https://loremflickr.com/800/600/food?lock=169', caption: '음식' },
-                    { id: '3', url: 'https://loremflickr.com/800/600/watch?lock=170', caption: '테크' }
+                    { id: '1', url: '/images/templates/creative/product-cosmetics.webp', caption: '화장품' },
+                    { id: '2', url: '/images/templates/creative/product-food.webp', caption: '음식' },
+                    { id: '3', url: '/images/templates/creative/product-watch.webp', caption: '테크' }
                 ]
             }
         ]
@@ -778,7 +778,7 @@ export const creativeTemplates: Template[] = [
                 title: '인물 사진',
                 description: '당신의 진짜 모습을 담습니다.\n배우 프로필 / 개인 화보 / 사원증',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/1000/portrait?lock=171',
+                mediaUrl: '/images/templates/creative/portrait-hero.webp',
                 textColor: '#000000',
                 backgroundColor: '#f5f5f5',
                 textAlignment: 'left'
@@ -796,7 +796,7 @@ export const creativeTemplates: Template[] = [
                 title: '셰프 테이블',
                 description: '재료 본연의 맛을 살린 다이닝',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/chef,cooking?lock=172',
+                mediaUrl: '/images/templates/creative/chef-cooking.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -829,7 +829,7 @@ export const creativeTemplates: Template[] = [
                 title: 'Blooming',
                 description: '꽃으로 전하는 마음',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/flower,garden?lock=176',
+                mediaUrl: '/images/templates/creative/florist-garden.webp',
                 textColor: '#000000',
                 backgroundColor: '#fdf2f8',
                 textAlignment: 'center'
@@ -844,7 +844,7 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#fff',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/bouquet?lock=177' },
+                    { id: '1', url: '/images/templates/creative/florist-bouquet.webp' },
                     { id: '2', url: 'https://loremflickr.com/600/600/centerpiece?lock=178' },
                     { id: '3', url: 'https://loremflickr.com/600/600/rose?lock=179' }
                 ]
@@ -862,7 +862,7 @@ export const creativeTemplates: Template[] = [
                 title: '수제 도자기',
                 description: '흙의 온도, 손의 정성',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/pottery?lock=180',
+                mediaUrl: '/images/templates/creative/craft-pottery.webp',
                 textColor: '#000000',
                 backgroundColor: '#d6d3d1',
                 textAlignment: 'center'
@@ -877,8 +877,8 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#e7e5e4',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/ceramic?lock=181', caption: '달항아리' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/cup?lock=182', caption: '찻잔' }
+                    { id: '1', url: '/images/templates/creative/craft-moonjar.webp', caption: '달항아리' },
+                    { id: '2', url: '/images/templates/creative/craft-teacup.webp', caption: '찻잔' }
                 ]
             }
         ]
@@ -894,7 +894,7 @@ export const creativeTemplates: Template[] = [
                 title: 'DJ MAX',
                 description: 'House / Techno / EDM',
                 mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/club,dj?lock=183',
+                mediaUrl: '/images/templates/creative/dj-club.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -909,7 +909,7 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#111',
                 textAlignment: 'left',
                 audioTracks: [
-                    { id: '1', title: 'Summer Mix Vol.1', url: '', duration: '60:00', coverImage: 'https://loremflickr.com/150/150/party?lock=184' }
+                    { id: '1', title: 'Summer Mix Vol.1', url: '', duration: '60:00', coverImage: '/images/templates/creative/dj-party.webp' }
                 ]
             }
         ]
@@ -925,7 +925,7 @@ export const creativeTemplates: Template[] = [
                 title: '몸을 움직여',
                 description: '안무 by 사라',
                 mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/dance?lock=185',
+                mediaUrl: '/images/templates/creative/dancer-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center',
@@ -941,8 +941,8 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#18181b',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/400/danceclass?lock=186', caption: '스튜디오 A' },
-                    { id: '2', url: 'https://loremflickr.com/600/400/dancer?lock=187', caption: '단체 사진' }
+                    { id: '1', url: '/images/templates/creative/dancer-class.webp', caption: '스튜디오 A' },
+                    { id: '2', url: '/images/templates/creative/dancer-group.webp', caption: '단체 사진' }
                 ]
             }
         ]
