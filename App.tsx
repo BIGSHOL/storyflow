@@ -37,6 +37,7 @@ import { useIsMobile } from './hooks/useIsMobile';
 import { useDeviceType } from './hooks/useDeviceType';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import MobileLayout from './components/MobileLayout';
+import AdBanner from './components/AdBanner';
 
 // blob URL을 Supabase Storage URL로 마이그레이션
 // 실패한 blob URL은 미디어 없이 저장 (잘못된 blob URL이 DB에 저장되는 것을 방지)
@@ -1523,6 +1524,12 @@ function App() {
           )}
         </main>
 
+        {/* 하단 광고 배너 (무료 플랜만) - 태블릿 */}
+        <AdBanner
+          show={viewMode === 'editor' && (!subscription || subscription.planType === 'free')}
+          onUpgrade={() => setShowPricingOverlay(true)}
+        />
+
         {/* 모달들 - 태블릿 */}
         {showRecoveryModal && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
@@ -1881,6 +1888,12 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* 하단 광고 배너 (무료 플랜만) */}
+      <AdBanner
+        show={viewMode === 'editor' && (!subscription || subscription.planType === 'free')}
+        onUpgrade={() => setShowPricingOverlay(true)}
+      />
 
       {/* 프로젝트 복구 모달 */}
       {showRecoveryModal && (
