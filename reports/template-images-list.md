@@ -132,8 +132,8 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 |------|------|------------|
 | `academy-classroom.webp` | ✅ | `Modern bright classroom with students, contemporary educational environment, natural lighting, engaged learning` |
 | `academy-book.webp` | ✅ | `Open textbook with golden light, knowledge and education concept, warm study atmosphere` |
-| `academy-study.jpg` | 🔄 | `Student studying at library desk, focused concentration, books and laptop, warm ambient lighting` |
-| `academy-lecture.jpg` | 🔄 | `University lecture hall with professor teaching, students taking notes, academic atmosphere` |
+| `academy-study.webp` | ✅ | `Student studying at library desk, focused concentration, books and laptop, warm ambient lighting` |
+| `academy-lecture.webp` | ✅ | `University lecture hall with professor teaching, students taking notes, academic atmosphere` |
 
 ### 15. 법률사무소 (law-firm)
 | 파일 | 상태 | AI 프롬프트 |
@@ -143,8 +143,8 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 ### 16. 뷰티/살롱 (beauty-salon)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `salon-hero.jpg` | 🔄 | `Modern luxury hair salon interior, stylish mirrors and chairs, elegant lighting, beauty spa atmosphere` |
-| `salon-perm.jpg` | 🔄 | `Hairstylist creating beautiful curls, professional perm treatment, modern salon, artistic photography` |
+| `salon-hero.webp` | ✅ | `Modern luxury hair salon interior, stylish mirrors and chairs, elegant lighting, beauty spa atmosphere` |
+| `salon-perm.webp` | ✅ | `Hairstylist creating beautiful curls, professional perm treatment, modern salon, artistic photography` |
 | `salon-coloring.jpg` | 🔄 | `Hair coloring process, vibrant dye application, professional stylist at work, modern salon` |
 | `salon-cut.jpg` | 🔄 | `Precision haircut in progress, professional scissors, focused stylist, elegant salon setting` |
 
@@ -214,130 +214,130 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
 | `portfolio-art.webp` | ✅ | `Artist workspace with paintings, creative studio, colorful art supplies, inspiring atmosphere` |
-| `portfolio-design.jpg` | 🔄 | `Graphic design portfolio mockups on desk, creative workspace, modern design tools, inspiration board` |
-| `portfolio-creative.jpg` | 🔄 | `Creative workspace with art supplies, design books, mood board, inspiring studio environment` |
+| `portfolio-design.webp` | ✅ | `Graphic design portfolio mockups on desk, creative workspace, modern design tools, inspiration board` |
+| `portfolio-creative.webp` | ✅ | `Creative workspace with art supplies, design books, mood board, inspiring studio environment` |
 
 ### 2. 사진 갤러리 (photo-gallery)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `gallery-camera.jpg` | 🔄 | `Professional DSLR camera with lens, photography equipment, dramatic lighting, photographer's gear` |
-| `gallery-nature.jpg` | 🔄 | `Stunning mountain landscape at sunrise, dramatic peaks, golden light, nature photography` |
-| `gallery-city.jpg` | 🔄 | `City skyline at night with lights, urban photography, reflections on water, metropolitan view` |
-| `gallery-people.jpg` | 🔄 | `Street photography of diverse people, candid urban life, artistic composition, documentary style` |
-| `gallery-animal.jpg` | 🔄 | `Majestic wildlife close-up portrait, beautiful animal photography, sharp detail, natural habitat` |
-| `gallery-flower.jpg` | 🔄 | `Colorful flower macro photography, delicate petals with water drops, vibrant colors, botanical` |
-| `gallery-sea.jpg` | 🔄 | `Dramatic ocean waves crashing, seascape at golden hour, powerful nature, coastal photography` |
+| `gallery-camera.webp` | ✅ | `Professional DSLR camera with lens, photography equipment, dramatic lighting, photographer's gear` |
+| `gallery-nature.webp` | ✅ | `Stunning mountain landscape at sunrise, dramatic peaks, golden light, nature photography` |
+| `gallery-city.webp` | ✅ | `City skyline at night with lights, urban photography, reflections on water, metropolitan view` |
+| `gallery-people.webp` | ✅ | `Street photography of diverse people, candid urban life, artistic composition, documentary style` |
+| `gallery-animal.webp` | ✅ | `Majestic wildlife close-up portrait, beautiful animal photography, sharp detail, natural habitat` |
+| `gallery-flower.webp` | ✅ | `Colorful flower macro photography, delicate petals with water drops, vibrant colors, botanical` |
+| `gallery-sea.webp` | ✅ | `Dramatic ocean waves crashing, seascape at golden hour, powerful nature, coastal photography` |
 
 ### 3. 아트워크 전시 (artwork)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `artwork-painting.jpg` | 🔄 | `Colorful abstract painting on canvas, bold brush strokes, contemporary art gallery, artistic` |
-| `artwork-neon.jpg` | 🔄 | `Neon light art installation, glowing tubes, modern art museum, artistic lighting design` |
+| `artwork-painting.webp` | ✅ | `Colorful abstract painting on canvas, bold brush strokes, contemporary art gallery, artistic` |
+| `artwork-neon.webp` | ✅ | `Neon light art installation, glowing tubes, modern art museum, artistic lighting design` |
 | `artwork-abstract.webp` | ✅ | `Vibrant abstract expressionist painting, bold colors, dynamic composition, modern art` |
-| `artwork-watercolor.jpg` | 🔄 | `Delicate watercolor painting with flowing colors, artistic brush strokes, soft ethereal look` |
-| `artwork-oil.jpg` | 🔄 | `Rich oil painting with texture, classical art technique, museum quality, fine art` |
-| `artwork-sketch.jpg` | 🔄 | `Detailed pencil sketch portrait, artistic drawing, charcoal and graphite, fine art illustration` |
+| `artwork-watercolor.webp` | ✅ | `Delicate watercolor painting with flowing colors, artistic brush strokes, soft ethereal look` |
+| `artwork-oil.webp` | ✅ | `Rich oil painting with texture, classical art technique, museum quality, fine art` |
+| `artwork-sketch.webp` | ✅ | `Detailed pencil sketch portrait, artistic drawing, charcoal and graphite, fine art illustration` |
 
 ### 4. 디자인 쇼케이스 (design-showcase)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
 | `design-workspace.webp` | ✅ | `Designer workspace with Mac and tablet, minimal desk setup, creative tools, inspiring environment` |
-| `design-mobileapp.jpg` | 🔄 | `Mobile app UI design mockup, smartphone screens, modern interface design, clean presentation` |
-| `design-website.jpg` | 🔄 | `Website design mockup on laptop, responsive web design, modern UI/UX, creative presentation` |
+| `design-mobileapp.webp` | ✅ | `Mobile app UI design mockup, smartphone screens, modern interface design, clean presentation` |
+| `design-website.webp` | ✅ | `Website design mockup on laptop, responsive web design, modern UI/UX, creative presentation` |
 
 ### 5. 음악/밴드 (music-band)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `band-concert.jpg` | 🔄 | `Rock band performing on stage, dramatic concert lighting, energetic live performance, crowd silhouettes` |
+| `band-concert.webp` | ✅ | `Rock band performing on stage, dramatic concert lighting, energetic live performance, crowd silhouettes` |
 
 ### 6. 영상 포트폴리오 (video-portfolio)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `video-film.jpg` | 🔄 | `Vintage film reel with cinematic lighting, movie production concept, nostalgic cinema aesthetic` |
-| `video-filming.jpg` | 🔄 | `Professional videographer with camera on set, film production crew, behind the scenes` |
-| `video-camera.jpg` | 🔄 | `Professional cinema camera setup, video production equipment, film set, cinematography` |
+| `video-film.webp` | ✅ | `Vintage film reel with cinematic lighting, movie production concept, nostalgic cinema aesthetic` |
+| `video-filming.webp` | ✅ | `Professional videographer with camera on set, film production crew, behind the scenes` |
+| `video-camera.webp` | ✅ | `Professional cinema camera setup, video production equipment, film set, cinematography` |
 
 ### 7. 웹툰/만화 (webtoon)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `webtoon-comic.jpg` | 🔄 | `Colorful manga comic book pages, Japanese anime style, dynamic action panels, vibrant illustrations` |
-| `webtoon-cartoon1.jpg` | 🔄 | `Cute anime character illustration, kawaii style, colorful digital art, charming expression` |
-| `webtoon-cartoon2.jpg` | 🔄 | `Action anime scene, dynamic character pose, manga style illustration, dramatic composition` |
-| `webtoon-cartoon3.jpg` | 🔄 | `Romantic webtoon scene, soft pastel colors, shoujo manga style, emotional storytelling` |
+| `webtoon-comic.webp` | ✅ | `Colorful manga comic book pages, Japanese anime style, dynamic action panels, vibrant illustrations` |
+| `webtoon-cartoon1.webp` | ✅ | `Cute anime character illustration, kawaii style, colorful digital art, charming expression` |
+| `webtoon-cartoon2.webp` | ✅ | `Action anime scene, dynamic character pose, manga style illustration, dramatic composition` |
+| `webtoon-cartoon3.webp` | ✅ | `Romantic webtoon scene, soft pastel colors, shoujo manga style, emotional storytelling` |
 
 ### 8. 일러스트레이터 (illustrator)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `illustrator-1.jpg` | 🔄 | `Digital character illustration, fantasy art style, detailed artwork, vibrant colors` |
-| `illustrator-2.jpg` | 🔄 | `Flat design vector illustration, modern graphic style, bold colors, minimalist composition` |
-| `illustrator-3.jpg` | 🔄 | `Whimsical children's book illustration, cute characters, playful colors, storytelling art` |
-| `illustrator-4.jpg` | 🔄 | `Geometric abstract illustration, modern vector art, clean lines, contemporary design` |
-| `illustrator-5.jpg` | 🔄 | `Fantasy landscape digital painting, epic scenery, concept art style, cinematic composition` |
+| `illustrator-1.webp` | ✅ | `Digital character illustration, fantasy art style, detailed artwork, vibrant colors` |
+| `illustrator-2.webp` | ✅ | `Flat design vector illustration, modern graphic style, bold colors, minimalist composition` |
+| `illustrator-3.webp` | ✅ | `Whimsical children's book illustration, cute characters, playful colors, storytelling art` |
+| `illustrator-4.webp` | ✅ | `Geometric abstract illustration, modern vector art, clean lines, contemporary design` |
+| `illustrator-5.webp` | ✅ | `Fantasy landscape digital painting, epic scenery, concept art style, cinematic composition` |
 
 ### 9. 3D 아티스트 (3d-artist)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `3d-hero.jpg` | 🔄 | `Abstract 3D geometric shapes, colorful render, modern digital art, floating objects composition` |
-| `3d-scifi.jpg` | 🔄 | `Futuristic sci-fi cityscape, 3D render, cyberpunk architecture, neon lights, dramatic perspective` |
-| `3d-character.jpg` | 🔄 | `Stylized 3D character model, Pixar-style render, expressive pose, high quality CGI` |
-| `3d-product.jpg` | 🔄 | `Photorealistic 3D product render, sleek industrial design, studio lighting, professional visualization` |
+| `3d-hero.webp` | ✅ | `Abstract 3D geometric shapes, colorful render, modern digital art, floating objects composition` |
+| `3d-scifi.webp` | ✅ | `Futuristic sci-fi cityscape, 3D render, cyberpunk architecture, neon lights, dramatic perspective` |
+| `3d-character.webp` | ✅ | `Stylized 3D character model, Pixar-style render, expressive pose, high quality CGI` |
+| `3d-product.webp` | ✅ | `Photorealistic 3D product render, sleek industrial design, studio lighting, professional visualization` |
 
 ### 10. 모션 그래픽 (motion-graphic)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `motion-hero.jpg` | 🔄 | `Colorful motion graphics frame, dynamic abstract shapes, flowing gradients, kinetic design` |
-| `motion-typography.jpg` | 🔄 | `Kinetic typography design, animated text concept, bold letters, motion design aesthetic` |
+| `motion-hero.webp` | ✅ | `Colorful motion graphics frame, dynamic abstract shapes, flowing gradients, kinetic design` |
+| `motion-typography.webp` | ✅ | `Kinetic typography design, animated text concept, bold letters, motion design aesthetic` |
 
 ### 11. 타투 아티스트 (tattoo-artist)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `tattoo-1.jpg` | 🔄 | `Fine line tattoo design, minimalist black ink, delicate illustration, tattoo flash art` |
-| `tattoo-2.jpg` | 🔄 | `Geometric tattoo pattern, sacred geometry design, precise linework, modern tattoo art` |
-| `tattoo-3.jpg` | 🔄 | `Watercolor tattoo style, colorful abstract splashes, artistic body art design` |
-| `tattoo-4.jpg` | 🔄 | `Traditional tattoo flash art, vintage American style, bold colors, classic designs` |
+| `tattoo-1.webp` | ✅ | `Fine line tattoo design, minimalist black ink, delicate illustration, tattoo flash art` |
+| `tattoo-2.webp` | ✅ | `Geometric tattoo pattern, sacred geometry design, precise linework, modern tattoo art` |
+| `tattoo-3.webp` | ✅ | `Watercolor tattoo style, colorful abstract splashes, artistic body art design` |
+| `tattoo-4.webp` | ✅ | `Traditional tattoo flash art, vintage American style, bold colors, classic designs` |
 
 ### 12. 인테리어 디자이너 (interior-designer)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `interior-hero.jpg` | 🔄 | `Modern minimalist living room, interior design showcase, natural materials, clean aesthetic` |
-| `interior-livingroom.jpg` | 🔄 | `Scandinavian style living room, cozy hygge atmosphere, neutral tones, warm textures` |
+| `interior-hero.webp` | ✅ | `Modern minimalist living room, interior design showcase, natural materials, clean aesthetic` |
+| `interior-livingroom.webp` | ✅ | `Scandinavian style living room, cozy hygge atmosphere, neutral tones, warm textures` |
 
 ### 13. 패션 디자이너 (fashion-designer)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `fashion-runway.jpg` | 🔄 | `High fashion runway show, model walking, dramatic lighting, luxury fashion week atmosphere` |
-| `fashion-look1.jpg` | 🔄 | `Fashion editorial photoshoot, stylish outfit, professional model, artistic composition` |
-| `fashion-look2.jpg` | 🔄 | `Haute couture dress, elegant fashion photography, luxury design, editorial style` |
-| `fashion-look3.jpg` | 🔄 | `Street style fashion, urban outfit, contemporary streetwear, lifestyle photography` |
-| `fashion-detail.jpg` | 🔄 | `Luxury fabric texture close-up, fashion design detail, high-end material, craftsmanship` |
+| `fashion-runway.webp` | ✅ | `High fashion runway show, model walking, dramatic lighting, luxury fashion week atmosphere` |
+| `fashion-look1.webp` | ✅ | `Fashion editorial photoshoot, stylish outfit, professional model, artistic composition` |
+| `fashion-look2.webp` | ✅ | `Haute couture dress, elegant fashion photography, luxury design, editorial style` |
+| `fashion-look3.webp` | ✅ | `Street style fashion, urban outfit, contemporary streetwear, lifestyle photography` |
+| `fashion-detail.webp` | ✅ | `Luxury fabric texture close-up, fashion design detail, high-end material, craftsmanship` |
 
 ### 14. 케이크/베이킹 (baking-cake)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `cake-hero.jpg` | 🔄 | `Elegant decorated cake on cake stand, professional pastry, beautiful dessert photography` |
-| `cake-birthday.jpg` | 🔄 | `Colorful birthday cake with candles, celebration dessert, festive decoration, joyful atmosphere` |
-| `cake-wedding.jpg` | 🔄 | `Multi-tier white wedding cake, elegant floral decoration, romantic bakery art, luxurious` |
-| `cake-cupcake.jpg` | 🔄 | `Assorted colorful cupcakes with frosting, bakery display, delicious treats, sweet photography` |
+| `cake-hero.webp` | ✅ | `Elegant decorated cake on cake stand, professional pastry, beautiful dessert photography` |
+| `cake-birthday.webp` | ✅ | `Colorful birthday cake with candles, celebration dessert, festive decoration, joyful atmosphere` |
+| `cake-wedding.webp` | ✅ | `Multi-tier white wedding cake, elegant floral decoration, romantic bakery art, luxurious` |
+| `cake-cupcake.webp` | ✅ | `Assorted colorful cupcakes with frosting, bakery display, delicious treats, sweet photography` |
 
 ### 15. 유튜버/크리에이터 (youtuber)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `youtube-hero.jpg` | 🔄 | `YouTube studio setup, camera and lights, content creator workspace, modern recording environment` |
-| `youtube-travel.jpg` | 🔄 | `Travel vlogger at scenic destination, camera in hand, adventure content, beautiful location` |
-| `youtube-qa.jpg` | 🔄 | `Q&A video recording setup, cozy home studio, content creator filming, casual atmosphere` |
-| `youtube-room.jpg` | 🔄 | `Aesthetic room tour content, cozy bedroom interior, lifestyle vlog setting, warm lighting` |
+| `youtube-hero.webp` | ✅ | `YouTube studio setup, camera and lights, content creator workspace, modern recording environment` |
+| `youtube-travel.webp` | ✅ | `Travel vlogger at scenic destination, camera in hand, adventure content, beautiful location` |
+| `youtube-qa.webp` | ✅ | `Q&A video recording setup, cozy home studio, content creator filming, casual atmosphere` |
+| `youtube-room.webp` | ✅ | `Aesthetic room tour content, cozy bedroom interior, lifestyle vlog setting, warm lighting` |
 
 ### 16. 팟캐스터 (podcaster)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `podcast-studio.jpg` | 🔄 | `Professional podcast studio, microphone setup, soundproof room, audio recording environment` |
-| `podcast-night.jpg` | 🔄 | `Cozy night podcast recording, warm neon lights, intimate atmosphere, late night vibes` |
-| `podcast-music.jpg` | 🔄 | `Music podcast setup with vinyl records, turntable, retro headphones, audiophile aesthetic` |
+| `podcast-studio.webp` | ✅ | `Professional podcast studio, microphone setup, soundproof room, audio recording environment` |
+| `podcast-night.webp` | ✅ | `Cozy night podcast recording, warm neon lights, intimate atmosphere, late night vibes` |
+| `podcast-music.webp` | ✅ | `Music podcast setup with vinyl records, turntable, retro headphones, audiophile aesthetic` |
 
 ### 17. 작가/소설 (writer)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `writer-library.jpg` | 🔄 | `Classic library with tall bookshelves, warm lighting, cozy reading corner, literary atmosphere` |
+| `writer-library.webp` | ✅ | `Classic library with tall bookshelves, warm lighting, cozy reading corner, literary atmosphere` |
 | `writer-book.jpg` | 🔄 | `Open vintage book with reading glasses, literary aesthetic, warm light, thoughtful mood` |
 
 ### 18. 시인 (poet)
@@ -410,16 +410,16 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
 | `party-hero.webp` | ✅ | `Festive party celebration, balloons and confetti, joyful atmosphere, colorful decoration` |
-| `party-map.jpg` | 🔄 | `Stylized event location map, cute illustration, venue directions, event invitation graphics` |
+| `party-map.webp` | ✅ | `Stylized event location map, cute illustration, venue directions, event invitation graphics` |
 
 ### 2. 웨딩 초대 (wedding)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `wedding-hero.jpg` | 🔄 | `Romantic wedding venue decoration, elegant setting, white flowers, dreamy atmosphere` |
-| `wedding-couple.jpg` | 🔄 | `Happy wedding couple portrait, romantic kiss, love celebration, beautiful moment` |
-| `wedding-hands.jpg` | 🔄 | `Couple holding hands wearing wedding rings, intimate moment, romantic gesture` |
-| `wedding-love.jpg` | 🔄 | `Romantic couple silhouette at sunset, love and marriage, dreamy atmosphere` |
-| `wedding-flowers.jpg` | 🔄 | `White roses wedding decoration, elegant floral arrangement, romantic setting` |
+| `wedding-hero.webp` | ✅ | `Romantic wedding venue decoration, elegant setting, white flowers, dreamy atmosphere` |
+| `wedding-couple.webp` | ✅ | `Happy wedding couple portrait, romantic kiss, love celebration, beautiful moment` |
+| `wedding-hands.webp` | ✅ | `Couple holding hands wearing wedding rings, intimate moment, romantic gesture` |
+| `wedding-love.webp` | ✅ | `Romantic couple silhouette at sunset, love and marriage, dreamy atmosphere` |
+| `wedding-flowers.webp` | ✅ | `White roses wedding decoration, elegant floral arrangement, romantic setting` |
 | `wedding-hall.jpg` | 🔄 | `Beautiful wedding reception hall, elegant table setting, romantic lighting, celebration venue` |
 
 ### 3. 컨퍼런스 (conference)
@@ -692,13 +692,13 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 
 | 카테고리 | 완료 | 미완료 | 총계 |
 |---------|-----|-------|-----|
-| Business | 43 | 22 | 65 |
-| Creative | 3 | 79 | 82 |
-| Event | 1 | 39 | 40 |
+| Business | 48 | 17 | 65 |
+| Creative | 31 | 51 | 82 |
+| Event | 7 | 33 | 40 |
 | Personal | 0 | 50 | 50 |
-| **총계** | **47** | **190** | **237** |
+| **총계** | **86** | **151** | **237** |
 
 ---
 
 생성일: 2026-01-22
-업데이트: 2026-01-23
+업데이트: 2026-01-24

@@ -13,7 +13,7 @@ export const creativeTemplates: Template[] = [
                 title: '안녕하세요',
                 description: '저는 디자이너 홍길동입니다',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/creative/portfolio-art.png',
+                mediaUrl: '/images/templates/creative/portfolio-art.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#1a1a2e',
@@ -124,7 +124,7 @@ export const creativeTemplates: Template[] = [
                 title: '상상을 현실로',
                 description: '디지털 아트 전시',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/creative/artwork-abstract.png',
+                mediaUrl: '/images/templates/creative/artwork-abstract.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#312e81',
@@ -181,7 +181,7 @@ export const creativeTemplates: Template[] = [
                 title: '디자인으로 문제를 해결합니다',
                 description: 'UI/UX 디자이너 포트폴리오',
                 mediaType: 'image',
-                mediaUrl: '/images/templates/creative/design-workspace.png',
+                mediaUrl: '/images/templates/creative/design-workspace.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#0c4a6e',
@@ -432,9 +432,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#111111',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/800/600/scifi?lock=133', caption: 'SF 도시' },
-                    { id: '2', url: 'https://loremflickr.com/800/600/character?lock=134', caption: '판타지 캐릭터' },
-                    { id: '3', url: 'https://loremflickr.com/800/600/product?lock=135', caption: '제품 비주얼' }
+                    { id: '1', url: '/images/templates/creative/3d-scifi.webp', caption: 'SF 도시' },
+                    { id: '2', url: '/images/templates/creative/3d-character.webp', caption: '판타지 캐릭터' },
+                    { id: '3', url: '/images/templates/creative/3d-product.webp', caption: '제품 비주얼' }
                 ]
             }
         ]
@@ -450,7 +450,7 @@ export const creativeTemplates: Template[] = [
                 title: '모션 쇼릴 2024',
                 description: '',
                 mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/motiongraphics?lock=136',
+                mediaUrl: '/images/templates/creative/motion-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -460,7 +460,7 @@ export const creativeTemplates: Template[] = [
                 title: '프로젝트 A',
                 description: '타이틀 시퀀스 디자인',
                 mediaType: 'image', // video
-                mediaUrl: 'https://loremflickr.com/800/600/typography?lock=137',
+                mediaUrl: '/images/templates/creative/motion-typography.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#171717',
                 textAlignment: 'left'
@@ -483,10 +483,10 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#000000',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/tattoo?lock=138' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/ink?lock=139' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/drawing?lock=140' },
-                    { id: '4', url: 'https://loremflickr.com/600/600/art?lock=141' }
+                    { id: '1', url: '/images/templates/creative/tattoo-1.webp' },
+                    { id: '2', url: '/images/templates/creative/tattoo-2.webp' },
+                    { id: '3', url: '/images/templates/creative/tattoo-3.webp' },
+                    { id: '4', url: '/images/templates/creative/tattoo-4.webp' }
                 ],
                 gallerySettings: { columns: 2, gap: 4, showCaptions: false }
             },
@@ -513,7 +513,7 @@ export const creativeTemplates: Template[] = [
                 title: '공간에 숨을 불어넣다',
                 description: '주거 & 상업 인테리어',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/interior?lock=142',
+                mediaUrl: '/images/templates/creative/interior-hero.webp',
                 textColor: '#000000',
                 backgroundColor: '#e5e5e5',
                 textAlignment: 'center'
@@ -523,7 +523,7 @@ export const creativeTemplates: Template[] = [
                 title: '모던 하우스',
                 description: '40평대 아파트 리모델링\n미니멀리즘을 기반으로 한 따뜻한 공간 연출',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/livingroom?lock=143',
+                mediaUrl: '/images/templates/creative/interior-livingroom.webp',
                 textColor: '#000000',
                 backgroundColor: '#f5f5f5',
                 textAlignment: 'left'
@@ -541,7 +541,7 @@ export const creativeTemplates: Template[] = [
                 title: 'SS 2025 Collection',
                 description: '"Bloom"',
                 mediaType: 'image', // fallback
-                mediaUrl: 'https://loremflickr.com/1280/720/runway?lock=144',
+                mediaUrl: '/images/templates/creative/fashion-runway.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -556,10 +556,10 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#ffffff',
                 textAlignment: 'center',
                 masonryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/900/fashion?lock=145', caption: '룩 1' },
-                    { id: '2', url: 'https://loremflickr.com/600/900/model?lock=146', caption: '룩 2' },
-                    { id: '3', url: 'https://loremflickr.com/600/900/dress?lock=147', caption: '룩 3' },
-                    { id: '4', url: 'https://loremflickr.com/600/600/clothing?lock=148', caption: '디테일' }
+                    { id: '1', url: '/images/templates/creative/fashion-look1.webp', caption: '룩 1' },
+                    { id: '2', url: '/images/templates/creative/fashion-look2.webp', caption: '룩 2' },
+                    { id: '3', url: '/images/templates/creative/fashion-look3.webp', caption: '룩 3' },
+                    { id: '4', url: '/images/templates/creative/fashion-detail.webp', caption: '디테일' }
                 ],
                 masonrySettings: { columns: 2, gap: 8, showCaptions: true, rounded: false, hoverEffect: false }
             }
@@ -576,7 +576,7 @@ export const creativeTemplates: Template[] = [
                 title: '달콤한 순간',
                 description: '특별한 날을 더욱 빛나게',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/cake?lock=149',
+                mediaUrl: '/images/templates/creative/cake-hero.webp',
                 textColor: '#000000',
                 backgroundColor: '#fff1f2',
                 textAlignment: 'center'
@@ -591,9 +591,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#ffffff',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/birthdaycake?lock=150', caption: '생일' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/weddingcake?lock=151', caption: '웨딩' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/cupcake?lock=152', caption: '도시락' }
+                    { id: '1', url: '/images/templates/creative/cake-birthday.webp', caption: '생일' },
+                    { id: '2', url: '/images/templates/creative/cake-wedding.webp', caption: '웨딩' },
+                    { id: '3', url: '/images/templates/creative/cake-cupcake.webp', caption: '도시락' }
                 ]
             }
         ]
@@ -609,7 +609,7 @@ export const creativeTemplates: Template[] = [
                 title: '채널명',
                 description: '매주 금요일 업로드! 구독과 좋아요',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/youtube?lock=153',
+                mediaUrl: '/images/templates/creative/youtube-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#b91c1c',
                 textAlignment: 'center'
@@ -624,9 +624,9 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#991b1b',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: '여행 브이로그', description: '조회수 100만회', imageUrl: 'https://loremflickr.com/400/300/travel?lock=154' },
-                    { id: '2', title: '질문과 답변', description: '50문 50답', imageUrl: 'https://loremflickr.com/400/300/talking?lock=155' },
-                    { id: '3', title: '룸 투어', description: '랜선 집들이', imageUrl: 'https://loremflickr.com/400/300/room?lock=156' }
+                    { id: '1', title: '여행 브이로그', description: '조회수 100만회', imageUrl: '/images/templates/creative/youtube-travel.webp' },
+                    { id: '2', title: '질문과 답변', description: '50문 50답', imageUrl: '/images/templates/creative/youtube-qa.webp' },
+                    { id: '3', title: '룸 투어', description: '랜선 집들이', imageUrl: '/images/templates/creative/youtube-room.webp' }
                 ]
             }
         ]
@@ -642,7 +642,7 @@ export const creativeTemplates: Template[] = [
                 title: '밤에 듣는 라디오',
                 description: '당신의 새벽을 채워드립니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/studio,mic?lock=157',
+                mediaUrl: '/images/templates/creative/podcast-studio.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#1e1b4b',
                 textAlignment: 'center'
@@ -657,8 +657,8 @@ export const creativeTemplates: Template[] = [
                 backgroundColor: '#312e81',
                 textAlignment: 'left',
                 audioTracks: [
-                    { id: '1', title: 'Ep.10 가을밤의 산책', url: '', duration: '45:00', coverImage: 'https://loremflickr.com/150/150/night?lock=158' },
-                    { id: '2', title: 'Ep.09 좋아하는 음악', url: '', duration: '38:00', coverImage: 'https://loremflickr.com/150/150/music?lock=159' }
+                    { id: '1', title: 'Ep.10 가을밤의 산책', url: '', duration: '45:00', coverImage: '/images/templates/creative/podcast-night.webp' },
+                    { id: '2', title: 'Ep.09 좋아하는 음악', url: '', duration: '38:00', coverImage: '/images/templates/creative/podcast-music.webp' }
                 ]
             }
         ]
@@ -674,7 +674,7 @@ export const creativeTemplates: Template[] = [
                 title: '소설가 김문학',
                 description: '활자로 짓는 세계',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/library?lock=160',
+                mediaUrl: '/images/templates/creative/writer-library.webp',
                 textColor: '#000000',
                 backgroundColor: '#f5f5f4',
                 textAlignment: 'center'
