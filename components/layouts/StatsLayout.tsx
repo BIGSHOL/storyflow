@@ -56,7 +56,7 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
 
       <div className={`max-w-5xl w-full ${gridClasses}`}>
         {stats.map((stat) => (
-          <StatCard key={stat.id} stat={stat} animate={animateNumbers} />
+          <StatCard key={stat.id} stat={stat} animate={animateNumbers} descriptionFontSize={section.descriptionFontSize} />
         ))}
       </div>
     </section>
@@ -66,9 +66,10 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
 interface StatCardProps {
   stat: { id: string; value: string; label: string; description?: string; icon?: string };
   animate: boolean;
+  descriptionFontSize?: number;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ stat, animate }) => {
+const StatCard: React.FC<StatCardProps> = ({ stat, animate, descriptionFontSize }) => {
   const [displayValue, setDisplayValue] = useState(animate ? '0' : stat.value);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -137,7 +138,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat, animate }) => {
       </div>
       <div className="text-xl font-medium opacity-90 mb-1">{stat.label}</div>
       {stat.description && (
-        <div className="text-sm opacity-60">{stat.description}</div>
+        <div className="opacity-60" style={{ fontSize: `${descriptionFontSize || 14}px` }}>{stat.description}</div>
       )}
     </div>
   );

@@ -18,7 +18,9 @@
       "Bash(git -C D:/storyflow diff)",
       "Bash(git -C D:/storyflow log --oneline -5)",
       "Bash(npx vercel --prod)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)"
     ]
   }
 }
