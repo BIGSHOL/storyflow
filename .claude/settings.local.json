@@ -16,7 +16,9 @@
       "Bash(npx vitest:*)",
       "Bash(git -C D:/storyflow status)",
       "Bash(git -C D:/storyflow diff)",
-      "Bash(git -C D:/storyflow log --oneline -5)"
+      "Bash(git -C D:/storyflow log --oneline -5)",
+      "Bash(npx vercel --prod)",
+      "Bash(npx vercel:*)"
     ]
   }
 }

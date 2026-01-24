@@ -19,7 +19,16 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
   const containerStyle: React.CSSProperties = {
     backgroundColor: section.backgroundColor || '#000000',
     color: section.textColor || '#ffffff',
+    fontFamily: section.fontFamily || 'system-ui, -apple-system, sans-serif',
     minHeight: section.sectionHeight || '100vh',
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: `${section.titleFontSize || 36}px`,
+  };
+
+  const descStyle: React.CSSProperties = {
+    fontSize: `${section.descriptionFontSize || 18}px`,
   };
 
   // 반응형 그리드 클래스: 모바일 1열 → 태블릿 2열 → 데스크탑 사용자 설정
@@ -39,10 +48,10 @@ const StatsLayout: React.FC<StatsLayoutProps> = memo(({ section }) => {
   return (
     <section className="section-preview w-full flex flex-col items-center justify-center py-16 px-8" style={containerStyle}>
       {section.title && (
-        <h2 className="text-4xl font-serif font-bold text-center mb-4">{section.title}</h2>
+        <h2 className="font-serif font-bold text-center mb-4" style={titleStyle}>{section.title}</h2>
       )}
       {section.description && (
-        <p className="text-lg text-center opacity-80 mb-16 max-w-2xl">{section.description}</p>
+        <p className="text-center opacity-80 mb-16 max-w-2xl" style={descStyle}>{section.description}</p>
       )}
 
       <div className={`max-w-5xl w-full ${gridClasses}`}>
