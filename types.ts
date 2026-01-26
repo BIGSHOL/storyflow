@@ -16,6 +16,8 @@ export enum LayoutType {
   MASONRY = 'masonry',
   GUESTBOOK = 'guestbook',
   AUDIO = 'audio',
+  // 특수 레이아웃
+  PARTICLE = 'particle', // 전체 페이지 파티클 이펙트
 }
 
 export type TextAlignment = 'left' | 'center' | 'right';
@@ -24,6 +26,29 @@ export type TextHorizontalPosition = 'left' | 'center' | 'right';
 export type SectionHeight = '100vh' | '75vh' | '50vh' | 'auto';
 export type ImageFilter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'brightness' | 'contrast' | 'saturate';
 export type AnimationType = 'none' | 'fade-in' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom-in' | 'zoom-out';
+
+// 파티클 이펙트 타입
+export type ParticleEffectType =
+  | 'none'
+  | 'petals'      // 꽃잎
+  | 'stars'       // 별
+  | 'hearts'      // 하트
+  | 'butterflies' // 나비
+  | 'sparkles'    // 반짝임
+  | 'snowflakes'  // 눈송이
+  | 'leaves'      // 낙엽
+  | 'sakura'      // 벚꽃
+  | 'bubbles'     // 거품
+  | 'embers';     // 불티
+
+export interface ParticleSettings {
+  enabled: boolean;
+  type: ParticleEffectType;
+  intensity: number;    // 1-10 (파티클 개수 배율)
+  speed: number;        // 0.5-2.0 (애니메이션 속도)
+  color?: string;       // 커스텀 색상 (선택)
+  opacity?: number;     // 0.3-1.0
+}
 
 export interface GradientOverlay {
   enabled: boolean;
@@ -294,6 +319,9 @@ export interface Section {
   // Audio 레이아웃
   audioTracks?: AudioTrack[];
   audioSettings?: AudioSettings;
+
+  // 파티클 이펙트 (섹션별 또는 PARTICLE 레이아웃용)
+  particleEffect?: ParticleSettings;
 }
 
 // 배경음악 설정

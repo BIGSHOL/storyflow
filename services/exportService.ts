@@ -263,6 +263,153 @@ body {
 .animate-on-scroll.visible {
   animation-fill-mode: forwards;
 }
+
+/* ========== Particle Effects ========== */
+.particle-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.particle-container-global {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.particle {
+  position: absolute;
+  will-change: transform, opacity;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes particleFall {
+  0% { transform: translateY(-10%) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) translateX(var(--particle-sway, 50px)) rotate(var(--particle-rotation, 360deg)); opacity: 0.3; }
+}
+
+@keyframes particleSwayFall {
+  0% { transform: translateY(-10%) translateX(0) rotate(0deg); opacity: 1; }
+  25% { transform: translateY(25vh) translateX(30px) rotate(90deg); }
+  50% { transform: translateY(50vh) translateX(-20px) rotate(180deg); }
+  75% { transform: translateY(75vh) translateX(40px) rotate(270deg); }
+  100% { transform: translateY(110vh) translateX(10px) rotate(360deg); opacity: 0.2; }
+}
+
+@keyframes particleFloat {
+  0% { transform: translateY(110vh) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-10%) translateX(var(--particle-sway, 30px)) scale(0.8); opacity: 0; }
+}
+
+@keyframes particleTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes particleFlutter {
+  0% { transform: translateX(-5%) translateY(var(--start-y, 50%)) rotate(0deg); }
+  25% { transform: translateX(30%) translateY(calc(var(--start-y, 50%) - 10vh)) rotate(-15deg); }
+  50% { transform: translateX(60%) translateY(calc(var(--start-y, 50%) + 5vh)) rotate(10deg); }
+  75% { transform: translateX(80%) translateY(calc(var(--start-y, 50%) - 5vh)) rotate(-10deg); }
+  100% { transform: translateX(105%) translateY(var(--start-y, 50%)) rotate(0deg); }
+}
+
+@keyframes particleEmber {
+  0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-10%) translateX(var(--particle-sway, 20px)) scale(0.3); opacity: 0; }
+}
+
+@keyframes wingFlap {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.3); }
+}
+
+.particle-petal {
+  width: 12px; height: 12px;
+  background: radial-gradient(ellipse at 30% 30%, #ffb7c5, #ff69b4);
+  border-radius: 50% 0 50% 50%;
+  animation-name: particleSwayFall;
+}
+
+.particle-star {
+  width: 8px; height: 8px;
+  background: #ffd700;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation-name: particleTwinkle;
+}
+
+.particle-heart {
+  width: 14px; height: 14px;
+  background: #ff6b81;
+  animation-name: particleFloat;
+  transform: rotate(-45deg);
+}
+
+.particle-butterfly { width: 20px; height: 16px; animation-name: particleFlutter; }
+.particle-butterfly-wing {
+  position: absolute; width: 10px; height: 16px;
+  background: linear-gradient(135deg, #87ceeb 0%, #4169e1 50%, #9370db 100%);
+  border-radius: 50% 50% 30% 30%;
+  animation: wingFlap 0.15s ease-in-out infinite;
+}
+.particle-butterfly-wing.left { left: 0; transform-origin: right center; }
+.particle-butterfly-wing.right { right: 0; transform-origin: left center; animation-delay: 0.075s; }
+
+.particle-sparkle {
+  width: 6px; height: 6px;
+  background: white; border-radius: 50%;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+  animation-name: particleTwinkle;
+}
+
+.particle-snowflake {
+  width: 10px; height: 10px;
+  background: white; border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  animation-name: particleFall;
+}
+
+.particle-leaf {
+  width: 16px; height: 10px;
+  background: linear-gradient(135deg, #d2691e 0%, #8b4513 50%, #a0522d 100%);
+  border-radius: 0 80% 0 80%;
+  animation-name: particleSwayFall;
+}
+
+.particle-sakura {
+  width: 14px; height: 14px;
+  background: radial-gradient(ellipse at 30% 30%, #fff0f5, #ffb6c1);
+  border-radius: 50% 0 50% 50%;
+  animation-name: particleSwayFall;
+}
+
+.particle-bubble {
+  width: 16px; height: 16px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(135,206,250,0.3));
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.4);
+  animation-name: particleFloat;
+}
+
+.particle-ember {
+  width: 4px; height: 4px;
+  background: radial-gradient(circle, #ff6600, #ff3300);
+  border-radius: 50%;
+  box-shadow: 0 0 6px 2px rgba(255, 100, 0, 0.6);
+  animation-name: particleEmber;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle-container, .particle-container-global { display: none; }
+}
 `;
 
 // 이미지 필터 CSS 생성
@@ -366,8 +513,65 @@ const getCTAButtonHTML = (section: Section): string => {
   return `<a href="${link || '#'}" class="cta-button ${style || 'solid'} ${size || 'medium'}" style="${buttonStyle}" ${link?.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>${text || '자세히 보기'}</a>`;
 };
 
+// 파티클 이펙트 HTML 생성
+const getParticleHTML = (section: Section, isGlobal: boolean = false): string => {
+  if (!section.particleEffect?.enabled || section.particleEffect.type === 'none') return '';
+
+  const { type, intensity, speed, color, opacity } = section.particleEffect;
+  const count = Math.min(Math.round((type === 'stars' || type === 'sparkles' ? 15 : type === 'butterflies' ? 4 : 8) * intensity), 100);
+
+  // 각 파티클 타입별 기본 지속 시간
+  const baseDurations: Record<string, number> = {
+    petals: 8, stars: 3, hearts: 10, butterflies: 12, sparkles: 2,
+    snowflakes: 10, leaves: 9, sakura: 8, bubbles: 12, embers: 6
+  };
+  const baseDuration = baseDurations[type] || 8;
+  const duration = baseDuration / speed;
+
+  // 시드 기반 랜덤 함수 (일관된 결과를 위해)
+  const seededRandom = (seed: number) => {
+    const x = Math.sin(seed * 9999) * 10000;
+    return x - Math.floor(x);
+  };
+
+  let particlesHTML = '';
+  for (let i = 0; i < count; i++) {
+    const r1 = seededRandom(i * 1);
+    const r2 = seededRandom(i * 2);
+    const r3 = seededRandom(i * 3);
+    const r4 = seededRandom(i * 4);
+
+    const left = r1 * 100;
+    const isFloating = type === 'bubbles' || type === 'hearts' || type === 'embers';
+    const top = isFloating ? 100 : -10 - r2 * 10;
+    const particleOpacity = (opacity || 0.8) * (0.6 + r3 * 0.4);
+    const animDuration = duration * (0.7 + r4 * 0.6);
+    const animDelay = r1 * duration;
+    const sway = (r2 - 0.5) * 100;
+    const rotation = r3 * 720;
+    const startY = r2 * 80 + 10;
+    const scale = 0.6 + r4 * 0.8;
+
+    const style = `left:${left}%;top:${top}%;opacity:${particleOpacity};animation-duration:${animDuration}s;animation-delay:${animDelay}s;--particle-sway:${sway}px;--particle-rotation:${rotation}deg;--start-y:${startY}%;transform:scale(${scale});`;
+    const colorStyle = color ? `background:${color};` : '';
+
+    if (type === 'butterflies') {
+      particlesHTML += `<div class="particle particle-butterfly" style="${style}"><div class="particle-butterfly-wing left" ${color ? `style="background:${color}"` : ''}></div><div class="particle-butterfly-wing right" ${color ? `style="background:${color}"` : ''}></div></div>`;
+    } else {
+      particlesHTML += `<div class="particle particle-${type}" style="${style}${colorStyle}"></div>`;
+    }
+  }
+
+  return `<div class="${isGlobal ? 'particle-container-global' : 'particle-container'}" aria-hidden="true">${particlesHTML}</div>`;
+};
+
 // 섹션을 HTML로 변환
-const sectionToHTML = (section: Section, mediaBase64: string): string => {
+const sectionToHTML = (section: Section, mediaBase64: string, hasGlobalParticle: boolean = false): string => {
+  // PARTICLE 레이아웃은 렌더링하지 않음 (전역 파티클만)
+  if (section.layout === LayoutType.PARTICLE) {
+    return '';
+  }
+
   const positionClasses = getPositionClasses(section);
   const textColor = section.textColor || '#ffffff';
   const bgColor = section.backgroundColor || '#000000';
@@ -384,6 +588,9 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
   const imageFilter = getImageFilterStyle(section);
   const gradientOverlay = getGradientOverlayStyle(section);
   const ctaButton = getCTAButtonHTML(section);
+
+  // 파티클 이펙트 (전역 파티클이 없을 때만 섹션별 파티클 표시)
+  const particleHTML = !hasGlobalParticle ? getParticleHTML(section) : '';
 
   const imageAltText = section.imageAlt || section.title || '섹션 이미지';
   const mediaHTML = mediaBase64
@@ -407,6 +614,7 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
       ${mediaHTML}
       <div class="overlay" style="opacity: ${overlayOpacity}; background-color: ${bgColor};"></div>
       ${gradientHTML}
+      ${particleHTML}
       <div class="content ${positionClasses}" style="${contentStyle}">
         <h1 style="${titleStyle}">${section.title}</h1>
         <p style="${descStyle}">${section.description}</p>
@@ -452,6 +660,7 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
       ${mediaHTML}
       <div class="overlay" style="opacity: ${overlayOpacity}; background-color: ${bgColor};"></div>
       ${gradientHTML}
+      ${particleHTML}
       <div class="content ${positionClasses}" style="${contentStyle} max-width: 800px;">
         <h2 style="${titleStyle}">${section.title}</h2>
         <div class="divider" style="background-color: ${textColor}; ${section.textHorizontalPosition === 'center' ? 'margin-left:auto;margin-right:auto;' : section.textHorizontalPosition === 'right' ? 'margin-left:auto;' : ''}"></div>
@@ -462,8 +671,9 @@ const sectionToHTML = (section: Section, mediaBase64: string): string => {
 
     case LayoutType.SIMPLE_TEXT:
       return `
-    <section class="section simple-text ${positionClasses}" style="background-color: ${bgColor}; color: ${textColor}; min-height: ${sectionHeight}; height: ${sectionHeight === 'auto' ? 'auto' : sectionHeight}; font-family: ${fontFamily};">
+    <section class="section simple-text ${positionClasses}" style="background-color: ${bgColor}; color: ${textColor}; min-height: ${sectionHeight}; height: ${sectionHeight === 'auto' ? 'auto' : sectionHeight}; font-family: ${fontFamily}; position: relative;">
       ${gradientHTML}
+      ${particleHTML}
       <div class="content ${positionClasses}" style="${contentStyle} max-width: 900px;">
         <h2 style="${titleStyle}">${section.title}</h2>
         <p style="${descStyle} margin-top: 2rem;">${section.description}</p>
@@ -766,9 +976,14 @@ export const generateHTML = async (
     onProgress?.(Math.round((currentStep / totalSteps) * 100));
   }
 
+  // 전역 파티클 섹션 확인 (PARTICLE 레이아웃)
+  const globalParticleSection = sections.find(s => s.layout === LayoutType.PARTICLE && s.particleEffect?.enabled);
+  const hasGlobalParticle = !!globalParticleSection;
+  const globalParticleHTML = globalParticleSection ? getParticleHTML(globalParticleSection, true) : '';
+
   // HTML 조합
   const sectionsHTML = sectionsWithBase64
-    .map(({ section, mediaBase64 }) => sectionToHTML(section, mediaBase64))
+    .map(({ section, mediaBase64 }) => sectionToHTML(section, mediaBase64, hasGlobalParticle))
     .join('\n');
 
   onProgress?.(100);
@@ -820,6 +1035,7 @@ export const generateHTML = async (
   <style>${CSS_STYLES}</style>
 </head>
 <body>
+${globalParticleHTML}
 ${sectionsHTML}
 
   ${options?.removeBranding ? '' : `<footer class="footer">

@@ -148,6 +148,23 @@ export const ANIMATIONS = [
   { name: '축소', value: 'zoom-out' },
 ] as const;
 
+// 파티클 이펙트 프리셋
+export const PARTICLE_EFFECTS = [
+  { name: '없음', value: 'none', emoji: '' },
+  // 청첩장/축하용
+  { name: '꽃잎', value: 'petals', emoji: '🌸', description: '분홍빛 꽃잎이 흩날림' },
+  { name: '별', value: 'stars', emoji: '⭐', description: '반짝이는 별이 내려옴' },
+  { name: '하트', value: 'hearts', emoji: '💕', description: '하트가 떠다님' },
+  { name: '나비', value: 'butterflies', emoji: '🦋', description: '나비가 날아다님' },
+  { name: '반짝임', value: 'sparkles', emoji: '✨', description: '반짝반짝 빛나는 효과' },
+  // 시즌/계절용
+  { name: '눈송이', value: 'snowflakes', emoji: '❄️', description: '겨울 느낌의 눈' },
+  { name: '낙엽', value: 'leaves', emoji: '🍂', description: '가을 느낌의 낙엽' },
+  { name: '벚꽃', value: 'sakura', emoji: '🌸', description: '봄 느낌의 벚꽃잎' },
+  { name: '거품', value: 'bubbles', emoji: '🫧', description: '몽환적인 거품' },
+  { name: '불티', value: 'embers', emoji: '🔥', description: '불티가 올라감' },
+] as const;
+
 // 그라데이션 방향
 export const GRADIENT_DIRECTIONS = [
   { name: '위에서 아래', value: 'to-bottom' },
@@ -219,5 +236,12 @@ export const DEFAULT_SECTION_VALUES = {
     style: 'solid' as const,
     color: '#ffffff',
     size: 'medium' as const,
+  },
+  particleEffect: {
+    enabled: false,
+    type: 'petals' as const,  // 기본값은 꽃잎 (활성화 시 바로 표시되도록)
+    intensity: 5,
+    speed: 1,
+    opacity: 0.8,
   },
 };

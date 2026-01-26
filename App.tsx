@@ -154,6 +154,7 @@ function App() {
   // 로그인 후 익명 데이터 마이그레이션 모달 상태
   const [showMigrationModal, setShowMigrationModal] = useState(false);
   const [pendingMigrationData, setPendingMigrationData] = useState<Section[] | null>(null);
+  const migrationHandledRef = useRef(false); // 마이그레이션이 처리되었는지 추적
 
   // 공유 다이얼로그 상태
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -246,6 +247,9 @@ function App() {
   useEffect(() => {
     // 인증 로딩 완료 + 로그인 상태일 때만 확인
     if (authLoading || !isAuthenticated) return;
+
+    // 이미 마이그레이션 처리가 완료되었으면 스킵
+    if (migrationHandledRef.current) return;
 
     // 익명 사용자의 저장 데이터가 있는지 확인
     if (hasAnonymousSavedProject()) {
@@ -470,6 +474,7 @@ function App() {
       setIsSaving(false);
       setShowMigrationModal(false);
       setPendingMigrationData(null);
+      migrationHandledRef.current = true;
     }
   }, [pendingMigrationData, projects.length, currentProject, saveAsNewProject, setCurrentProject, canCreateProject, MAX_PROJECTS]);
 
@@ -491,12 +496,14 @@ function App() {
     }
     setShowMigrationModal(false);
     setPendingMigrationData(null);
+    migrationHandledRef.current = true;
   }, [setCurrentProject]);
 
   // 마이그레이션 나중에 처리 (데이터 유지, 모달만 닫기)
   const handleMigrationLater = useCallback(() => {
     setShowMigrationModal(false);
     setPendingMigrationData(null);
+    migrationHandledRef.current = true; // 이번 세션에서 다시 묻지 않음
   }, []);
 
   // 섹션 변경 시 자동 저장

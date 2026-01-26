@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, memo, useMemo, Suspense } from 'react';
-import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings, BackgroundMusic, Template, TemplateCategoryId } from '../types';
+import { Section, LayoutType, TextAlignment, TextVerticalPosition, TextHorizontalPosition, SectionHeight, ImageFilter, AnimationType, GradientOverlay, CTAButton, TextShadow, GalleryImage, TimelineItem, CardItem, StatItem, GallerySettings, CardsSettings, StatsSettings, QuoteSettings, VideoHeroSettings, TimelineAlignment, CarouselImage, CarouselSettings, MasonryImage, MasonrySettings, GuestbookEntry, GuestbookSettings, AudioTrack, AudioSettings, BackgroundMusic, Template, TemplateCategoryId, ParticleSettings, ParticleEffectType } from '../types';
 // lucide-react 직접 import (번들 최적화)
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -46,7 +46,7 @@ import Info from 'lucide-react/dist/esm/icons/info';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import { optimizeImage, needsOptimization, getRecommendedOptions, formatFileSize } from '../services/imageOptimizer';
-import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES } from '../data/constants';
+import { GOOGLE_FONTS, IMAGE_FILTERS, ANIMATIONS, GRADIENT_DIRECTIONS, SECTION_HEIGHTS, BUTTON_STYLES, BUTTON_SIZES, DEFAULT_SECTION_VALUES, PARTICLE_EFFECTS } from '../data/constants';
 import { COLOR_PALETTES, TYPOGRAPHY_PRESETS, STYLE_COMBOS, getStyleComboSettings, ColorPalette, TypographyPreset } from '../data/stylePresets';
 import { uploadMedia } from '../services/mediaService';
 import PreviewRender from './PreviewRender';
@@ -73,6 +73,7 @@ const getLayoutName = (layout: LayoutType): string => {
     [LayoutType.MASONRY]: 'Masonry',
     [LayoutType.GUESTBOOK]: '방명록',
     [LayoutType.AUDIO]: '오디오',
+    [LayoutType.PARTICLE]: '파티클 이펙트',
   };
   return layoutNames[layout] || layout;
 };
@@ -136,6 +137,7 @@ const LAYOUT_OPTIONS: { value: LayoutType; name: string; description: string; gr
   { value: LayoutType.CAROUSEL, name: '캐러셀', description: '이미지 슬라이더', group: 'advanced' },
   { value: LayoutType.GUESTBOOK, name: '방명록', description: '댓글 섹션', group: 'advanced' },
   { value: LayoutType.AUDIO, name: '오디오', description: '음악 플레이어', group: 'advanced' },
+  { value: LayoutType.PARTICLE, name: '파티클', description: '전체 페이지 이펙트', group: 'advanced' },
 ];
 
 // 레이아웃 선택 컴포넌트 (memo로 최적화)
@@ -2986,6 +2988,178 @@ const Editor: React.FC<EditorProps> = ({ sections, setSections, bgm, setBgm }) =
                             />
                           </div>
                         </>
+                      )}
+                    </div>
+                  </AccordionSection>
+
+                  {/* 파티클 이펙트 */}
+                  <AccordionSection
+                    title="파티클 이펙트"
+                    icon={<Sparkles size={12} />}
+                    isOpen={isAccordionOpen(section.id, 'particle')}
+                    onToggle={() => toggleAccordion(section.id, 'particle')}
+                  >
+                    <div className="space-y-4">
+                      {/* 파티클 활성화 토글 */}
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs text-gray-400">파티클 사용</label>
+                        <button
+                          onClick={() => {
+                            const currentEffect = section.particleEffect;
+                            const newEnabled = !currentEffect?.enabled;
+                            // 활성화 시 type이 'none'이거나 없으면 'petals'로 설정
+                            const effectType = (newEnabled && (!currentEffect?.type || currentEffect.type === 'none'))
+                              ? 'petals'
+                              : (currentEffect?.type || 'petals');
+                            updateSection(section.id, {
+                              particleEffect: {
+                                type: effectType as ParticleEffectType,
+                                intensity: currentEffect?.intensity || 5,
+                                speed: currentEffect?.speed || 1,
+                                opacity: currentEffect?.opacity || 0.8,
+                                color: currentEffect?.color,
+                                enabled: newEnabled
+                              }
+                            });
+                          }}
+                          className={`w-10 h-5 rounded-full transition-colors ${section.particleEffect?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${section.particleEffect?.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                        </button>
+                      </div>
+
+                      {/* PARTICLE 레이아웃 안내 */}
+                      {section.layout === LayoutType.PARTICLE && (
+                        <div className="p-2 bg-blue-900/30 border border-blue-700/50 rounded text-xs text-blue-300">
+                          <Info size={12} className="inline mr-1" />
+                          이 섹션의 파티클은 전체 페이지에 적용됩니다.
+                        </div>
+                      )}
+
+                      {section.particleEffect?.enabled && (
+                        <div className="space-y-3 p-3 bg-gray-900/50 rounded border border-gray-700">
+                          {/* 파티클 종류 */}
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">이펙트 종류</label>
+                            <StyledDropdown
+                              options={PARTICLE_EFFECTS.filter(p => p.value !== 'none').map(p => ({
+                                name: `${p.emoji} ${p.name}`,
+                                value: p.value,
+                                description: p.description
+                              }))}
+                              value={section.particleEffect?.type || 'petals'}
+                              onChange={(v) => updateSection(section.id, {
+                                particleEffect: {
+                                  ...section.particleEffect!,
+                                  type: v as ParticleEffectType
+                                }
+                              })}
+                            />
+                          </div>
+
+                          {/* 강도 슬라이더 */}
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 flex justify-between">
+                              <span>강도 (개수)</span>
+                              <span className="text-white">{section.particleEffect?.intensity || 5}</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              step="1"
+                              value={section.particleEffect?.intensity || 5}
+                              onChange={(e) => updateSection(section.id, {
+                                particleEffect: {
+                                  ...section.particleEffect!,
+                                  intensity: parseInt(e.target.value)
+                                }
+                              })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+
+                          {/* 속도 슬라이더 */}
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 flex justify-between">
+                              <span>속도</span>
+                              <span className="text-white">{section.particleEffect?.speed || 1}x</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="0.5"
+                              max="2"
+                              step="0.1"
+                              value={section.particleEffect?.speed || 1}
+                              onChange={(e) => updateSection(section.id, {
+                                particleEffect: {
+                                  ...section.particleEffect!,
+                                  speed: parseFloat(e.target.value)
+                                }
+                              })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+
+                          {/* 불투명도 슬라이더 */}
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 flex justify-between">
+                              <span>불투명도</span>
+                              <span className="text-white">{Math.round((section.particleEffect?.opacity || 0.8) * 100)}%</span>
+                            </label>
+                            <input
+                              type="range"
+                              min="0.3"
+                              max="1"
+                              step="0.1"
+                              value={section.particleEffect?.opacity || 0.8}
+                              onChange={(e) => updateSection(section.id, {
+                                particleEffect: {
+                                  ...section.particleEffect!,
+                                  opacity: parseFloat(e.target.value)
+                                }
+                              })}
+                              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                              {...preventDragProps}
+                            />
+                          </div>
+
+                          {/* 커스텀 색상 (선택) */}
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 flex items-center gap-2">
+                              <span>커스텀 색상</span>
+                              <span className="text-gray-600 text-[10px]">(선택)</span>
+                            </label>
+                            <div className="flex gap-2 items-center">
+                              <input
+                                type="color"
+                                value={section.particleEffect?.color || '#ff69b4'}
+                                onChange={(e) => updateSection(section.id, {
+                                  particleEffect: {
+                                    ...section.particleEffect!,
+                                    color: e.target.value
+                                  }
+                                })}
+                                className="w-8 h-8 rounded cursor-pointer bg-transparent"
+                              />
+                              {section.particleEffect?.color && (
+                                <button
+                                  onClick={() => updateSection(section.id, {
+                                    particleEffect: {
+                                      ...section.particleEffect!,
+                                      color: undefined
+                                    }
+                                  })}
+                                  className="text-xs text-gray-500 hover:text-white"
+                                >
+                                  기본 색상으로
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </AccordionSection>

@@ -7,6 +7,7 @@ import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
 import VolumeX from 'lucide-react/dist/esm/icons/volume-x';
 import Play from 'lucide-react/dist/esm/icons/play';
 import Pause from 'lucide-react/dist/esm/icons/pause';
+import ParticleEffect from './ParticleEffect';
 
 // Lazy import with retry (배포 후 캐시 무효화 문제 해결)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +74,14 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
   const [isMuted, setIsMuted] = useState(false);
   const bgmRef = useRef<HTMLAudioElement>(null);
 
+  // 전역 파티클 섹션 찾기 (PARTICLE 레이아웃이 있으면 전체 페이지에 적용)
+  const globalParticleSection = useMemo(() => {
+    return sections.find(s => s.layout === LayoutType.PARTICLE && s.particleEffect?.enabled);
+  }, [sections]);
+
+  // 전역 파티클이 있으면 개별 섹션 파티클 비활성화
+  const hasGlobalParticle = !!globalParticleSection;
+
   // BGM 볼륨 설정
   useEffect(() => {
     if (bgmRef.current && bgm) {
@@ -116,14 +125,26 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
     <div className={containerClasses} data-preview-container>
       {sections.length === 0 && emptyStateElement}
 
-      {sections.map((section, index) => (
-        <SectionView
-          key={section.id}
-          section={section}
-          isFirst={index === 0}
-          onScrollDown={index === 0 ? handleScrollDown : undefined}
-          bgm={bgm}
+      {/* 전역 파티클 이펙트 (PARTICLE 레이아웃이 있을 때) */}
+      {globalParticleSection?.particleEffect && (
+        <ParticleEffect
+          settings={globalParticleSection.particleEffect}
+          isGlobal={true}
         />
+      )}
+
+      {sections.map((section, index) => (
+        // PARTICLE 레이아웃은 렌더링하지 않음 (전역 파티클만 표시)
+        section.layout === LayoutType.PARTICLE ? null : (
+          <SectionView
+            key={section.id}
+            section={section}
+            isFirst={index === 0}
+            onScrollDown={index === 0 ? handleScrollDown : undefined}
+            bgm={bgm}
+            hasGlobalParticle={hasGlobalParticle}
+          />
+        )
       ))}
 
       {/* Footer / End of Story */}
@@ -157,7 +178,7 @@ const PreviewRender: React.FC<PreviewRenderProps> = memo(({ sections, isPreviewM
   );
 });
 
-const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?: () => void; bgm?: BackgroundMusic }> = memo(({ section, isFirst, onScrollDown, bgm }) => {
+const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?: () => void; bgm?: BackgroundMusic; hasGlobalParticle?: boolean }> = memo(({ section, isFirst, onScrollDown, bgm, hasGlobalParticle = false }) => {
   const [mediaError, setMediaError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -520,6 +541,10 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           {section.gradientOverlay?.enabled && (
             <div className="absolute inset-0 z-[2] pointer-events-none" style={gradientOverlayStyle} />
           )}
+          {/* Particle Effect (섹션별) */}
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
           <div
             className={`relative z-10 w-full max-w-5xl mx-auto flex flex-col ${positionClasses}`}
             style={{ ...paddingStyle, ...animationStyle }}
@@ -545,7 +570,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
         <section ref={sectionRef} className="section-preview w-full flex flex-col md:flex-row" style={containerStyle}>
           {/* Mobile: Full Width, Desktop: Dynamic Width */}
           <div className="w-full md:hidden h-[50vh]">
-             {renderMedia()}
+            {renderMedia()}
           </div>
           <div className="hidden md:block h-screen sticky top-0" style={splitMediaStyle}>
             {renderMedia()}
@@ -558,7 +583,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
             className={`w-full flex flex-col ${positionClasses}`}
             style={{ ...splitTextStyle, ...paddingStyle, minHeight: '50vh', ...animationStyle }}
           >
-             <div className="max-w-xl">
+            <div className="max-w-xl">
               <h2 className="font-serif mb-6 leading-tight" style={titleStyle}>{section.title}</h2>
               <p className="opacity-80 leading-loose" style={descStyle}>{section.description}</p>
               <CTAButtonComponent />
@@ -571,7 +596,7 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <section ref={sectionRef} className="section-preview w-full flex flex-col md:flex-row-reverse" style={containerStyle}>
           <div className="w-full md:hidden h-[50vh]">
-             {renderMedia()}
+            {renderMedia()}
           </div>
           <div className="hidden md:block h-screen sticky top-0" style={splitMediaStyle}>
             {renderMedia()}
@@ -612,6 +637,10 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
           {section.gradientOverlay?.enabled && (
             <div className="absolute inset-0 z-[2] pointer-events-none" style={gradientOverlayStyle} />
           )}
+          {/* Particle Effect (섹션별) */}
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
           <div
             className={`relative z-10 max-w-3xl flex flex-col ${positionClasses}`}
             style={{ ...paddingStyle, ...animationStyle }}
@@ -628,101 +657,151 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
 
     case LayoutType.GALLERY:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <GalleryLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <GalleryLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.TIMELINE:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <TimelineLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <TimelineLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.CARDS:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <CardsLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <CardsLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.QUOTE:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <QuoteLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <QuoteLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.STATS:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <StatsLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <StatsLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.VIDEO_HERO:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <VideoHeroLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <VideoHeroLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.CAROUSEL:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <CarouselLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <CarouselLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.MASONRY:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <MasonryLayout section={section} />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <MasonryLayout section={section} />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.GUESTBOOK:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <GuestbookLayout
-            title={section.title}
-            description={section.description}
-            entries={section.guestbookEntries || []}
-            settings={section.guestbookSettings || {
-              maxEntries: 10,
-              showTimestamp: true,
-              requireName: false,
-              allowAnonymous: true,
-              sortOrder: 'newest',
-              cardStyle: 'default',
-              columns: 1,
-            }}
-            backgroundColor={section.backgroundColor}
-            textColor={section.textColor}
-            isPreview={true}
-          />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <GuestbookLayout
+              title={section.title}
+              description={section.description}
+              entries={section.guestbookEntries || []}
+              settings={section.guestbookSettings || {
+                maxEntries: 10,
+                showTimestamp: true,
+                requireName: false,
+                allowAnonymous: true,
+                sortOrder: 'newest',
+                cardStyle: 'default',
+                columns: 1,
+              }}
+              backgroundColor={section.backgroundColor}
+              textColor={section.textColor}
+              isPreview={true}
+            />
+          </Suspense>
+        </div>
       );
 
     case LayoutType.AUDIO:
       return (
-        <Suspense fallback={suspenseFallback}>
-          <AudioLayout
-            title={section.title}
-            description={section.description}
-            tracks={section.audioTracks || []}
-            settings={section.audioSettings || {
-              autoPlay: false,
-              loop: false,
-              showPlaylist: true,
-              playerStyle: 'full',
-              volume: 80,
-            }}
-            backgroundColor={section.backgroundColor}
-            textColor={section.textColor}
-          />
-        </Suspense>
+        <div className="relative w-full">
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
+          )}
+          <Suspense fallback={suspenseFallback}>
+            <AudioLayout
+              title={section.title}
+              description={section.description}
+              tracks={section.audioTracks || []}
+              settings={section.audioSettings || {
+                autoPlay: false,
+                loop: false,
+                showPlaylist: true,
+                playerStyle: 'full',
+                volume: 80,
+              }}
+              backgroundColor={section.backgroundColor}
+              textColor={section.textColor}
+            />
+          </Suspense>
+        </div>
       );
 
     // ========== 기본 레이아웃 ==========
@@ -732,11 +811,15 @@ const SectionView: React.FC<{ section: Section; isFirst: boolean; onScrollDown?:
       return (
         <section
           ref={sectionRef}
-          className={`section-preview w-full flex flex-col ${positionClasses}`}
+          className={`section-preview relative w-full flex flex-col ${positionClasses}`}
           style={containerStyle}
         >
           {section.gradientOverlay?.enabled && (
             <div className="absolute inset-0" style={gradientOverlayStyle} />
+          )}
+          {/* Particle Effect (섹션별) */}
+          {!hasGlobalParticle && section.particleEffect?.enabled && (
+            <ParticleEffect settings={section.particleEffect} />
           )}
           <div
             className={`w-full max-w-4xl mx-auto relative z-10 flex flex-col ${positionClasses}`}
