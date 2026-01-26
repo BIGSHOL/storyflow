@@ -232,7 +232,6 @@ const ParticleEffect: React.FC<ParticleEffectProps> = memo(({ settings, isGlobal
       const style: React.CSSProperties = {
         left: `${random1 * 100}%`,
         top: topPosition,
-        opacity: opacity * (0.6 + random3 * 0.4),
         animationDuration: `${duration * (0.7 + random4 * 0.6)}s`,
         // 딜레이 최대값을 duration의 30%로 제한 (빠르게 시작)
         animationDelay: `${random1 * duration * 0.3}s`,
@@ -258,6 +257,7 @@ const ParticleEffect: React.FC<ParticleEffectProps> = memo(({ settings, isGlobal
     <div
       className={isGlobal ? 'particle-container-global' : 'particle-container'}
       aria-hidden="true"
+      style={{ opacity: opacity }}
     >
       {particles}
     </div>
