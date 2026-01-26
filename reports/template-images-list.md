@@ -544,13 +544,13 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | `travel-river.webp` | ✅ | `Seine River with Parisian bridges, boat cruise view, classic Paris scenery` |
 | `travel-cathedral.webp` | ✅ | `Notre Dame Cathedral architecture, Gothic beauty, Paris landmark, historic monument` |
 | `travel-street.webp` | ✅ | `Charming Paris street with cafes, cobblestone road, French bistro, romantic atmosphere` |
-| `travel-arch.jpg` | 🔄 | `Arc de Triomphe Paris at dusk, grand monument, Champs-Élysées view, iconic landmark` |
-| `travel-cafe.jpg` | 🔄 | `Parisian outdoor cafe terrace, French coffee culture, street scene, European charm` |
+| `travel-arch.webp` | ✅ | `Arc de Triomphe Paris at dusk, grand monument, Champs-Élysées view, iconic landmark` |
+| `travel-cafe.webp` | ✅ | `Parisian outdoor cafe terrace, French coffee culture, street scene, European charm` |
 
 ### 3. 자기소개 (about-me)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `aboutme-desk.jpg` | 🔄 | `Minimalist workspace desk setup, clean organization, personal office, productivity aesthetic` |
+| `aboutme-desk.webp` | ✅ | `Minimalist workspace desk setup, clean organization, personal office, productivity aesthetic` |
 | `aboutme-coffee.jpg` | 🔄 | `Latte art coffee cup, cozy morning routine, warm beverage, cafe lifestyle` |
 | `aboutme-coding.jpg` | 🔄 | `Coding on laptop, developer workspace, programming screen, tech professional` |
 | `aboutme-design.jpg` | 🔄 | `Creative design tablet workspace, digital artist setup, stylus and drawing, creative work` |
@@ -695,8 +695,8 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | Business | 48 | 17 | 65 |
 | Creative | 34 | 48 | 82 |
 | Event | 12 | 28 | 40 |
-| Personal | 9 | 41 | 50 |
-| **총계** | **103** | **134** | **237** |
+| Personal | 12 | 38 | 50 |
+| **총계** | **106** | **131** | **237** |
 
 ---
 
