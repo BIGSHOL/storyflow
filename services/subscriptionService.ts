@@ -27,28 +27,67 @@ export const getSubscription = async (): Promise<Subscription | null> => {
     .eq('user_id', user.id)
     .single();
 
-  // DB에 구독 정보가 없으면 기본 Pro 구독 생성
+  // DB에 구독 정보가 없으면 기본 Pro 구독을 DB에 생성
   if (error) {
-    console.log('구독 정보가 없음, 기본 Pro 플랜으로 설정');
-    return {
-      id: `temp-${user.id}`,
-      userId: user.id,
-      planType: 'pro', // 모든 사용자 Pro 플랜
-      status: 'active',
-      currentPeriodStart: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    console.log('구독 정보가 없음, DB에 Pro 플랜 생성');
+    const now = new Date().toISOString();
+    const { data: newSubscription, error: insertError } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: user.id,
+        plan_type: 'pro',
+        status: 'active',
+        current_period_start: now,
+        created_at: now,
+        updated_at: now,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Pro 구독 생성 실패:', insertError);
+      // 실패해도 임시 Pro 구독 반환
+      return {
+        id: `temp-${user.id}`,
+        userId: user.id,
+        planType: 'pro',
+        status: 'active',
+        currentPeriodStart: now,
+        createdAt: now,
+        updatedAt: now,
+      };
+    }
+
+    return toSubscription(newSubscription as SubscriptionRow);
   }
 
   const subscription = toSubscription(data as SubscriptionRow);
 
-  // 모든 사용자를 Pro 플랜으로 강제 전환
-  return {
-    ...subscription,
-    planType: 'pro',
-    status: 'active',
-  };
+  // 기존 사용자가 free 플랜이면 DB를 Pro로 업데이트
+  if (subscription.planType !== 'pro' || subscription.status !== 'active') {
+    console.log(`사용자 ${user.id}를 Pro 플랜으로 업그레이드`);
+    const { error: updateError } = await supabase
+      .from('subscriptions')
+      .update({
+        plan_type: 'pro',
+        status: 'active',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      console.error('Pro 플랜 업데이트 실패:', updateError);
+    }
+
+    // DB 업데이트와 관계없이 Pro 플랜으로 반환
+    return {
+      ...subscription,
+      planType: 'pro',
+      status: 'active',
+    };
+  }
+
+  return subscription;
 };
 
 /**
