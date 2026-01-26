@@ -788,7 +788,7 @@ function App() {
 
     // 내보내기 제한 확인 (플랜 기반)
     if (!canExportByPlan()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -798,8 +798,9 @@ function App() {
     }
 
     // 무료티어 로컬 내보내기 제한 확인
-    if (!canExport()) {
-      const limitInfo = getExportLimitInfo();
+    const exportAllowed = await canExport();
+    if (!exportAllowed) {
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -825,7 +826,7 @@ function App() {
       await exportToHTML(sections, 'my-story', undefined, {
         removeBranding: canRemoveBranding(),
       });
-      recordExport(); // 내보내기 성공 시 기록
+      await recordExport(); // 내보내기 성공 시 기록
       alert('HTML 파일이 다운로드되었어요!');
     } catch (error) {
       console.error('내보내기 실패:', error);

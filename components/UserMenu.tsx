@@ -30,13 +30,13 @@ const UserMenu: React.FC = () => {
   };
 
   // 내보내기 제한 정보
-  const [exportInfo, setExportInfo] = useState(getExportLimitInfo());
+  const [exportInfo, setExportInfo] = useState({ remaining: 0, limit: 10, nextReset: '' });
 
   // 메뉴 열릴 때 저장 용량 및 내보내기 정보 새로고침
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       refreshStorage();
-      setExportInfo(getExportLimitInfo());
+      getExportLimitInfo().then(setExportInfo);
     }
   }, [isOpen, isAuthenticated, refreshStorage]);
 

@@ -1,11 +1,14 @@
 /**
- * 무료티어 일일 내보내기 제한 서비스
+ * 플랜별 일일 내보내기 제한 서비스
  * - 무료티어: 하루 10회 제한
+ * - Pro/Team: 무제한
  * - 초기화 시간: 한국시간 오전 6시 (UTC+9)
  */
 
+import { getSubscription } from './subscriptionService';
+
 const STORAGE_KEY = 'storyflow_export_limit';
-const DAILY_LIMIT = 10;
+const FREE_DAILY_LIMIT = 10;
 const RESET_HOUR_KST = 6; // 한국시간 오전 6시
 
 interface ExportLimitData {
@@ -60,29 +63,44 @@ const saveExportLimitData = (data: ExportLimitData): void => {
 /**
  * 현재 남은 내보내기 횟수 확인
  */
-export const getRemainingExports = (): number => {
+export const getRemainingExports = async (): Promise<number> => {
+  const subscription = await getSubscription();
+
+  // Pro나 Team 플랜은 무제한
+  if (subscription?.planType === 'pro' || subscription?.planType === 'team') {
+    return Infinity;
+  }
+
   const data = getExportLimitData();
   const currentDate = getKSTDateString();
 
   // 날짜가 다르면 리셋
   if (data.lastResetDate !== currentDate) {
-    return DAILY_LIMIT;
+    return FREE_DAILY_LIMIT;
   }
 
-  return Math.max(0, DAILY_LIMIT - data.count);
+  return Math.max(0, FREE_DAILY_LIMIT - data.count);
 };
 
 /**
  * 내보내기 가능 여부 확인
  */
-export const canExport = (): boolean => {
-  return getRemainingExports() > 0;
+export const canExport = async (): Promise<boolean> => {
+  const remaining = await getRemainingExports();
+  return remaining > 0;
 };
 
 /**
  * 내보내기 사용 기록 (내보내기 성공 시 호출)
  */
-export const recordExport = (): void => {
+export const recordExport = async (): Promise<void> => {
+  const subscription = await getSubscription();
+
+  // Pro나 Team 플랜은 기록하지 않음 (무제한)
+  if (subscription?.planType === 'pro' || subscription?.planType === 'team') {
+    return;
+  }
+
   const data = getExportLimitData();
   const currentDate = getKSTDateString();
 
@@ -134,14 +152,26 @@ export const getNextResetTimeString = (): string => {
 /**
  * 일일 제한 정보 반환
  */
-export const getExportLimitInfo = (): {
+export const getExportLimitInfo = async (): Promise<{
   remaining: number;
   limit: number;
   nextReset: string;
-} => {
+}> => {
+  const subscription = await getSubscription();
+  const remaining = await getRemainingExports();
+
+  // Pro나 Team 플랜은 무제한
+  if (subscription?.planType === 'pro' || subscription?.planType === 'team') {
+    return {
+      remaining: Infinity,
+      limit: Infinity,
+      nextReset: '무제한',
+    };
+  }
+
   return {
-    remaining: getRemainingExports(),
-    limit: DAILY_LIMIT,
+    remaining,
+    limit: FREE_DAILY_LIMIT,
     nextReset: getNextResetTimeString(),
   };
 };
