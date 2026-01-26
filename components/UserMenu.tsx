@@ -11,11 +11,13 @@ import { deleteAllUserMedia } from '../services/mediaService';
 import { useProject } from '../hooks/useProject';
 import { getExportLimitInfo } from '../services/exportLimitService';
 import Download from 'lucide-react/dist/esm/icons/download';
+import { useSubscription } from '../hooks/useSubscription';
 
 const UserMenu: React.FC = () => {
   const { user, loading, error, signIn, logOut, isAuthenticated } = useAuth();
   const { storageInfo, formatBytes, isNearQuota, isOverQuota, refresh: refreshStorage } = useStorageQuota();
   const { projects } = useProject();
+  const { subscription } = useSubscription();
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -155,10 +157,16 @@ const UserMenu: React.FC = () => {
                   setIsOpen(false); // 드롭다운 닫기
                   setShowPricingModal(true);
                 }}
-                className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30 hover:bg-green-600/30 transition-colors cursor-pointer"
+                className={`ml-2 px-2 py-0.5 text-xs font-medium rounded border transition-colors cursor-pointer ${
+                  subscription?.planType === 'pro'
+                    ? 'bg-indigo-600/20 text-indigo-400 border-indigo-600/30 hover:bg-indigo-600/30'
+                    : subscription?.planType === 'team'
+                    ? 'bg-purple-600/20 text-purple-400 border-purple-600/30 hover:bg-purple-600/30'
+                    : 'bg-green-600/20 text-green-400 border-green-600/30 hover:bg-green-600/30'
+                }`}
                 title="요금제 보기"
               >
-                무료
+                {subscription?.planType === 'pro' ? 'Pro' : subscription?.planType === 'team' ? 'Team' : '무료'}
               </button>
             </div>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
@@ -169,7 +177,9 @@ const UserMenu: React.FC = () => {
             {/* 프로젝트 수 */}
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-400">프로젝트</span>
-              <span className="text-gray-300 font-medium">{projects.length} / 3</span>
+              <span className="text-gray-300 font-medium">
+                {projects.length} / {subscription?.limits.maxProjects ?? '∞'}
+              </span>
             </div>
 
             {/* 내보내기 횟수 */}
@@ -180,27 +190,36 @@ const UserMenu: React.FC = () => {
                   <span className="text-gray-400">오늘 내보내기</span>
                 </div>
                 <span className={`font-medium ${
-                  exportInfo.remaining === 0
+                  subscription?.limits.maxExportsPerDay === null
+                    ? 'text-gray-300'
+                    : exportInfo.remaining === 0
                     ? 'text-red-400'
                     : exportInfo.remaining <= 3
                       ? 'text-yellow-400'
                       : 'text-gray-300'
                 }`}>
-                  {exportInfo.limit - exportInfo.remaining} / {exportInfo.limit}
+                  {subscription?.limits.maxExportsPerDay === null
+                    ? '무제한'
+                    : `${exportInfo.limit - exportInfo.remaining} / ${exportInfo.limit}`
+                  }
                 </span>
               </div>
-              {exportInfo.remaining === 0 ? (
-                <p className="text-xs text-red-400">
-                  오늘 한도를 모두 사용했어요
-                </p>
-              ) : exportInfo.remaining <= 3 && (
-                <p className="text-xs text-yellow-400">
-                  {exportInfo.remaining}회 남음
-                </p>
+              {subscription?.limits.maxExportsPerDay !== null && (
+                <>
+                  {exportInfo.remaining === 0 ? (
+                    <p className="text-xs text-red-400">
+                      오늘 한도를 모두 사용했어요
+                    </p>
+                  ) : exportInfo.remaining <= 3 && (
+                    <p className="text-xs text-yellow-400">
+                      {exportInfo.remaining}회 남음
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    초기화: {exportInfo.nextReset}
+                  </p>
+                </>
               )}
-              <p className="text-xs text-gray-500 mt-0.5">
-                초기화: {exportInfo.nextReset}
-              </p>
             </div>
 
             {/* 저장 공간 */}
@@ -329,12 +348,16 @@ const UserMenu: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
               {/* Free 플랜 */}
-              <div className="bg-gray-800 border-2 border-green-600/50 rounded-xl p-4 md:p-5">
+              <div className={`bg-gray-800 rounded-xl p-4 md:p-5 ${
+                subscription?.planType === 'free' ? 'border-2 border-green-600/50' : 'border border-gray-700'
+              }`}>
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-bold text-white">Free</h4>
-                  <span className="px-2 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
-                    현재 플랜
-                  </span>
+                  {subscription?.planType === 'free' && (
+                    <span className="px-2 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-600/30">
+                      현재 플랜
+                    </span>
+                  )}
                 </div>
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-white">0원</div>
@@ -369,10 +392,21 @@ const UserMenu: React.FC = () => {
               </div>
 
               {/* Pro 플랜 */}
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-5 opacity-60">
-                <div className="mb-4">
-                  <h4 className="text-lg font-bold text-white">Pro</h4>
-                  <span className="text-xs text-indigo-400">곧 출시 예정</span>
+              <div className={`bg-gray-800 rounded-xl p-4 md:p-5 ${
+                subscription?.planType === 'pro' ? 'border-2 border-indigo-600/50' : 'border border-gray-700 opacity-60'
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Pro</h4>
+                    {subscription?.planType !== 'pro' && (
+                      <span className="text-xs text-indigo-400">곧 출시 예정</span>
+                    )}
+                  </div>
+                  {subscription?.planType === 'pro' && (
+                    <span className="px-2 py-1 bg-indigo-600/20 text-indigo-400 text-xs font-medium rounded border border-indigo-600/30">
+                      현재 플랜
+                    </span>
+                  )}
                 </div>
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-white">
@@ -416,10 +450,21 @@ const UserMenu: React.FC = () => {
               </div>
 
               {/* Business 플랜 */}
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-5 opacity-60">
-                <div className="mb-4">
-                  <h4 className="text-lg font-bold text-white">Business</h4>
-                  <span className="text-xs text-purple-400">곧 출시 예정</span>
+              <div className={`bg-gray-800 rounded-xl p-4 md:p-5 ${
+                subscription?.planType === 'team' ? 'border-2 border-purple-600/50' : 'border border-gray-700 opacity-60'
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Business</h4>
+                    {subscription?.planType !== 'team' && (
+                      <span className="text-xs text-purple-400">곧 출시 예정</span>
+                    )}
+                  </div>
+                  {subscription?.planType === 'team' && (
+                    <span className="px-2 py-1 bg-purple-600/20 text-purple-400 text-xs font-medium rounded border border-purple-600/30">
+                      현재 플랜
+                    </span>
+                  )}
                 </div>
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-white">
