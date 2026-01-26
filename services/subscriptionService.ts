@@ -15,6 +15,7 @@ import {
 
 /**
  * 현재 사용자의 구독 정보 조회
+ * 모든 사용자를 Pro 플랜으로 제공
  */
 export const getSubscription = async (): Promise<Subscription | null> => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,12 +27,28 @@ export const getSubscription = async (): Promise<Subscription | null> => {
     .eq('user_id', user.id)
     .single();
 
+  // DB에 구독 정보가 없으면 기본 Pro 구독 생성
   if (error) {
-    console.error('구독 정보 조회 실패:', error.message);
-    return null;
+    console.log('구독 정보가 없음, 기본 Pro 플랜으로 설정');
+    return {
+      id: `temp-${user.id}`,
+      userId: user.id,
+      planType: 'pro', // 모든 사용자 Pro 플랜
+      status: 'active',
+      currentPeriodStart: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
   }
 
-  return toSubscription(data as SubscriptionRow);
+  const subscription = toSubscription(data as SubscriptionRow);
+
+  // 모든 사용자를 Pro 플랜으로 강제 전환
+  return {
+    ...subscription,
+    planType: 'pro',
+    status: 'active',
+  };
 };
 
 /**
