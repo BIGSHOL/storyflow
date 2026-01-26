@@ -449,8 +449,9 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '모션 쇼릴 2024',
                 description: '',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: '/images/templates/creative/motion-hero.webp',
+                videoUrl: '/videos/templates/creative/motion-graphic-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -540,8 +541,9 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: 'SS 2025 Collection',
                 description: '"Bloom"',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: '/images/templates/creative/fashion-runway.webp',
+                videoUrl: '/videos/templates/creative/fashion-designer-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -893,8 +895,9 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: 'DJ MAX',
                 description: 'House / Techno / EDM',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: '/images/templates/creative/dj-club.webp',
+                videoUrl: '/videos/templates/creative/dj-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'
@@ -924,8 +927,9 @@ export const creativeTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '몸을 움직여',
                 description: '안무 by 사라',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: '/images/templates/creative/dancer-hero.webp',
+                videoUrl: '/videos/templates/creative/dancer-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center',

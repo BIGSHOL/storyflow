@@ -1230,6 +1230,10 @@ const getHtml2CanvasOptions = (backgroundColor: string | null = '#000000') => ({
   allowTaint: true,
   backgroundColor,
   logging: false,
+  scrollY: 0,
+  scrollX: 0,
+  windowHeight: document.documentElement.scrollHeight,
+  windowWidth: document.documentElement.scrollWidth,
   onclone: (clonedDoc: Document, _element: HTMLElement) => {
     removeOklchStyles(clonedDoc);
   }

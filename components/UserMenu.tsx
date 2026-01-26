@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import LogOut from 'lucide-react/dist/esm/icons/log-out';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import HardDrive from 'lucide-react/dist/esm/icons/hard-drive';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Shield from 'lucide-react/dist/esm/icons/shield';
 import { useAuth } from '../hooks/useAuth';
 import { useStorageQuota } from '../hooks/useStorageQuota';
 import { deleteAllUserMedia } from '../services/mediaService';
@@ -14,7 +16,7 @@ import Download from 'lucide-react/dist/esm/icons/download';
 import { useSubscription } from '../hooks/useSubscription';
 
 const UserMenu: React.FC = () => {
-  const { user, loading, error, signIn, logOut, isAuthenticated } = useAuth();
+  const { user, loading, error, signIn, logOut, isAuthenticated, isAdmin } = useAuth();
   const { storageInfo, formatBytes, isNearQuota, isOverQuota, refresh: refreshStorage } = useStorageQuota();
   const { projects } = useProject();
   const { subscription } = useSubscription();
@@ -285,12 +287,24 @@ const UserMenu: React.FC = () => {
             )}
           </div>
 
+          {/* 관리자 링크 */}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-indigo-300 hover:text-indigo-200 hover:bg-gray-700 transition-colors border-t border-gray-700"
+            >
+              <Shield size={16} />
+              <span>관리자 페이지</span>
+            </Link>
+          )}
+
           <button
             onClick={() => {
               setIsOpen(false);
               logOut();
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors border-t border-gray-700"
           >
             <LogOut size={16} />
             <span>로그아웃</span>

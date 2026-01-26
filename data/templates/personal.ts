@@ -813,8 +813,9 @@ export const personalTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '비 오는 날 듣기 좋은 노래',
                 description: '비 오는 날 플레이리스트',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: 'https://loremflickr.com/1280/720/rainywindow?lock=347',
+                videoUrl: '/videos/templates/personal/music-playlist-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#1e3a8a',
                 textAlignment: 'center'

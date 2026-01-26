@@ -542,8 +542,9 @@ export const eventTemplates: Template[] = [
                 layout: LayoutType.VIDEO_HERO,
                 title: '토요일 밤의 열기',
                 description: '스페셜 게스트 DJ',
-                mediaType: 'image', // fallback
+                mediaType: 'video',
                 mediaUrl: 'https://loremflickr.com/1280/720/nightclub?lock=229',
+                videoUrl: '/videos/templates/event/club-party-hero.webm',
                 textColor: '#ffffff',
                 backgroundColor: '#000000',
                 textAlignment: 'center'

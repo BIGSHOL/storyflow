@@ -851,7 +851,7 @@ function App() {
 
     // 내보내기 제한 확인 (플랜 기반)
     if (!canExportByPlan()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -862,7 +862,7 @@ function App() {
 
     // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -916,7 +916,7 @@ function App() {
 
     // 내보내기 제한 확인 (플랜 기반)
     if (!canExportByPlan()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -927,7 +927,7 @@ function App() {
 
     // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -981,7 +981,7 @@ function App() {
 
     // 내보내기 제한 확인 (플랜 기반)
     if (!canExportByPlan()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -992,7 +992,7 @@ function App() {
 
     // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -1052,7 +1052,7 @@ function App() {
 
     // 내보내기 제한 확인 (플랜 기반)
     if (!canExportByPlan()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -1063,7 +1063,7 @@ function App() {
 
     // 무료티어 로컬 내보내기 제한 확인
     if (!canExport()) {
-      const limitInfo = getExportLimitInfo();
+      const limitInfo = await getExportLimitInfo();
       setUpgradeModal({
         isOpen: true,
         limitType: 'export',
@@ -1430,7 +1430,15 @@ function App() {
               </button>
               {isAuthenticated && currentProject && (
                 <>
-                  <button onClick={() => setShowShareDialog(true)} className="p-1 text-gray-400 hover:text-white transition-colors" title="공유">
+                  <button
+                    onClick={async () => {
+                      await handleSave();
+                      setShowShareDialog(true);
+                    }}
+                    disabled={isSaving}
+                    className="p-1 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                    title="공유"
+                  >
                     <Share2 size={16} />
                   </button>
                   <button onClick={() => setShowCollaborationDialog(true)} className="p-1 text-gray-400 hover:text-white transition-colors" title="협업자">
@@ -1792,8 +1800,12 @@ function App() {
             {isAuthenticated && currentProject && (
               <>
                 <button
-                  onClick={() => setShowShareDialog(true)}
-                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  onClick={async () => {
+                    await handleSave();
+                    setShowShareDialog(true);
+                  }}
+                  disabled={isSaving}
+                  className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
                   title="공유"
                 >
                   <Share2 size={18} />
