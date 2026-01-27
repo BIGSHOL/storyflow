@@ -256,7 +256,7 @@ export const personalTemplates: Template[] = [
                 title: '등산 동호회',
                 description: '함께 오르는 즐거움',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/mountain,hiking?lock=316',
+                mediaUrl: '/images/templates/personal/hobby-hiking.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#14532d',
@@ -267,7 +267,7 @@ export const personalTemplates: Template[] = [
                 title: '우리는 이런 모임이에요',
                 description: '매주 토요일 아침 6시, 서울 근교 산을 오릅니다.\n\n초보자부터 전문가까지 모두 환영합니다!\n건강한 취미와 좋은 사람들을 만나보세요.',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/forest?lock=317',
+                mediaUrl: '/images/templates/personal/hobby-forest.webp',
                 textAlignment: 'left',
                 splitRatio: 45,
                 textColor: '#ffffff',
@@ -299,10 +299,10 @@ export const personalTemplates: Template[] = [
                 textColor: '#ffffff',
                 backgroundColor: '#166534',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/400/peak?lock=318', caption: '백운대 정상' },
-                    { id: '2', url: 'https://loremflickr.com/600/400/group?lock=319', caption: '단체 사진' },
-                    { id: '3', url: 'https://loremflickr.com/600/400/sunrise?lock=320', caption: '일출 감상' },
-                    { id: '4', url: 'https://loremflickr.com/600/400/lunch?lock=321', caption: '점심 식사' },
+                    { id: '1', url: '/images/templates/personal/hobby-peak.webp', caption: '백운대 정상' },
+                    { id: '2', url: '/images/templates/personal/hobby-group.webp', caption: '단체 사진' },
+                    { id: '3', url: '/images/templates/personal/hobby-sunrise.webp', caption: '일출 감상' },
+                    { id: '4', url: '/images/templates/personal/hobby-lunch.webp', caption: '점심 식사' },
                 ],
                 gallerySettings: { columns: 2, gap: 16, showCaptions: true },
             },
@@ -329,7 +329,7 @@ export const personalTemplates: Template[] = [
                 title: '생각의 조각들',
                 description: '일상과 배움을 기록합니다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/writing?lock=322',
+                mediaUrl: '/images/templates/personal/blog-writing.webp',
                 textAlignment: 'center',
                 textColor: '#ffffff',
                 backgroundColor: '#78350f',
@@ -387,7 +387,7 @@ export const personalTemplates: Template[] = [
                 title: '사랑하는 우리',
                 description: '함께한 지 +365일',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/couple,love?lock=323',
+                mediaUrl: '/images/templates/personal/love-couple.webp',
                 textColor: '#000000',
                 backgroundColor: '#ffe4e6',
                 textAlignment: 'center'
@@ -402,9 +402,9 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#fff1f2',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/couple,date?lock=324', caption: '첫 데이트' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/couple,vacation?lock=325', caption: '여름 휴가' },
-                    { id: '3', url: 'https://loremflickr.com/600/600/couple,christmas?lock=326', caption: '크리스마스' }
+                    { id: '1', url: '/images/templates/personal/love-date.webp', caption: '첫 데이트' },
+                    { id: '2', url: '/images/templates/personal/love-vacation.webp', caption: '여름 휴가' },
+                    { id: '3', url: '/images/templates/personal/love-christmas.webp', caption: '크리스마스' }
                 ]
             }
         ]
@@ -412,18 +412,19 @@ export const personalTemplates: Template[] = [
     {
         id: 'parenting-diary',
         name: '육아 일기',
-        description: '아이의 성장 과정 기록',
+        description: '아이의 성장 과정을 기록하는 페이지',
         category: 'personal',
         sections: [
             {
                 layout: LayoutType.HERO,
-                title: '지안이의 하루',
-                description: '너와 함께하는 모든 순간이 기적이야',
+                title: '우리 아이 성장기',
+                description: '하루하루 커가는 기쁨',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/baby,cute?lock=327',
-                textColor: '#000000',
-                backgroundColor: '#fef3c7',
-                textAlignment: 'center'
+                mediaUrl: '/images/templates/personal/baby-cute.webp',
+                textColor: '#ffffff',
+                backgroundColor: '#f472b6',
+                textAlignment: 'center',
+                overlayOpacity: 0.3
             },
             {
                 layout: LayoutType.TIMELINE,
@@ -432,12 +433,12 @@ export const personalTemplates: Template[] = [
                 mediaType: 'none',
                 mediaUrl: '',
                 textColor: '#000000',
-                backgroundColor: '#fffbeb',
+                backgroundColor: '#fdf2f8',
                 textAlignment: 'left',
                 timelineItems: [
-                    { id: '1', date: '2024.01', title: '탄생', description: '3.2kg 건강한 아기' },
-                    { id: '2', date: '2024.04', title: '뒤집기 성공', description: '처음 뒤집은 날' },
-                    { id: '3', date: '2024.08', title: '배밀이 시작', description: '열심히 기어가요' }
+                    { id: '1', date: '2024.01.01', title: '첫 걸음마', description: '혼자서 세 발자국 걸은 날!' },
+                    { id: '2', date: '2023.12.25', title: '첫 번째 크리스마스', description: '산타 할아버지 선물 받은 날' },
+                    { id: '3', date: '2023.09.15', title: '뒤집기 성공', description: '처음으로 혼자 뒤집은 감격스러운 날' }
                 ]
             }
         ]
@@ -445,28 +446,45 @@ export const personalTemplates: Template[] = [
     {
         id: 'pet-intro',
         name: '반려동물',
-        description: '반려동물 소개 페이지',
+        description: '사랑스러운 반려동물 소개',
         category: 'personal',
         sections: [
             {
-                layout: LayoutType.HERO,
-                title: '멍멍이 "두부"',
-                description: '말티즈 / 3살 / 남',
+                layout: LayoutType.SPLIT_RIGHT,
+                title: '안녕하세요,\n저는 초코에요! 🐶',
+                description: '골든 리트리버 / 3살 / 수컷\n\n좋아하는 것: 공놀이, 간식, 산책\n싫어하는 것: 목욕, 천둥 소리\n\n저랑 친구가 되어주세요!',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/dog,puppy?lock=328',
+                mediaUrl: '/images/templates/personal/pet-dog.webp',
                 textColor: '#000000',
-                backgroundColor: '#f3f4f6',
-                textAlignment: 'center'
+                backgroundColor: '#fef3c7',
+                textAlignment: 'left',
+                splitRatio: 50
             },
             {
-                layout: LayoutType.SPLIT_LEFT,
-                title: '두부를 소개합니다',
-                description: '성격: 활발하고 사람을 좋아해요\n취미: 공놀이, 산책\n특기: 손, 앉아',
-                mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/dog,play?lock=329',
+                layout: LayoutType.VIDEO_HERO,
+                title: '신나는 산책 시간',
+                description: '공원에서 뛰어노는 게 제일 좋아!',
+                mediaType: 'video',
+                mediaUrl: 'https://cdn.pixabay.com/video/2021/08/04/83896-583561937_large.mp4',
+                textAlignment: 'center',
+                textColor: '#ffffff',
+                backgroundColor: '#000000',
+                overlayOpacity: 0.3
+            },
+            {
+                layout: LayoutType.GALLERY,
+                title: '귀여운 모먼트',
+                description: '',
+                mediaType: 'none',
+                mediaUrl: '',
                 textColor: '#000000',
-                backgroundColor: '#e5e7eb',
-                textAlignment: 'left'
+                backgroundColor: '#fffbeb',
+                textAlignment: 'center',
+                galleryImages: [
+                    { id: '1', url: '/images/templates/personal/pet-play.webp', caption: '공놀이 중' },
+                    { id: '2', url: 'https://loremflickr.com/600/600/dog,sleep?lock=330', caption: '쿨쿨 낮잠' },
+                    { id: '3', url: 'https://loremflickr.com/600/600/dog,eat?lock=331', caption: '간식 타임' }
+                ]
             }
         ]
     },
@@ -481,7 +499,7 @@ export const personalTemplates: Template[] = [
                 title: '감바스 알 아히요',
                 description: '집에서 즐기는 스페인 요리',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/gambas?lock=330',
+                mediaUrl: '/images/templates/personal/recipe-gambas.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#b91c1c',
                 textAlignment: 'center'
@@ -524,7 +542,7 @@ export const personalTemplates: Template[] = [
                 title: '책장을 넘기며',
                 description: '2024년 독서 목록',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/bookshelf?lock=331',
+                mediaUrl: '/images/templates/personal/bookreview-bookshelf.webp',
                 textColor: '#000000',
                 backgroundColor: '#fef3c7',
                 textAlignment: 'center'
@@ -534,7 +552,7 @@ export const personalTemplates: Template[] = [
                 title: '이달의 책',
                 description: '《물고기는 존재하지 않는다》\n\n과학적 열정과 인간적 상실에 대한 놀라운 이야기.\n마지막 페이지를 덮을 때 전해지는 전율.',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/800/600/openbook?lock=332',
+                mediaUrl: '/images/templates/personal/bookreview-openbook.webp',
                 textColor: '#000000',
                 backgroundColor: '#fffbeb',
                 textAlignment: 'left'
@@ -552,7 +570,7 @@ export const personalTemplates: Template[] = [
                 title: '오늘의 오운완',
                 description: '건강한 몸에 건강한 정신이 깃든다',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/fitness?lock=333',
+                mediaUrl: '/images/templates/personal/workout-fitness.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#15803d',
                 textAlignment: 'center'
@@ -600,9 +618,9 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#2563eb',
                 textAlignment: 'center',
                 cards: [
-                    { id: '1', title: 'To-do App', description: 'React로 만든 할 일 관리 앱', imageUrl: 'https://loremflickr.com/400/300/app?lock=334' },
-                    { id: '2', title: 'Weather App', description: '날씨 API 연동', imageUrl: 'https://loremflickr.com/400/300/weather?lock=335' },
-                    { id: '3', title: 'Clone Coding', description: '유튜브 메인 화면 클론', imageUrl: 'https://loremflickr.com/400/300/youtube?lock=336' }
+                    { id: '1', title: 'To-do App', description: 'React로 만든 할 일 관리 앱', imageUrl: '/images/templates/personal/study-app.webp' },
+                    { id: '2', title: 'Weather App', description: '날씨 API 연동', imageUrl: '/images/templates/personal/study-weather.webp' },
+                    { id: '3', title: 'Clone Coding', description: '유튜브 메인 화면 클론', imageUrl: '/images/templates/personal/study-youtube.webp' }
                 ]
             }
         ]
@@ -618,7 +636,7 @@ export const personalTemplates: Template[] = [
                 title: '나눔의 기쁨',
                 description: '함께 살아가는 세상',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/volunteer?lock=337',
+                mediaUrl: '/images/templates/personal/volunteer-hero.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#ca8a04',
                 textAlignment: 'center'
@@ -669,7 +687,7 @@ export const personalTemplates: Template[] = [
                 title: '나의 버킷리스트',
                 description: '꿈을 향한 여정',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/skydiving?lock=338',
+                mediaUrl: '/images/templates/personal/bucket-skydiving.webp',
                 textColor: '#ffffff',
                 backgroundColor: '#0ef',
                 textAlignment: 'center',
@@ -699,7 +717,7 @@ export const personalTemplates: Template[] = [
                 title: '오늘의 감사',
                 description: '소소한 행복 찾기',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/sunlight?lock=339',
+                mediaUrl: '/images/templates/personal/gratitude-sunlight.webp',
                 textColor: '#000000',
                 backgroundColor: '#ecfccb',
                 textAlignment: 'center'
@@ -729,7 +747,7 @@ export const personalTemplates: Template[] = [
                 title: '우리 집에 오신 것을 환영합니다',
                 description: '취향이 담긴 공간',
                 mediaType: 'image',
-                mediaUrl: 'https://loremflickr.com/1280/720/interior?lock=340',
+                mediaUrl: '/images/templates/personal/house-interior.webp',
                 textColor: '#000000',
                 backgroundColor: '#f5f5f4',
                 textAlignment: 'center'
@@ -744,10 +762,10 @@ export const personalTemplates: Template[] = [
                 backgroundColor: '#e7e5e4',
                 textAlignment: 'center',
                 galleryImages: [
-                    { id: '1', url: 'https://loremflickr.com/600/600/livingroom?lock=341', caption: '거실' },
-                    { id: '2', url: 'https://loremflickr.com/600/600/kitchen?lock=342', caption: '주방' },
+                    { id: '1', url: '/images/templates/personal/house-livingroom.webp', caption: '거실' },
+                    { id: '2', url: '/images/templates/personal/house-kitchen.webp', caption: '주방' },
                     { id: '3', url: 'https://loremflickr.com/600/600/bedroom?lock=343', caption: '침실' },
-                    { id: '4', url: 'https://loremflickr.com/600/600/desk?lock=344', caption: '작업공간' }
+                    { id: '4', url: '/images/templates/personal/house-desk.webp', caption: '작업공간' }
                 ]
             }
         ]

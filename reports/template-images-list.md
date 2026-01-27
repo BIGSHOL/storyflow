@@ -15,7 +15,7 @@ StoryFlow 템플릿에 필요한 이미지 파일 목록과 AI 이미지 생성�
 - Business: 48개 ✓
 - Creative: 33개 ✓
 - Event: 1개 ✓
-- Personal: 0개
+- Personal: 41개
 
 ---
 
@@ -117,7 +117,7 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | `hotel-pool.webp` | ✅ | `Stunning infinity pool overlooking tropical ocean, resort sunset, palm trees, vacation paradise` |
 
 ### 12. 병원/클리닉 (hospital)
-| 파일 | 상태 | AI 프롬프트 |
+| 파일 | 상태 | AI 프rompt |
 |------|------|------------|
 | `hospital-hero.webp` | ✅ | `Modern hospital building exterior, clean white architecture, blue sky, professional healthcare facility` |
 | `hospital-doctor.webp` | ✅ | `Professional doctor in white coat with stethoscope, confident smile, modern medical office background` |
@@ -562,64 +562,64 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 ### 5. 취미/동호회 (hobby-club)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `hobby-hiking.jpg` | 🔄 | `Hiker on mountain trail, outdoor adventure, backpacking journey, nature exploration` |
-| `hobby-forest.jpg` | 🔄 | `Hiking through lush forest, green nature trail, peaceful walk, outdoor activity` |
-| `hobby-peak.jpg` | 🔄 | `Hiker at mountain summit, achievement moment, panoramic view, outdoor accomplishment` |
-| `hobby-group.jpg` | 🔄 | `Hiking group friends on trail, outdoor community, adventure buddies, nature outing` |
-| `hobby-sunrise.jpg` | 🔄 | `Sunrise hike at mountain peak, golden morning light, early adventure, stunning view` |
-| `hobby-lunch.jpg` | 🔄 | `Outdoor picnic during hike, trail food break, nature lunch, adventure meal` |
+| `hobby-hiking.jpg` | ✅ | `Hiker on mountain trail, outdoor adventure, backpacking journey, nature exploration` |
+| `hobby-forest.jpg` | ✅ | `Hiking through lush forest, green nature trail, peaceful walk, outdoor activity` |
+| `hobby-peak.jpg` | ✅ | `Hiker at mountain summit, achievement moment, panoramic view, outdoor accomplishment` |
+| `hobby-group.jpg` | ✅ | `Hiking group friends on trail, outdoor community, adventure buddies, nature outing` |
+| `hobby-sunrise.jpg` | ✅ | `Sunrise over mountains, golden hour hiking, morning scenic view, nature beauty` |
+| `hobby-lunch.jpg` | ✅ | `Picnic lunch on mountain, hiking break, outdoor meal, healthy food, nature rest` |
 
 ### 6. 블로그 (blog)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `blog-writing.jpg` | 🔄 | `Writer working on laptop with coffee, blogging workspace, creative writing, content creation` |
+| `blog-writing.jpg` | ✅ | `Writer working on laptop with coffee, blogging workspace, creative writing, content creation` |
 
 ### 7. 연애 일기 (love-diary)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `love-couple.jpg` | 🔄 | `Happy couple portrait, romantic relationship, loving gaze, genuine connection` |
-| `love-date.jpg` | 🔄 | `Romantic dinner date, candlelit restaurant, couple dining, evening romance` |
-| `love-vacation.jpg` | 🔄 | `Couple on beach vacation, romantic getaway, sunset by ocean, love travel` |
-| `love-christmas.jpg` | 🔄 | `Romantic couple at Christmas, holiday lights, winter romance, festive love` |
+| `love-couple.jpg` | ✅ | `Happy couple portrait, romantic relationship, loving gaze, genuine connection` |
+| `love-date.jpg` | ✅ | `Romantic dinner date, candlelit restaurant, couple dining, evening romance` |
+| `love-vacation.jpg` | ✅ | `Couple on beach vacation, romantic getaway, sunset by ocean, love travel` |
+| `love-christmas.jpg` | ✅ | `Romantic couple at Christmas, holiday lights, winter romance, festive love` |
 
 ### 8. 육아 일기 (parenting-diary)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `baby-cute.jpg` | 🔄 | `Adorable happy baby portrait, cute infant smiling, precious moment, tender photography` |
+| `baby-cute.jpg` | ✅ | `Adorable happy baby portrait, cute infant smiling, precious moment, tender photography` |
 
 ### 9. 반려동물 (pet-intro)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `pet-dog.jpg` | 🔄 | `Happy golden retriever portrait, friendly dog, loyal pet, joyful expression` |
-| `pet-play.jpg` | 🔄 | `Dog playing fetch in park, happy pet activity, outdoor fun, energetic playtime` |
+| `pet-dog.jpg` | ✅ | `Happy golden retriever portrait, friendly dog, loyal pet, joyful expression` |
+| `pet-play.jpg` | ✅ | `Dog playing fetch in park, happy pet activity, outdoor fun, energetic playtime` |
 
 ### 10. 요리 레시피 (recipe)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `recipe-gambas.jpg` | 🔄 | `Gambas al ajillo shrimp dish, Spanish tapas, sizzling garlic shrimp, delicious food photography` |
+| `recipe-gambas.jpg` | ✅ | `Gambas al ajillo shrimp dish, Spanish tapas, sizzling garlic shrimp, delicious food photography` |
 
 ### 11. 독서 기록 (book-review)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `bookreview-bookshelf.jpg` | 🔄 | `Beautiful bookshelf collection, organized library, reading corner, book lover aesthetic` |
-| `bookreview-openbook.jpg` | 🔄 | `Open book pages with warm light, reading moment, literary aesthetic, knowledge` |
+| `bookreview-bookshelf.jpg` | ✅ | `Beautiful bookshelf collection, organized library, reading corner, book lover aesthetic` |
+| `bookreview-openbook.jpg` | ✅ | `Open book pages with warm light, reading moment, literary aesthetic, knowledge` |
 
 ### 12. 운동 기록 (workout-log)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `workout-fitness.jpg` | 🔄 | `Fitness workout in gym, weight training, healthy lifestyle, exercise motivation` |
+| `workout-fitness.jpg` | ✅ | `Fitness workout in gym, weight training, healthy lifestyle, exercise motivation` |
 
 ### 13. 학습 포트폴리오 (study-portfolio)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `study-app.jpg` | 🔄 | `Mobile app development screen, coding project, programming learning, student work` |
-| `study-weather.jpg` | 🔄 | `Weather app interface design, UI project, clean mobile design, student portfolio` |
-| `study-youtube.jpg` | 🔄 | `YouTube clone interface mockup, web development project, student coding work` |
+| `study-app.jpg` | ✅ | `Mobile app interface design, todo list application screen, UI/UX design showcase` |
+| `study-weather.jpg` | ✅ | `Weather app interface design, UI project, clean mobile design, student portfolio` |
+| `study-youtube.jpg` | ✅ | `Video platform interface clone, youtube style layout, web application screen` |
 
 ### 14. 봉사 활동 (volunteer-log)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `volunteer-hero.jpg` | 🔄 | `Volunteers working together, community service, helping others, charitable activity` |
+| `volunteer-hero.jpg` | ✅ | `Volunteering group activity, planting trees or community service, happy diverse team, helping hands` |
 
 ### 15. 연간 회고 (annual-review)
 - 이미지 없음
@@ -627,21 +627,21 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 ### 16. 버킷리스트 (bucket-list)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `bucket-skydiving.jpg` | 🔄 | `Skydiving adventure, freefall with parachute, extreme sport, bucket list experience` |
+| `bucket-skydiving.jpg` | ✅ | `Skydiving adventure, blue sky, adrenaline sport, freedom feeling, action shot` |
 
 ### 17. 감사 일기 (gratitude-journal)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `gratitude-sunlight.jpg` | 🔄 | `Warm morning sunlight through window, peaceful moment, gratitude aesthetic, hope and calm` |
+| `gratitude-sunlight.jpg` | ✅ | `Warm sunlight through leaves, peaceful morning, gratitude aesthetic, nature light` |
 
 ### 18. 집들이 (house-warming)
 | 파일 | 상태 | AI 프롬프트 |
 |------|------|------------|
-| `house-interior.jpg` | 🔄 | `Modern home interior overview, cozy living space, new house, interior design` |
-| `house-livingroom.jpg` | 🔄 | `Cozy living room with plants, comfortable sofa, warm home atmosphere` |
-| `house-kitchen.jpg` | 🔄 | `Modern white kitchen, clean home cooking space, organized and bright` |
+| `house-interior.jpg` | ✅ | `Modern cozy living room interior, warm lighting, comfortable furniture, home design` |
+| `house-livingroom.jpg` | ✅ | `Stylish living room detail, sofa and coffee table, home decor, interior styling` |
+| `house-kitchen.jpg` | ✅ | `Clean modern kitchen, bright space, cooking area, home interior design` |
 | `house-bedroom.jpg` | 🔄 | `Peaceful bedroom interior, comfortable bed, restful space, home comfort` |
-| `house-desk.jpg` | 🔄 | `Home office desk setup, organized workspace, productive home environment` |
+| `house-desk.jpg` | ✅ | `Home office desk setup, workspace interior, computer and plant, productivity` |
 
 ### 19. DIY 프로젝트 (diy-project)
 | 파일 | 상태 | AI 프롬프트 |
@@ -695,10 +695,10 @@ high quality, professional photography, 16:9 aspect ratio, vibrant colors, moder
 | Business | 48 | 17 | 65 |
 | Creative | 34 | 48 | 82 |
 | Event | 12 | 28 | 40 |
-| Personal | 12 | 38 | 50 |
-| **총계** | **106** | **131** | **237** |
+| Personal | 41 | 17 | 58 |
+| **총계** | **135** | **110** | **245** |
 
 ---
 
 생성일: 2026-01-22
-업데이트: 2026-01-24
+업데이트: 2026-01-28
