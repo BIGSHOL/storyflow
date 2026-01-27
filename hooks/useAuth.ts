@@ -20,6 +20,7 @@ interface UseAuthReturn {
   isAuthenticated: boolean;
   userTier: UserTier;
   isProOrAbove: boolean;
+  isAdmin: boolean;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -31,6 +32,8 @@ export const useAuth = (): UseAuthReturn => {
   // 사용자 티어 계산 (user_metadata에서 가져오거나 기본값 'free')
   const userTier: UserTier = (user?.user_metadata?.tier as UserTier) || 'free';
   const isProOrAbove = userTier === 'pro' || userTier === 'business';
+  // 관리자 여부 확인 (user_metadata.role 또는 app_metadata.role)
+  const isAdmin = user?.user_metadata?.role === 'admin' || user?.app_metadata?.role === 'admin';
 
   // 초기 세션 체크
   useEffect(() => {
@@ -116,6 +119,7 @@ export const useAuth = (): UseAuthReturn => {
     isAuthenticated: !!user,
     userTier,
     isProOrAbove,
+    isAdmin,
   };
 };
 

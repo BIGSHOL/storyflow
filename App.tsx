@@ -221,9 +221,12 @@ function App() {
         historyIndexRef.current = 0;
         setCanUndo(false);
         setCanRedo(false);
+        // 클라우드 프로젝트가 로드되면 로컬 저장 데이터 정리 (중복 방지)
+        clearSavedProject(userId);
+        recoveryHandledRef.current = true; // 복구 모달 표시 방지
       }
     }
-  }, [currentProject]);
+  }, [currentProject, userId]);
 
   // 정렬된 프로젝트 목록 (useMemo로 캐싱)
   const sortedProjects = useMemo(() =>

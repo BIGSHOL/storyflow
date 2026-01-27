@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AudioTrack, AudioSettings } from '../../types';
 import Play from 'lucide-react/dist/esm/icons/play';
 import Pause from 'lucide-react/dist/esm/icons/pause';
@@ -7,6 +7,35 @@ import SkipBack from 'lucide-react/dist/esm/icons/skip-back';
 import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
 import VolumeX from 'lucide-react/dist/esm/icons/volume-x';
 import Repeat from 'lucide-react/dist/esm/icons/repeat';
+import Youtube from 'lucide-react/dist/esm/icons/youtube';
+
+// YouTube URL 감지 및 비디오 ID 추출
+const getYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
+
+// SoundCloud URL 감지
+const isSoundCloudUrl = (url: string): boolean => {
+  if (!url) return false;
+  return url.includes('soundcloud.com');
+};
+
+// URL 타입 판별
+type UrlType = 'youtube' | 'soundcloud' | 'audio';
+const getUrlType = (url: string): UrlType => {
+  if (getYouTubeVideoId(url)) return 'youtube';
+  if (isSoundCloudUrl(url)) return 'soundcloud';
+  return 'audio';
+};
 
 interface AudioLayoutProps {
   title?: string;
@@ -34,6 +63,11 @@ const AudioLayout: React.FC<AudioLayoutProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const currentTrack = tracks[currentTrackIndex];
+
+  // 현재 트랙의 URL 타입 판별
+  const currentUrlType = useMemo(() => getUrlType(currentTrack?.url || ''), [currentTrack?.url]);
+  const youtubeVideoId = useMemo(() => getYouTubeVideoId(currentTrack?.url || ''), [currentTrack?.url]);
+  const isEmbedType = currentUrlType === 'youtube' || currentUrlType === 'soundcloud';
 
   // 오디오 로드 시
   useEffect(() => {
@@ -168,104 +202,194 @@ const AudioLayout: React.FC<AudioLayoutProps> = ({
 
         {/* 플레이어 */}
         <div className="bg-gray-800/50 rounded-2xl p-8 backdrop-blur-sm border border-gray-700 text-white">
-          {/* 앨범 커버 */}
-          {currentTrack.coverImage && (
-            <div className="mb-6 flex justify-center">
-              <img
-                src={currentTrack.coverImage}
-                alt={currentTrack.title}
-                className="w-64 h-64 object-cover rounded-xl shadow-2xl"
-              />
-            </div>
+          {/* YouTube 임베드 */}
+          {currentUrlType === 'youtube' && youtubeVideoId ? (
+            <>
+              <div className="mb-6">
+                <div className="aspect-video w-full max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=${settings.autoPlay ? 1 : 0}&loop=${settings.loop ? 1 : 0}&playlist=${youtubeVideoId}`}
+                    title={currentTrack.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
+              </div>
+              {/* 트랙 정보 */}
+              <div className="text-center mb-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Youtube size={20} className="text-red-500" />
+                  <h3 className="text-2xl font-bold">{currentTrack.title}</h3>
+                </div>
+                {currentTrack.artist && (
+                  <p className="text-lg opacity-70">{currentTrack.artist}</p>
+                )}
+              </div>
+              {/* 이전/다음 버튼 (멀티 트랙일 때만) */}
+              {tracks.length > 1 && (
+                <div className="flex items-center justify-center gap-6">
+                  <button
+                    onClick={playPrevious}
+                    disabled={currentTrackIndex === 0 && !settings.loop}
+                    className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <SkipBack size={24} />
+                  </button>
+                  <button
+                    onClick={playNext}
+                    disabled={currentTrackIndex === tracks.length - 1 && !settings.loop}
+                    className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <SkipForward size={24} />
+                  </button>
+                </div>
+              )}
+            </>
+          ) : currentUrlType === 'soundcloud' ? (
+            <>
+              {/* SoundCloud 임베드 */}
+              <div className="mb-6">
+                <div className="w-full max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl">
+                  <iframe
+                    width="100%"
+                    height="166"
+                    scrolling="no"
+                    frameBorder="no"
+                    allow="autoplay"
+                    src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(currentTrack.url)}&color=%236366f1&auto_play=${settings.autoPlay}&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`}
+                    title={currentTrack.title}
+                  />
+                </div>
+              </div>
+              <div className="text-center mb-4">
+                <h3 className="text-2xl font-bold mb-1">{currentTrack.title}</h3>
+                {currentTrack.artist && (
+                  <p className="text-lg opacity-70">{currentTrack.artist}</p>
+                )}
+              </div>
+              {tracks.length > 1 && (
+                <div className="flex items-center justify-center gap-6">
+                  <button
+                    onClick={playPrevious}
+                    disabled={currentTrackIndex === 0 && !settings.loop}
+                    className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <SkipBack size={24} />
+                  </button>
+                  <button
+                    onClick={playNext}
+                    disabled={currentTrackIndex === tracks.length - 1 && !settings.loop}
+                    className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <SkipForward size={24} />
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* 일반 오디오 플레이어 */}
+              {/* 앨범 커버 */}
+              {currentTrack.coverImage && (
+                <div className="mb-6 flex justify-center">
+                  <img
+                    src={currentTrack.coverImage}
+                    alt={currentTrack.title}
+                    className="w-64 h-64 object-cover rounded-xl shadow-2xl"
+                  />
+                </div>
+              )}
+
+              {/* 현재 트랙 정보 */}
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold mb-1">{currentTrack.title}</h3>
+                {currentTrack.artist && (
+                  <p className="text-lg opacity-70">{currentTrack.artist}</p>
+                )}
+              </div>
+
+              {/* 진행바 */}
+              <div className="mb-6">
+                <div
+                  className="h-2 bg-gray-700 rounded-full cursor-pointer hover:h-3 transition-all"
+                  onClick={handleSeek}
+                >
+                  <div
+                    className="h-full bg-indigo-500 rounded-full relative"
+                    style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg" />
+                  </div>
+                </div>
+                <div className="flex justify-between mt-2 text-sm opacity-60">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+
+              {/* 컨트롤 */}
+              <div className="flex items-center justify-center gap-6 mb-6">
+                <button
+                  onClick={playPrevious}
+                  disabled={currentTrackIndex === 0 && !settings.loop}
+                  className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <SkipBack size={24} />
+                </button>
+
+                <button
+                  onClick={togglePlay}
+                  className="p-4 bg-indigo-600 hover:bg-indigo-500 rounded-full transition-colors"
+                >
+                  {isPlaying ? <Pause size={32} /> : <Play size={32} />}
+                </button>
+
+                <button
+                  onClick={playNext}
+                  disabled={currentTrackIndex === tracks.length - 1 && !settings.loop}
+                  className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <SkipForward size={24} />
+                </button>
+              </div>
+
+              {/* 볼륨 & 반복 */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button onClick={toggleMute} className="p-2 hover:bg-gray-700 rounded-full transition-colors">
+                    {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={isMuted ? 0 : volume}
+                    onChange={(e) => {
+                      const newVolume = parseFloat(e.target.value);
+                      setVolume(newVolume);
+                      if (audioRef.current) {
+                        audioRef.current.volume = newVolume;
+                      }
+                      if (newVolume > 0 && isMuted) {
+                        setIsMuted(false);
+                        if (audioRef.current) audioRef.current.muted = false;
+                      }
+                    }}
+                    className="w-24 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+
+                {settings.loop && (
+                  <div className="flex items-center gap-2 text-sm opacity-70">
+                    <Repeat size={16} />
+                    <span>반복</span>
+                  </div>
+                )}
+              </div>
+            </>
           )}
-
-          {/* 현재 트랙 정보 */}
-          <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold mb-1">{currentTrack.title}</h3>
-            {currentTrack.artist && (
-              <p className="text-lg opacity-70">{currentTrack.artist}</p>
-            )}
-          </div>
-
-          {/* 진행바 */}
-          <div className="mb-6">
-            <div
-              className="h-2 bg-gray-700 rounded-full cursor-pointer hover:h-3 transition-all"
-              onClick={handleSeek}
-            >
-              <div
-                className="h-full bg-indigo-500 rounded-full relative"
-                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
-              >
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg" />
-              </div>
-            </div>
-            <div className="flex justify-between mt-2 text-sm opacity-60">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
-
-          {/* 컨트롤 */}
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <button
-              onClick={playPrevious}
-              disabled={currentTrackIndex === 0 && !settings.loop}
-              className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <SkipBack size={24} />
-            </button>
-
-            <button
-              onClick={togglePlay}
-              className="p-4 bg-indigo-600 hover:bg-indigo-500 rounded-full transition-colors"
-            >
-              {isPlaying ? <Pause size={32} /> : <Play size={32} />}
-            </button>
-
-            <button
-              onClick={playNext}
-              disabled={currentTrackIndex === tracks.length - 1 && !settings.loop}
-              className="p-3 hover:bg-gray-700 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <SkipForward size={24} />
-            </button>
-          </div>
-
-          {/* 볼륨 & 반복 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={toggleMute} className="p-2 hover:bg-gray-700 rounded-full transition-colors">
-                {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={isMuted ? 0 : volume}
-                onChange={(e) => {
-                  const newVolume = parseFloat(e.target.value);
-                  setVolume(newVolume);
-                  if (audioRef.current) {
-                    audioRef.current.volume = newVolume;
-                  }
-                  if (newVolume > 0 && isMuted) {
-                    setIsMuted(false);
-                    if (audioRef.current) audioRef.current.muted = false;
-                  }
-                }}
-                className="w-24 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-            </div>
-
-            {settings.loop && (
-              <div className="flex items-center gap-2 text-sm opacity-70">
-                <Repeat size={16} />
-                <span>반복</span>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* 플레이리스트 */}
@@ -296,17 +420,19 @@ const AudioLayout: React.FC<AudioLayoutProps> = ({
           </div>
         )}
 
-        {/* Audio Element */}
-        <audio
-          ref={audioRef}
-          src={currentTrack?.url}
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onEnded={handleEnded}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          loop={false} // 수동으로 루프 처리
-        />
+        {/* Audio Element (일반 오디오 파일용) */}
+        {!isEmbedType && (
+          <audio
+            ref={audioRef}
+            src={currentTrack?.url}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={handleEnded}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            loop={false} // 수동으로 루프 처리
+          />
+        )}
       </div>
     </section>
   );
