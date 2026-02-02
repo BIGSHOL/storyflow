@@ -1,5 +1,8 @@
 {
   "rewrites": [
-    { "source": "/view/:shareId", "destination": "/" }
+    { "source": "/view/:shareId", "destination": "/" },
+    { "source": "/about", "destination": "/" },
+    { "source": "/privacy", "destination": "/" },
+    { "source": "/terms", "destination": "/" }
   ]
 }
