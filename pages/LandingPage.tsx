@@ -430,19 +430,19 @@ const LandingPage: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/about#features" className="text-gray-500 hover:text-gray-300 transition-colors">
+                  <a href="#features" className="text-gray-500 hover:text-gray-300 transition-colors">
                     기능 소개
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/about#how-it-works" className="text-gray-500 hover:text-gray-300 transition-colors">
+                  <a href="#how-it-works" className="text-gray-500 hover:text-gray-300 transition-colors">
                     사용법
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/about#faq" className="text-gray-500 hover:text-gray-300 transition-colors">
+                  <a href="#faq" className="text-gray-500 hover:text-gray-300 transition-colors">
                     자주 묻는 질문
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
