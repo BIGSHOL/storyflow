@@ -37,7 +37,6 @@ import { useIsMobile } from './hooks/useIsMobile';
 import { useDeviceType } from './hooks/useDeviceType';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import MobileLayout from './components/MobileLayout';
-import AdBanner from './components/AdBanner';
 
 // blob URL을 Supabase Storage URL로 마이그레이션
 // 실패한 blob URL은 미디어 없이 저장 (잘못된 blob URL이 DB에 저장되는 것을 방지)
@@ -502,19 +501,21 @@ function App() {
     migrationHandledRef.current = true;
   }, [setCurrentProject]);
 
-  // 마이그레이션 나중에 처리 (데이터 유지, 모달만 닫기)
+  // 마이그레이션 나중에 처리 (익명 데이터 삭제 + 모달 닫기)
   const handleMigrationLater = useCallback(() => {
+    clearAnonymousSavedProject(); // 익명 데이터 삭제하여 다시 뜨지 않게
     setShowMigrationModal(false);
     setPendingMigrationData(null);
-    migrationHandledRef.current = true; // 이번 세션에서 다시 묻지 않음
+    migrationHandledRef.current = true;
   }, []);
 
-  // 섹션 변경 시 자동 저장
+  // 섹션 변경 시 자동 저장 (인증 로딩 완료 후에만)
   useEffect(() => {
+    if (authLoading) return; // 인증 로딩 중에는 저장하지 않음 (userId가 null이면 anonymous로 잘못 저장됨)
     if (sections.length > 0) {
       autoSave(sections, userId);
     }
-  }, [sections, userId]);
+  }, [sections, userId, authLoading]);
 
   // 프로젝트 저장
   const handleSave = useCallback(async () => {
@@ -1634,10 +1635,10 @@ function App() {
       {/* Top Navigation Bar - 고정 크기, 1400px 미만에서 가로 스크롤 */}
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <a href="/about" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="StoryFlow" className="w-8 h-8 rounded-lg" />
             <span className="font-serif font-bold text-white tracking-wide">StoryFlow</span>
-          </div>
+          </a>
 
           {/* 프로젝트 선택 드롭다운 (로그인 시에만 표시) */}
           {isAuthenticated && (

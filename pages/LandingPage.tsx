@@ -180,7 +180,7 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-950 text-white scroll-smooth">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -189,24 +189,24 @@ const LandingPage: React.FC = () => {
             <span className="font-serif font-bold text-lg">StoryFlow Creator</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link
-              to="/about#features"
+            <a
+              href="#features"
               className="hidden sm:inline text-sm text-gray-400 hover:text-white transition-colors"
             >
               기능
-            </Link>
-            <Link
-              to="/about#how-it-works"
+            </a>
+            <a
+              href="#how-it-works"
               className="hidden sm:inline text-sm text-gray-400 hover:text-white transition-colors"
             >
               사용법
-            </Link>
-            <Link
-              to="/about#faq"
+            </a>
+            <a
+              href="#faq"
               className="hidden sm:inline text-sm text-gray-400 hover:text-white transition-colors"
             >
               FAQ
-            </Link>
+            </a>
             <Link
               to="/"
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
@@ -243,12 +243,12 @@ const LandingPage: React.FC = () => {
               무료로 시작하기
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link
-              to="/about#how-it-works"
+            <a
+              href="#how-it-works"
               className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-xl transition-colors"
             >
               사용법 알아보기
-            </Link>
+            </a>
           </div>
           <p className="mt-6 text-sm text-gray-500">
             가입 없이도 바로 사용 가능 · 무료 플랜 영구 제공
