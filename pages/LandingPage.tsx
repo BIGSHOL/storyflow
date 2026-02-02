@@ -25,6 +25,14 @@ import {
 const LandingPage: React.FC = () => {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
 
+  // body의 overflow-hidden 해제 (index.html에서 에디터용으로 설정됨)
+  React.useEffect(() => {
+    document.body.style.overflow = 'auto';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   const features = [
     {
       icon: <MousePointerClick className="w-6 h-6" />,

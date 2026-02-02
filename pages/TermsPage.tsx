@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, FileText } from 'lucide-react';
 
 const TermsPage: React.FC = () => {
+  React.useEffect(() => {
+    document.body.style.overflow = 'auto';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
