@@ -1543,11 +1543,7 @@ function App() {
           )}
         </main>
 
-        {/* 하단 광고 배너 (무료 플랜만) - 태블릿 */}
-        <AdBanner
-          show={viewMode === 'editor' && (!subscription || subscription.planType === 'free')}
-          onUpgrade={() => setShowPricingOverlay(true)}
-        />
+        {/* 하단 광고 배너 - AdSense 승인 전까지 비활성화 */}
 
         {/* 모달들 - 태블릿 */}
         {showRecoveryModal && (
@@ -1912,11 +1908,7 @@ function App() {
         )}
       </main>
 
-      {/* 하단 광고 배너 (무료 플랜만) */}
-      <AdBanner
-        show={viewMode === 'editor' && (!subscription || subscription.planType === 'free')}
-        onUpgrade={() => setShowPricingOverlay(true)}
-      />
+      {/* 하단 광고 배너 - AdSense 승인 전까지 비활성화 */}
 
       {/* 프로젝트 복구 모달 */}
       {showRecoveryModal && (
