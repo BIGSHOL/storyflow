@@ -117,7 +117,7 @@ const ViewerPage: React.FC = () => {
             <h1 className="text-gray-300 truncate max-w-[200px] md:max-w-md">{project.title}</h1>
           </div>
           <Link
-            to="/"
+            to="/editor"
             className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-full hover:bg-indigo-500 transition-colors"
           >
             나도 만들기

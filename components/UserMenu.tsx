@@ -312,7 +312,7 @@ const UserMenu: React.FC = () => {
 
           {/* 서비스 링크 */}
           <div className="flex items-center justify-center gap-3 px-3 py-2 border-t border-gray-700">
-            <Link to="/about" onClick={() => setIsOpen(false)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors">소개</Link>
+            <Link to="/" onClick={() => setIsOpen(false)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors">소개</Link>
             <span className="text-gray-700">·</span>
             <Link to="/privacy" onClick={() => setIsOpen(false)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors">개인정보</Link>
             <span className="text-gray-700">·</span>

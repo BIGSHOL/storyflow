@@ -110,7 +110,7 @@ const LandingPage: React.FC = () => {
               <span>{lang === 'ko' ? 'EN' : 'KO'}</span>
             </button>
             <Link
-              to="/"
+              to="/editor"
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
             >
               {t.nav.cta}
@@ -138,7 +138,7 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/"
+              to="/editor"
               className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors flex items-center gap-2"
             >
               {t.hero.ctaPrimary}
@@ -284,7 +284,7 @@ const LandingPage: React.FC = () => {
             {t.cta.descriptionLine2}
           </p>
           <Link
-            to="/"
+            to="/editor"
             className="inline-flex items-center gap-2 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors"
           >
             {t.cta.button}
@@ -324,7 +324,7 @@ const LandingPage: React.FC = () => {
               <h4 className="font-medium mb-3 text-gray-300">{t.footer.productHeader}</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/" className="text-gray-500 hover:text-gray-300 transition-colors">
+                  <Link to="/editor" className="text-gray-500 hover:text-gray-300 transition-colors">
                     {t.footer.editor}
                   </Link>
                 </li>

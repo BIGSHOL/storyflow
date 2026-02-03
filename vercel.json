@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/editor", "destination": "/" },
     { "source": "/view/:shareId", "destination": "/" },
     { "source": "/about", "destination": "/" },
     { "source": "/privacy", "destination": "/" },

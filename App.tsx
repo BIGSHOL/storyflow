@@ -1635,7 +1635,7 @@ function App() {
       {/* Top Navigation Bar - 고정 크기, 1400px 미만에서 가로 스크롤 */}
       <nav className="h-14 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4 z-50 min-w-[1200px] overflow-visible">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <a href="/about" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+          <a href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="StoryFlow" className="w-8 h-8 rounded-lg" />
             <span className="font-serif font-bold text-white tracking-wide">StoryFlow</span>
           </a>

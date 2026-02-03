@@ -28,7 +28,8 @@ root.render(
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/editor" element={<App />} />
         <Route path="/about" element={<LandingPage />} />
         <Route path="/view/:shareId" element={<ViewerPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
